@@ -1,0 +1,59 @@
+{
+  "name": "arsamme/laravel-wallet",
+  "description": "Virtual wallet implementation to use in Laravel projects.",
+  "keywords": [
+    "laravel",
+    "credits",
+    "arsam",
+    "currency",
+    "laravel-wallet",
+    "laravel-package",
+    "virtual",
+    "wallet"
+  ],
+  "minimum-stability": "stable",
+  "homepage": "https://github.com/arsamme/laravel-wallet",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ali Raghebi",
+      "email": "info@arsam.me"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "brick/math": "~0.10",
+    "illuminate/contracts": "^11.0|^12.0",
+    "illuminate/database": "^11.0|^12.0",
+    "ramsey/uuid": "^4.0"
+  },
+  "require-dev": {
+    "laravel/framework": "^11.0|^12.0",
+    "laravel/pint": "^1.21",
+    "nunomaduro/collision": "^8.0",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArsamMe\\Wallet\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ArsamMe\\Wallet\\Test\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "ArsamMe\\Wallet\\WalletServiceProvider"
+      ]
+    }
+  },
+  "config": {
+    "process-timeout": 0,
+    "sort-packages": true
+  }
+}

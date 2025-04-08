@@ -1,0 +1,9 @@
+composer.phar
+/vendor/
+composer.lock
+.idea/
+build/
+.php_cs_cache
+node_modules/
+.deptrac.cache
+.phpunit.cache/
