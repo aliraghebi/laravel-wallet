@@ -20,6 +20,11 @@ class DatabaseService implements DatabaseServiceInterface
         $this->connection = $connectionResolver->connection(config('wallet.database.connection'));
     }
 
+    public function getConnection(): ConnectionInterface
+    {
+        return $this->connection;
+    }
+
     /**
      * @throws RecordsNotFoundException
      * @throws TransactionFailedException

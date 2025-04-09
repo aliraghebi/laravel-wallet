@@ -48,8 +48,11 @@
   "extra": {
     "laravel": {
       "providers": [
-        "ArsamMe\\Wallet\\WalletServiceProvider"
-      ]
+        "ArsamMe\\Wallet\\LaravelWalletServiceProvider"
+      ],
+      "aliases": {
+        "LaravelWallet": "ArsamMe\\Wallet\\Facades\\LaravelWallet"
+      }
     }
   },
   "config": {

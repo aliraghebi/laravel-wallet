@@ -7,6 +7,7 @@ namespace ArsamMe\Wallet\Models;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -109,12 +110,9 @@ class Wallet extends Model
         return $this->morphTo();
     }
 
-    /**
-     * @return MorphTo<Model, self>
-     */
-    public function currency(): MorphTo
+    public function transactions(): HasMany
     {
-        return $this->morphTo();
+        return $this->hasMany(Transaction::class);
     }
 
     public function getRawBalanceAttribute()
