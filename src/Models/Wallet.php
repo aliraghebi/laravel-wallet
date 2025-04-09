@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+
 use function array_key_exists;
 use function config;
 
@@ -35,8 +36,7 @@ use function config;
  *
  * @method int getKey()
  */
-class Wallet extends Model
-{
+class Wallet extends Model {
     use SoftDeletes;
 
     /**
@@ -70,25 +70,22 @@ class Wallet extends Model
     /**
      * @return array<string, string>
      */
-    public function casts(): array
-    {
+    public function casts(): array {
         return [
             'decimal_places' => 'int',
             'meta' => 'json',
         ];
     }
 
-    public function getTable(): string
-    {
-        if ((string)$this->table === '') {
+    public function getTable(): string {
+        if ('' === (string) $this->table) {
             $this->table = config('wallet.wallet.table', 'wallets');
         }
 
         return parent::getTable();
     }
 
-    public function setNameAttribute(string $name): void
-    {
+    public function setNameAttribute(string $name): void {
         $this->attributes['name'] = $name;
         /**
          * Must be updated only if the model does not exist or the slug is empty.
@@ -105,44 +102,40 @@ class Wallet extends Model
     /**
      * @return MorphTo<Model, self>
      */
-    public function holder(): MorphTo
-    {
+    public function holder(): MorphTo {
         return $this->morphTo();
     }
 
-    public function transactions(): HasMany
-    {
+    public function transactions(): HasMany {
         return $this->hasMany(Transaction::class);
     }
 
-    public function getRawBalanceAttribute()
-    {
-        return $this->getRawOriginal('balance', 0);
+    public function getRawBalanceAttribute() {
+        return (string) $this->getRawOriginal('balance', 0);
     }
 
-    public function getRawFrozenAmountAttribute()
-    {
+    public function getRawFrozenAmountAttribute() {
         return $this->getRawOriginal('frozen_amount', 0);
     }
 
-    public function getBalanceAttribute()
-    {
+    public function getBalanceAttribute() {
         $mathService = app(MathServiceInterface::class);
+
         return $mathService->floatValue($this->attributes['balance'], $this->attributes['decimal_places']);
     }
 
-    public function getFrozenAmountAttribute()
-    {
+    public function getFrozenAmountAttribute() {
         $mathService = app(MathServiceInterface::class);
+
         return $mathService->floatValue($this->attributes['frozen_amount'], $this->attributes['decimal_places']);
     }
 
-    public function getAvailableBalanceAttribute()
-    {
+    public function getAvailableBalanceAttribute() {
         $mathService = app(MathServiceInterface::class);
 
         $balance = $mathService->floatValue($this->attributes['balance'], $this->attributes['decimal_places']);
         $frozenAmount = $mathService->floatValue($this->attributes['frozen_amount'], $this->attributes['decimal_places']);
+
         return $mathService->sub($balance, $frozenAmount, $this->attributes['decimal_places']);
     }
 }
