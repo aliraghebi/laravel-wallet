@@ -26,8 +26,11 @@ class WalletService implements WalletServiceInterface
     {
         $defaultParams = config('wallet.creating', []);
 
+        $uuid = Str::uuid7();
+        $time = now();
+
         $data = array_filter([
-            'uuid' => Str::uuid7(),
+            'uuid' => $uuid,
             'holder_type' => $holder->getMorphClass(),
             'holder_id' => $holder->getKey(),
             'name' => $name,
@@ -35,16 +38,17 @@ class WalletService implements WalletServiceInterface
             'description' => $params['description'] ?? null,
             'decimal_places' => $decimalPlaces,
             'meta' => $meta,
+            'created_at' => $time,
+            'updated_at' => $time,
         ]);
+
+        $data['checksum'] = $this->createWalletChecksum($uuid, 0, 0, 0, 0, 0, $time);
+        $data['meta']['time'] = $time->timestamp;
         $data = array_merge($defaultParams, $data);
-        $wallet = Wallet::create($data);
 
-        $checksum = $this->createWalletChecksum($data['uuid'], 0, 0, 0, 0, 0, $wallet->updated_at);
-        $wallet->update([
-            'checksum' => $checksum,
-        ]);
+        Wallet::fill($data)->save();
+        return Wallet::where('uuid', $uuid)->firstOrFail();
 
-        return $wallet;
     }
 
     public function findWalletBySlug(Model $holder, string $slug): ?Wallet
@@ -186,7 +190,6 @@ class WalletService implements WalletServiceInterface
 
     private function createWalletChecksum(string $uuid, int $transactionsCount, string $totalCredit, string $totalDebit, string $balance, string $frozenAmount, Carbon $updatedAt): string
     {
-        dd($updatedAt->timestamp);
         return bin2hex(hash_hmac('sha256', "{$uuid}_{$transactionsCount}_{$totalCredit}_{$totalDebit}_{$balance}_{$frozenAmount}_$updatedAt->timestamp", $this->walletSecret, true));
     }
 
