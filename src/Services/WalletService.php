@@ -17,20 +17,14 @@ class WalletService implements WalletServiceInterface
 {
     private string $walletSecret;
 
-    /**
-     * @param AtomicServiceInterface $atomicService
-     * @param MathServiceInterface $mathService
-     * @param string $walletSecret
-     */
     public function __construct(private readonly AtomicServiceInterface $atomicService, private readonly MathServiceInterface $mathService, string $walletSecret)
     {
         $this->walletSecret = $walletSecret;
     }
 
-    function createWallet(Model $holder, string $name, ?string $slug = null, ?int $decimalPlaces = null, ?array $meta = null, array $params = []): Wallet
+    public function createWallet(Model $holder, string $name, ?string $slug = null, ?int $decimalPlaces = null, ?array $meta = null, array $params = []): Wallet
     {
         $defaultParams = config('wallet.creating', []);
-        $time = now();
 
         $data = array_filter([
             'uuid' => Str::uuid7(),
@@ -41,17 +35,19 @@ class WalletService implements WalletServiceInterface
             'description' => $params['description'] ?? null,
             'decimal_places' => $decimalPlaces,
             'meta' => $meta,
-            'created_at' => $time,
-            'updated_at' => $time,
+        ]);
+        $data = array_merge($defaultParams, $data);
+        $wallet = Wallet::create($data);
+
+        $checksum = $this->createWalletChecksum($data['uuid'], 0, 0, 0, 0, 0, $wallet->updated_at);
+        $wallet->update([
+            'checksum' => $checksum,
         ]);
 
-        $data['checksum'] = $this->createWalletChecksum($data['uuid'], 0, 0, 0, 0, 0, $time);
-        $data = array_merge($defaultParams, $data);
-
-        return Wallet::create($data);
+        return $wallet;
     }
 
-    function findWalletBySlug(Model $holder, string $slug): ?Wallet
+    public function findWalletBySlug(Model $holder, string $slug): ?Wallet
     {
         return Wallet::whereMorphedTo('holder', $holder)->where('slug', $slug)->first();
     }
@@ -59,22 +55,24 @@ class WalletService implements WalletServiceInterface
     /**
      * @throws ModelNotFoundException
      */
-    function findOrFailWalletBySlug(Model $holder, string $slug): Wallet
+    public function findOrFailWalletBySlug(Model $holder, string $slug): Wallet
     {
         $wallet = $this->findWalletBySlug($holder, $slug);
-        if ($wallet == null) {
+        if (null == $wallet) {
             throw new ModelNotFoundException("Wallet not found with slug `$slug` for holder `{$holder->getMorphClass()}` with id `{$holder->getKey()}`");
         }
+
         return $wallet;
     }
 
-    function getBalance(Wallet $wallet): string
+    public function getBalance(Wallet $wallet): string
     {
         $wallet->refresh();
+
         return $wallet->getBalanceAttribute();
     }
 
-    function deposit(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
+    public function deposit(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
     {
         $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
             $wallet->refresh();
@@ -118,35 +116,36 @@ class WalletService implements WalletServiceInterface
             $wallet->update([
                 'balance' => $balance,
                 'checksum' => $walletChecksum,
-                'updated_at' => $time
+                'updated_at' => $time,
             ]);
         });
     }
 
-    function withdraw(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
+    public function withdraw(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
     {
         // TODO: Implement withdraw() method.
     }
 
-    function freeze(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
+    public function freeze(Wallet $wallet, float|int|string $amount, ?array $meta = null): void
     {
         // TODO: Implement freeze() method.
     }
 
-    function unFreeze(Wallet $wallet, float|int|string|null $amount = null, ?array $meta = null): void
+    public function unFreeze(Wallet $wallet, float|int|string|null $amount = null, ?array $meta = null): void
     {
         // TODO: Implement unFreeze() method.
     }
 
-    function atomic(array|Wallet $wallets, $callback): mixed
+    public function atomic(array|Wallet $wallets, $callback): mixed
     {
         if ($wallets instanceof Wallet) {
             $wallets = [$wallets];
         }
+
         return $this->atomicService->blocks($wallets, $callback);
     }
 
-    function validateWalletIntegrity(Wallet $wallet, bool $throw = false): bool
+    public function validateWalletIntegrity(Wallet $wallet, bool $throw = false): bool
     {
         return $this->atomic($wallet, function () use ($throw, $wallet) {
             $wallet->refresh();
@@ -159,8 +158,9 @@ class WalletService implements WalletServiceInterface
             $totalDebit = $wallet->transactions()->sum('debit');
             $expectedBalance = $this->mathService->sub($totalCredit, $totalDebit);
 
-            if ($this->mathService->compare($walletBalance, $expectedBalance) != 0) {
-                throw_if($throw, new WalletIntegrityInvalidException());
+            if (0 != $this->mathService->compare($walletBalance, $expectedBalance)) {
+                throw_if($throw, new WalletIntegrityInvalidException);
+
                 return false;
             }
 
@@ -175,7 +175,8 @@ class WalletService implements WalletServiceInterface
             );
 
             if (!hash_equals($expectedChecksum, $wallet->checksum)) {
-                throw_if($throw, new WalletIntegrityInvalidException());
+                throw_if($throw, new WalletIntegrityInvalidException);
+
                 return false;
             }
 
@@ -185,6 +186,7 @@ class WalletService implements WalletServiceInterface
 
     private function createWalletChecksum(string $uuid, int $transactionsCount, string $totalCredit, string $totalDebit, string $balance, string $frozenAmount, Carbon $updatedAt): string
     {
+        dd($updatedAt->timestamp);
         return bin2hex(hash_hmac('sha256', "{$uuid}_{$transactionsCount}_{$totalCredit}_{$totalDebit}_{$balance}_{$frozenAmount}_$updatedAt->timestamp", $this->walletSecret, true));
     }
 

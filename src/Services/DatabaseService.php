@@ -9,7 +9,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\RecordsNotFoundException;
 use Throwable;
-use TransactionRollbackException;
+use ArsamMe\Wallet\Exceptions\TransactionRollbackException;
 
 class DatabaseService implements DatabaseServiceInterface
 {
@@ -54,6 +54,7 @@ class DatabaseService implements DatabaseServiceInterface
         } catch (Throwable $throwable) {
             throw new TransactionFailedException(
                 'Transaction failed. Message: ' . $throwable->getMessage(),
+                ExceptionInterface::TRANSACTION_FAILED,
                 $throwable
             );
         }

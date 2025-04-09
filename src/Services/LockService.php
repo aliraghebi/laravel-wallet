@@ -41,7 +41,7 @@ final class LockService implements LockServiceInterface
         $this->lockedKeys->put(self::INNER_KEYS.$key, true, $this->seconds);
 
         // let's release the lock after the transaction, the fight against the race
-        if ($this->databaseService->get()->transactionLevel() > 0) {
+        if ($this->databaseService->getConnection()->transactionLevel() > 0) {
             $lock->block($this->seconds);
 
             return $callback();

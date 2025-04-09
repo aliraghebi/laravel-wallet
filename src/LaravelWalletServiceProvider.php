@@ -24,9 +24,9 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
      */
     public function boot(): void
     {
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
+//        if (!$this->app->runningInConsole()) {
+//            return;
+//        }
 
         $this->loadMigrationsFrom([dirname(__DIR__) . '/database']);
 
@@ -61,11 +61,25 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs('$scale')
             ->giveConfig('wallet.math.scale', 24);
 
+        $this->app->when(WalletService::class)
+            ->needs('$walletSecret')
+            ->giveConfig('wallet.secret');
 
         $this->app->singleton(MathServiceInterface::class, MathService::class);
         $this->app->singleton(LockServiceInterface::class, LockService::class);
         $this->app->singleton(AtomicServiceInterface::class, AtomicService::class);
         $this->app->singleton(WalletServiceInterface::class, WalletService::class);
         $this->app->singleton(DatabaseServiceInterface::class, DatabaseService::class);
+    }
+
+    public function provides(): array
+    {
+        return [
+            MathServiceInterface::class,
+            LockServiceInterface::class,
+            AtomicServiceInterface::class,
+            WalletServiceInterface::class,
+            DatabaseServiceInterface::class,
+        ];
     }
 }

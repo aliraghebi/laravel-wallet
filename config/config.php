@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'secret' => '',
+    'database' => [
+        'connection' => 'sqlite'
+    ],
+
     'wallet' => [
         'table' => 'wallets',
         'creating' => [
