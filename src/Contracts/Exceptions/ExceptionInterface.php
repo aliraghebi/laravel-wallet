@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace ArsamMe\Wallet\Contracts;
+namespace ArsamMe\Wallet\Contracts\Exceptions;
 
 use Throwable;
 
-interface ExceptionInterface extends Throwable
-{
+interface ExceptionInterface extends Throwable {
     public const AMOUNT_INVALID = 1 << 0;
 
     public const BALANCE_IS_EMPTY = 1 << 1;
@@ -29,5 +28,4 @@ interface ExceptionInterface extends Throwable
     public const RECORD_NOT_FOUND = 1 << 9;
 
     public const TRANSACTION_FAILED = 1 << 10;
-
 }

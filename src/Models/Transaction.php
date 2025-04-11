@@ -9,6 +9,7 @@ use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 use function config;
 
 /**
@@ -27,8 +28,7 @@ use function config;
  *
  * @method int getKey()
  */
-class Transaction extends Model
-{
+class Transaction extends Model {
     /**
      * @var array<int, string>
      */
@@ -47,17 +47,15 @@ class Transaction extends Model
     /**
      * @return array<string, string>
      */
-    public function casts(): array
-    {
+    public function casts(): array {
         return [
             'wallet_id' => 'int',
             'meta' => 'json',
         ];
     }
 
-    public function getTable(): string
-    {
-        if ((string)$this->table === '') {
+    public function getTable(): string {
+        if ('' === (string) $this->table) {
             $this->table = config('wallet.transaction.table', 'transactions');
         }
 
@@ -67,46 +65,41 @@ class Transaction extends Model
     /**
      * @return BelongsTo<WalletModel, self>
      */
-    public function wallet(): BelongsTo
-    {
+    public function wallet(): BelongsTo {
         return $this->belongsTo(config('wallet.wallet.model', WalletModel::class));
     }
 
-    public function getDecimalPlacesAttribute(): int
-    {
+    public function getDecimalPlacesAttribute(): int {
         return $this->wallet->decimal_places;
     }
 
-    public function getRawCreditAttribute(): string
-    {
-        return (string)$this->getRawOriginal('credit', 0);
+    public function getRawCreditAttribute(): string {
+        return (string) $this->getRawOriginal('credit', 0);
     }
 
-    public function getRawDebitAttribute(): string
-    {
-        return (string)$this->getRawOriginal('debit', 0);
+    public function getRawDebitAttribute(): string {
+        return (string) $this->getRawOriginal('debit', 0);
     }
 
-    public function getRawBalanceAttribute(): string
-    {
-        return (string)$this->getRawOriginal('balance', 0);
+    public function getRawBalanceAttribute(): string {
+        return (string) $this->getRawOriginal('balance', 0);
     }
 
-    public function getCreditAttribute(): string
-    {
+    public function getCreditAttribute(): string {
         $math = app(MathServiceInterface::class);
+
         return $math->floatValue($this->attributes['credit'], $this->decimal_places);
     }
 
-    public function getDebitAttribute(): string
-    {
+    public function getDebitAttribute(): string {
         $math = app(MathServiceInterface::class);
+
         return $math->floatValue($this->attributes['debit'], $this->decimal_places);
     }
 
-    public function getBalanceAttribute(): string
-    {
+    public function getBalanceAttribute(): string {
         $math = app(MathServiceInterface::class);
+
         return $math->floatValue($this->attributes['balance'], $this->decimal_places);
     }
 }

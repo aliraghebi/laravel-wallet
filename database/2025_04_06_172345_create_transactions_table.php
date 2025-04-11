@@ -8,9 +8,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class() extends Migration {
-    public function up(): void
-    {
+return new class extends Migration {
+    public function up(): void {
         Schema::create($this->table(), static function (Blueprint $table) {
             $table->id();
             $table->uuid()->unique();
@@ -24,18 +23,15 @@ return new class() extends Migration {
         });
     }
 
-    public function down(): void
-    {
+    public function down(): void {
         Schema::dropIfExists($this->table());
     }
 
-    private function table(): string
-    {
+    private function table(): string {
         return (new Transaction)->getTable();
     }
 
-    private function walletsTable(): string
-    {
+    private function walletsTable(): string {
         return (new Wallet)->getTable();
     }
 };

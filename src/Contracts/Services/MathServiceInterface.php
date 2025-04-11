@@ -4,8 +4,7 @@ namespace ArsamMe\Wallet\Contracts\Services;
 
 use Brick\Math\Exception\DivisionByZeroException;
 
-interface MathServiceInterface
-{
+interface MathServiceInterface {
     /**
      * Add two numbers.
      *

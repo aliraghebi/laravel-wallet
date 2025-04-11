@@ -3,22 +3,24 @@
 return [
     'secret' => '',
     'database' => [
-        'connection' => 'sqlite'
+        'connection' => 'sqlite',
     ],
 
     'wallet' => [
         'table' => 'wallets',
+        'model' => \ArsamMe\Wallet\Models\Wallet::class,
         'creating' => [
-            'decimal_places' => 24
-        ]
+            'decimal_places' => 24,
+        ],
     ],
 
     'transaction' => [
         'table' => 'transactions',
+        'model' => \ArsamMe\Wallet\Models\Transaction::class
     ],
 
     'lock' => [
-        'seconds' => 1
+        'seconds' => 1,
     ],
 
     'math' => [

@@ -24,9 +24,10 @@ final class LockService implements LockServiceInterface
 
     public function __construct(
         private readonly DatabaseServiceInterface $databaseService,
-        CacheFactory $cacheFactory,
-        private readonly int $seconds
-    ) {
+        CacheFactory                              $cacheFactory,
+        private readonly int                      $seconds
+    )
+    {
         $this->cache = $cacheFactory->store(config('wallet.lock.driver', 'array'));
         $this->lockedKeys = $cacheFactory->store('array');
     }
@@ -37,8 +38,8 @@ final class LockService implements LockServiceInterface
             return $callback();
         }
 
-        $lock = $this->getLockProvider()->lock(self::LOCK_KEY.$key, $this->seconds);
-        $this->lockedKeys->put(self::INNER_KEYS.$key, true, $this->seconds);
+        $lock = $this->getLockProvider()->lock(self::LOCK_KEY . $key, $this->seconds);
+        $this->lockedKeys->put(self::INNER_KEYS . $key, true, $this->seconds);
 
         // let's release the lock after the transaction, the fight against the race
         if ($this->databaseService->getConnection()->transactionLevel() > 0) {
@@ -50,7 +51,7 @@ final class LockService implements LockServiceInterface
         try {
             return $lock->block($this->seconds, $callback);
         } finally {
-            $this->lockedKeys->delete(self::INNER_KEYS.$key);
+            $this->lockedKeys->delete(self::INNER_KEYS . $key);
         }
     }
 
@@ -65,8 +66,8 @@ final class LockService implements LockServiceInterface
     {
         $callable = $callback;
         foreach ($keys as $key) {
-            if (! $this->isBlocked($key)) {
-                $callable = fn () => $this->block($key, $callable);
+            if (!$this->isBlocked($key)) {
+                $callable = fn() => $this->block($key, $callable);
             }
         }
 
@@ -78,26 +79,26 @@ final class LockService implements LockServiceInterface
         $lockProvider = $this->getLockProvider();
 
         foreach ($keys as $key) {
-            if (! $this->isBlocked($key)) {
+            if (!$this->isBlocked($key)) {
                 continue;
             }
 
             $lockProvider
-                ->lock(self::LOCK_KEY.$key, $this->seconds)
+                ->lock(self::LOCK_KEY . $key, $this->seconds)
                 ->forceRelease();
 
-            $this->lockedKeys->delete(self::INNER_KEYS.$key);
+            $this->lockedKeys->delete(self::INNER_KEYS . $key);
         }
     }
 
     public function isBlocked(string $key): bool
     {
-        return $this->lockedKeys->get(self::INNER_KEYS.$key) === true;
+        return true === $this->lockedKeys->get(self::INNER_KEYS . $key);
     }
 
     private function getLockProvider(): LockProvider
     {
-        if (! $this->lockProvider instanceof LockProvider) {
+        if (!$this->lockProvider instanceof LockProvider) {
             $store = $this->cache->getStore();
             assert($store instanceof LockProvider);
 

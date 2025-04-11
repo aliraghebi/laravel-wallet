@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Models;
 
+use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +37,7 @@ use function config;
  *
  * @method int getKey()
  */
-class Wallet extends Model {
+class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
     use SoftDeletes;
 
     /**
@@ -106,8 +107,15 @@ class Wallet extends Model {
         return $this->morphTo();
     }
 
-    public function transactions(): HasMany {
-        return $this->hasMany(Transaction::class);
+    public function walletTransactions(): HasMany {
+        // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
+        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
+        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+
+        // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
+        // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
+        // The relationship is defined using the `wallet_id` foreign key.
+        return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
     }
 
     public function getRawBalanceAttribute() {
@@ -137,5 +145,25 @@ class Wallet extends Model {
         $frozenAmount = $mathService->floatValue($this->attributes['frozen_amount'], $this->attributes['decimal_places']);
 
         return $mathService->sub($balance, $frozenAmount, $this->attributes['decimal_places']);
+    }
+
+    public function deposit(float|int|string $amount, ?array $meta = null): Transaction
+    {
+        // TODO: Implement deposit() method.
+    }
+
+    public function withdraw(float|int|string $amount, ?array $meta = null): Transaction
+    {
+        // TODO: Implement withdraw() method.
+    }
+
+    public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool
+    {
+        // TODO: Implement canWithdraw() method.
+    }
+
+    public function walletTransactions(): HasMany
+    {
+        // TODO: Implement walletTransactions() method.
     }
 }

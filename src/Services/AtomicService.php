@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
@@ -15,17 +15,13 @@ use Illuminate\Database\RecordsNotFoundException;
 /**
  * @internal
  */
-final readonly class AtomicService implements AtomicServiceInterface
-{
+final readonly class AtomicService implements AtomicServiceInterface {
     public function __construct(
         private DatabaseServiceInterface $databaseService,
-        private LockServiceInterface     $lockService,
-    )
-    {
-    }
+        private LockServiceInterface $lockService,
+    ) {}
 
-    public function blocks(array $wallets, callable $callback): mixed
-    {
+    public function blocks(array $wallets, callable $callback): mixed {
         /** @var array<string, Wallet> $blockObjects */
         $blockObjects = [];
         foreach ($wallets as $wallet) {
@@ -34,7 +30,7 @@ final readonly class AtomicService implements AtomicServiceInterface
             }
         }
 
-        if ($blockObjects === []) {
+        if ([] === $blockObjects) {
             return $callback();
         }
 
@@ -50,8 +46,7 @@ final readonly class AtomicService implements AtomicServiceInterface
      * @throws TransactionFailedException
      * @throws ExceptionInterface
      */
-    public function block(Wallet $object, callable $callback): mixed
-    {
+    public function block(Wallet $object, callable $callback): mixed {
         return $this->blocks([$object], $callback);
     }
 }

@@ -150,10 +150,11 @@ class WalletService implements WalletServiceInterface {
             $transactionsCount = $wallet->transactions()->count();
             $totalCredit = $this->mathService->intValue((string) $wallet->transactions()->sum('credit'), $wallet->decimal_places);
             $totalDebit = $this->mathService->intValue((string) $wallet->transactions()->sum('debit'), $wallet->decimal_places);
-            $expectedBalance = $this->mathService->intValue($this->mathService->sub($totalCredit, $totalDebit,64),$wallet->decimal_places);
+            $expectedBalance = $this->mathService->intValue($this->mathService->sub($totalCredit, $totalDebit, 64), $wallet->decimal_places);
 
             if (0 != $this->mathService->compare($walletBalance, $expectedBalance)) {
                 throw_if($throw, new WalletIntegrityInvalidException);
+
                 return false;
             }
 
@@ -168,8 +169,7 @@ class WalletService implements WalletServiceInterface {
             );
 
             dd($wallet->decimal_places, $wallet->uuid, $transactionsCount, $totalCredit, $totalDebit, $expectedBalance, $frozenAmount, $wallet->updated_at, $expectedChecksum, $wallet->checksum);
-            
-            
+
             if (!hash_equals($expectedChecksum, $wallet->checksum)) {
                 throw_if($throw, new WalletIntegrityInvalidException);
 

@@ -17,42 +17,38 @@ use Illuminate\Support\ServiceProvider;
 use function dirname;
 use function function_exists;
 
-final class LaravelWalletServiceProvider extends ServiceProvider implements DeferrableProvider
-{
+final class LaravelWalletServiceProvider extends ServiceProvider implements DeferrableProvider {
     /**
      * Bootstrap services.
      */
-    public function boot(): void
-    {
-//        if (!$this->app->runningInConsole()) {
-//            return;
-//        }
+    public function boot(): void {
+        //        if (!$this->app->runningInConsole()) {
+        //            return;
+        //        }
 
-        $this->loadMigrationsFrom([dirname(__DIR__) . '/database']);
+        $this->loadMigrationsFrom([dirname(__DIR__).'/database']);
 
         if (function_exists('config_path')) {
             $this->publishes([
-                dirname(__DIR__) . '/config/config.php' => config_path('wallet.php'),
+                dirname(__DIR__).'/config/config.php' => config_path('wallet.php'),
             ], 'laravel-wallet-config');
         }
 
         $this->publishes([
-            dirname(__DIR__) . '/database/' => database_path('migrations'),
+            dirname(__DIR__).'/database/' => database_path('migrations'),
         ], 'laravel-wallet-migrations');
     }
 
     /**
      * Register services.
      */
-    public function register(): void
-    {
-        $this->mergeConfigFrom(dirname(__DIR__) . '/config/config.php', 'wallet');
+    public function register(): void {
+        $this->mergeConfigFrom(dirname(__DIR__).'/config/config.php', 'wallet');
 
         $this->services();
     }
 
-    private function services(): void
-    {
+    private function services(): void {
         $this->app->when(LockService::class)
             ->needs('$seconds')
             ->giveConfig('wallet.lock.seconds', 1);
@@ -72,8 +68,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(DatabaseServiceInterface::class, DatabaseService::class);
     }
 
-    public function provides(): array
-    {
+    public function provides(): array {
         return [
             MathServiceInterface::class,
             LockServiceInterface::class,

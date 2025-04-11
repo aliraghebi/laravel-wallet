@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\RecordsNotFoundException;
@@ -12,8 +12,7 @@ use Illuminate\Database\RecordsNotFoundException;
 /**
  * @api
  */
-interface AtomicServiceInterface
-{
+interface AtomicServiceInterface {
     /**
      * The method atomically locks the transaction for other concurrent requests.
      *
@@ -22,8 +21,8 @@ interface AtomicServiceInterface
      *
      * @template T
      *
-     * @param Wallet $object The wallet object to lock the transaction.
-     * @param callable(): T $callback The callback function to execute atomically.
+     * @param  Wallet  $object  The wallet object to lock the transaction.
+     * @param  callable(): T  $callback  The callback function to execute atomically.
      * @return T The result of the callback function.
      *
      * @throws RecordsNotFoundException If the records are not found.
@@ -41,8 +40,8 @@ interface AtomicServiceInterface
      *
      * @template T
      *
-     * @param non-empty-array<Wallet> $wallets The array of wallet objects to lock the transactions.
-     * @param callable(): T $callback The callback function to execute atomically.
+     * @param  non-empty-array<Wallet>  $wallets  The array of wallet objects to lock the transactions.
+     * @param  callable(): T  $callback  The callback function to execute atomically.
      * @return T The result of the callback function.
      *
      * @throws RecordsNotFoundException If the records are not found.
