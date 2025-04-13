@@ -20,7 +20,7 @@ class WalletService implements WalletServiceInterface {
         $this->walletSecret = $walletSecret;
     }
 
-    public function createWallet(Model $holder, string $name, ?string $slug = null, ?int $decimalPlaces = null, ?array $meta = null, array $params = []): Wallet {
+    public function createWallet(Model $holder, string $name, ?string $slug = null, ?int $decimalPlaces = null, ?array $meta = null, array  $params = []): Wallet {
         $defaultParams = config('wallet.creating', []);
 
         $uuid = Str::uuid7();

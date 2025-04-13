@@ -107,7 +107,7 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
         return $this->morphTo();
     }
 
-    public function walletTransactions(): HasMany {
+    public function transactions(): HasMany {
         // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
         // The `false` parameter indicates that the wallet should not be saved if it does not exist.
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);

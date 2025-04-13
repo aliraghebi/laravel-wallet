@@ -73,10 +73,14 @@ interface Wallet
      */
     public function getBalanceAttribute(): string;
 
+//    public function getTotalCreditAttribute();
+
+//    public function getTotalDebitAttribute();
+
     /**
      * Represents a relationship where a wallet has many transactions.
      *
      * @return HasMany<Transaction> A collection of transactions associated with this wallet.
      */
-    public function walletTransactions(): HasMany;
+    public function transactions(): HasMany;
 }
