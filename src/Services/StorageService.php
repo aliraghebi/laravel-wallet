@@ -11,48 +11,40 @@ use InvalidArgumentException;
 use JsonSerializable;
 use Str;
 
-class StorageService implements StorageServiceInterface
-{
+class StorageService implements StorageServiceInterface {
     private const PREFIX = 'wallet_sg::';
 
     public function __construct(
         private readonly CacheRepository $cacheRepository,
-        private readonly ?int            $ttl
-    )
-    {
-    }
+        private readonly ?int $ttl
+    ) {}
 
-    public function flush(): bool
-    {
+    public function flush(): bool {
         return $this->cacheRepository->clear();
     }
 
-    public function forget(string $uuid): bool
-    {
-        return $this->cacheRepository->forget(self::PREFIX . $uuid);
+    public function forget(string $uuid): bool {
+        return $this->cacheRepository->forget(self::PREFIX.$uuid);
     }
 
-    public function get(string $uuid, ?string $class = null): string
-    {
+    public function get(string $uuid, ?string $class = null): mixed {
         return current($this->multiGet([$uuid], $class));
     }
 
-    public function sync(string $uuid, mixed $value): bool
-    {
+    public function sync(string $uuid, mixed $value): bool {
         return $this->multiSync([
             $uuid => $value,
         ]);
     }
 
-    public function multiGet(array $uuids, ?string $class = null): array
-    {
+    public function multiGet(array $uuids, ?string $class = null): array {
         $keys = [];
         foreach ($uuids as $uuid) {
-            $keys[self::PREFIX . $uuid] = $uuid;
+            $keys[self::PREFIX.$uuid] = $uuid;
         }
 
         $missingKeys = [];
-        if (count($keys) === 1) {
+        if (1 === count($keys)) {
             $values = [];
             foreach (array_keys($keys) as $key) {
                 $values[$key] = $this->cacheRepository->get($key);
@@ -65,12 +57,13 @@ class StorageService implements StorageServiceInterface
         /** @var array<float|int|non-empty-string|null> $values */
         foreach ($values as $key => $value) {
             $uuid = $keys[$key];
-            if ($value === null) {
+            if (null === $value) {
                 $missingKeys[] = $uuid;
+
                 continue;
             }
 
-            if ($class != null) {
+            if (null != $class) {
                 $hasFromJson = method_exists($class, 'fromJson');
                 $hasFromArray = method_exists($class, 'fromArray');
                 if (!$hasFromJson && !$hasFromArray) {
@@ -93,7 +86,7 @@ class StorageService implements StorageServiceInterface
             $results[$uuid] = $value;
         }
 
-        if ($missingKeys !== []) {
+        if ([] !== $missingKeys) {
             throw new RecordNotFoundException(
                 'The repository did not find the object',
                 ExceptionInterface::RECORD_NOT_FOUND,
@@ -101,13 +94,12 @@ class StorageService implements StorageServiceInterface
             );
         }
 
-        assert($results !== []);
+        assert([] !== $results);
 
         return $results;
     }
 
-    public function multiSync(array $inputs, bool $convertToJson = true): bool
-    {
+    public function multiSync(array $inputs, bool $convertToJson = true): bool {
         $values = [];
         foreach ($inputs as $uuid => $value) {
             if ($convertToJson) {
@@ -118,13 +110,13 @@ class StorageService implements StorageServiceInterface
                 } elseif (is_array($value)) {
                     $value = json_encode($value);
                 } elseif (!Str::isJson($value)) {
-                    throw new InvalidArgumentException("Could not convert `value` to json");
+                    throw new InvalidArgumentException('Could not convert `value` to json');
                 }
             }
-            $values[self::PREFIX . $uuid] = $value;
+            $values[self::PREFIX.$uuid] = $value;
         }
 
-        if (count($values) === 1) {
+        if (1 === count($values)) {
             return $this->cacheRepository->set(key($values), current($values), $this->ttl);
         }
 

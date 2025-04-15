@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Exceptions;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use LogicException;
+use RuntimeException;
 
-final class WalletIntegrityInvalidException extends LogicException implements ExceptionInterface {}
+final class ModelNotFoundException extends RuntimeException implements ExceptionInterface {}

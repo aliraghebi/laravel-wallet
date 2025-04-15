@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
-use Bavix\Wallet\Interfaces\Wallet;
-use Bavix\Wallet\Models\Wallet as WalletModel;
+use ArsamMe\Wallet\Contracts\Wallet;
+use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
+use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @api
  */
-interface CastServiceInterface
-{
+interface CastServiceInterface {
     /**
      * Retrieve a wallet from an object that implements the Wallet interface.
      *
-     * @param Wallet $object The object that implements the Wallet interface.
-     *                       This can be either a `Model` instance or an instance of a class that implements the
-     *                       `Wallet` interface.
-     * @param bool $save Flag indicating whether to save the wallet.
-     *                    If set to `true`, the wallet will be saved if it does not exist yet.
-     *                    If set to `false`, the wallet will be retrieved from the database if it exists,
-     *                    otherwise a new wallet will be created.
+     * @param  Wallet  $object  The object that implements the Wallet interface.
+     *                          This can be either a `Model` instance or an instance of a class that implements the
+     *                          `Wallet` interface.
+     * @param  bool  $save  Flag indicating whether to save the wallet.
+     *                      If set to `true`, the wallet will be saved if it does not exist yet.
+     *                      If set to `false`, the wallet will be retrieved from the database if it exists,
+     *                      otherwise a new wallet will be created.
      * @return WalletModel The retrieved wallet model.
      *
-     * @throws \Bavix\Wallet\Internal\Exceptions\ModelNotFoundException If the wallet does not exist and `$save` is set to `false`.
+     * @throws ModelNotFoundException If the wallet does not exist and `$save` is set to `false`.
      *
      * @see Wallet
      * @see WalletModel
@@ -42,7 +42,7 @@ interface CastServiceInterface
      * to retrieve an attribute named 'wallet'. If the attribute exists and is an instance of `WalletModel`, the method
      * returns the `WalletModel` instance.
      *
-     * @param Model|Wallet $object The object to retrieve the holder from.
+     * @param  Model|Wallet  $object  The object to retrieve the holder from.
      * @return Model The holder model.
      */
     public function getHolder(Model|Wallet $object): Model;
@@ -57,8 +57,8 @@ interface CastServiceInterface
      * to be an instance of `WalletModel` class before returning. If these conditions are not met, an assertion
      * error is triggered.
      *
-     * @param object $object The object to extract the model from. Must either be an instance of `Model` or possess
-     *                       a 'wallet' attribute of type `WalletModel`.
+     * @param  object  $object  The object to extract the model from. Must either be an instance of `Model` or possess
+     *                          a 'wallet' attribute of type `WalletModel`.
      * @return Model The model extracted from the provided object, ensuring it is of type `Model`.
      *
      * @throws \AssertionError If the 'wallet' attribute does not exist or is not an instance of the `WalletModel` class.

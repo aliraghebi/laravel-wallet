@@ -14,12 +14,12 @@ return new class extends Migration {
             $table->id();
             $table->uuid()->unique();
             $table->foreignId('wallet_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
-            $table->decimal('credit', 64, 0)->default(0);
-            $table->decimal('debit', 64, 0)->default(0);
-            $table->decimal('balance', 64, 0);
+            $table->enum('type', ['deposit', 'withdraw'])->index();
+            $table->decimal('amount', 64, 0);
             $table->jsonb('meta')->nullable();
             $table->string('checksum');
-            $table->timestamps();
+            $table->softDeletesTz();
+            $table->timestampsTz();
         });
     }
 

@@ -2,134 +2,129 @@
 
 namespace ArsamMe\Wallet\Services;
 
+use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
+use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Exceptions\WalletIntegrityInvalidException;
+use ArsamMe\Wallet\Data\CreateTransactionData;
+use ArsamMe\Wallet\Data\CreateWalletData;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Str;
 
-class WalletService implements WalletServiceInterface {
-    private string $walletSecret;
+readonly class WalletService implements WalletServiceInterface {
+    public function __construct(
+        private AtomicServiceInterface $atomicService,
+        private MathServiceInterface $mathService,
+        private ConsistencyServiceInterface $consistencyService,
+        private RegulatorServiceInterface $regulatorService,
+        private WalletRepositoryInterface $walletRepository,
+        private TransactionRepositoryInterface $transactionRepository
+    ) {}
 
-    public function __construct(private readonly AtomicServiceInterface $atomicService, private readonly MathServiceInterface $mathService, string $walletSecret) {
-        $this->walletSecret = $walletSecret;
-    }
+    public function createWallet(CreateWalletData $data): Wallet {
+        $defaultParams = array_filter(config('wallet.creating', []));
 
-    public function createWallet(Model $holder, string $name, ?string $slug = null, ?int $decimalPlaces = null, ?array $meta = null, array  $params = []): Wallet {
-        $defaultParams = config('wallet.creating', []);
+        $uuid     = Str::uuid7();
+        $time     = now();
+        $checksum = $this->consistencyService->createWalletInitialChecksum($uuid, $time);
 
-        $uuid = Str::uuid7();
-        $time = Carbon::parse('2024-01-01');
-
-        $data = array_filter([
-            'uuid' => $uuid,
-            'holder_type' => $holder->getMorphClass(),
-            'holder_id' => $holder->getKey(),
-            'name' => $name,
-            'slug' => $slug,
-            'description' => $params['description'] ?? null,
-            'decimal_places' => $decimalPlaces,
-            'meta' => $meta,
-            'created_at' => $time,
-            'updated_at' => $time,
+        $attributes = array_filter([
+            'uuid'           => $uuid,
+            'holder_type'    => $data->holder->getMorphClass(),
+            'holder_id'      => $data->holder->getKey(),
+            'name'           => $data->name,
+            'slug'           => $data->slug,
+            'description'    => $data->description,
+            'decimal_places' => $data->decimalPlaces,
+            'meta'           => $data->meta,
+            'checksum'       => $checksum,
+            'created_at'     => $time,
+            'updated_at'     => $time,
         ]);
 
-        $zero = $this->mathService->intValue('0', 24);
-        $data['checksum'] = $this->createWalletChecksum($uuid, $zero, $zero, $zero, $zero, $zero, $time);
-        $data['meta']['time'] = $time->timestamp;
-        $data = array_merge($defaultParams, $data);
+        $attributes = array_merge($defaultParams, $attributes);
 
-        Wallet::make($data)->save();
-
-        return Wallet::where('uuid', $uuid)->firstOrFail();
-
+        return $this->walletRepository->createWallet($attributes);
     }
 
-    public function findWalletBySlug(Model $holder, string $slug): ?Wallet {
-        return Wallet::whereMorphedTo('holder', $holder)->where('slug', $slug)->first();
+    public function findById(int $id): ?Wallet {
+        return $this->walletRepository->findById($id);
     }
 
-    /**
-     * @throws ModelNotFoundException
-     */
-    public function findOrFailWalletBySlug(Model $holder, string $slug): Wallet {
-        $wallet = $this->findWalletBySlug($holder, $slug);
-        if (null == $wallet) {
-            throw new ModelNotFoundException("Wallet not found with slug `$slug` for holder `{$holder->getMorphClass()}` with id `{$holder->getKey()}`");
-        }
+    public function findByUuid(string $uuid): ?Wallet {
+        $this->walletRepository->findByUuid($uuid);
+    }
 
-        return $wallet;
+    public function findBySlug(Model $holder, string $slug): ?Wallet {
+        return $this->walletRepository->findBySlug($holder->getMorphClass(), $holder->getKey(), $slug);
+    }
+
+    public function findOrFailById(int $id): Wallet {
+        return $this->walletRepository->findOrFailById($id);
+    }
+
+    public function findOrFailByUuid(string $uuid): Wallet {
+        return $this->walletRepository->findOrFailByUuid($uuid);
+    }
+
+    public function findOrFailBySlug(Model $holder, string $slug): Wallet {
+        return $this->walletRepository->findOrFailBySlug($holder->getMorphClass(), $holder->getKey(), $slug);
     }
 
     public function getBalance(Wallet $wallet): string {
-        $wallet->refresh();
-
         return $wallet->getBalanceAttribute();
     }
 
-    public function deposit(Wallet $wallet, float|int|string $amount, ?array $meta = null): void {
-        $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
-            $wallet->refresh();
-            $this->validateWalletIntegrity($wallet, true);
+    public function deposit(Wallet $wallet, CreateTransactionData $data): void {
+        $this->atomic($wallet, function () use ($wallet, $data) {
+            $amount = $this->mathService->intValue($data->amount, $wallet->decimal_places);
 
-            $uuid = Str::uuid7();
-            $time = now();
+            $this->consistencyService->checkPositive($amount);
 
-            $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
-            $balance = $this->mathService->add($wallet->raw_balance, $amount);
+            $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $data);
 
-            $checksum = $this->createTransactionChecksum($wallet->uuid, $uuid, $amount, $balance, $time);
-
-            Transaction::create([
-                'uuid' => $uuid,
-                'wallet_id' => $wallet->id,
-                'credit' => $amount,
-                'debit' => 0,
-                'balance' => $balance,
-                'meta' => $meta,
-                'checksum' => $checksum,
-                'created_at' => $time,
-                'updated_at' => $time,
-            ]);
-
-            $frozenAmount = $wallet->raw_frozen_amount;
-
-            $transactionsCount = $wallet->transactions()->count();
-            $totalCredit = $wallet->transactions()->sum('credit');
-            $totalDebit = $wallet->transactions()->sum('debit');
-
-            $walletChecksum = $this->createWalletChecksum(
-                $wallet->uuid,
-                $transactionsCount,
-                $totalCredit,
-                $totalDebit,
-                $balance,
-                $frozenAmount,
-                $time
-            );
-            $wallet->update([
-                'balance' => $balance,
-                'checksum' => $walletChecksum,
-                'updated_at' => $time,
-            ]);
+            $this->regulatorService->increase($wallet, $amount);
         });
     }
 
-    public function withdraw(Wallet $wallet, float|int|string $amount, ?array $meta = null): void {
-        // TODO: Implement withdraw() method.
+    public function withdraw(Wallet $wallet, CreateTransactionData $data): void {
+        $this->atomic($wallet, function () use ($wallet, $data) {
+            $amount = $this->mathService->intValue($data->amount, $wallet->decimal_places);
+
+            $this->consistencyService->checkPositive($amount);
+            $this->consistencyService->checkPotential($wallet, $amount);
+
+            $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $data);
+
+            $this->regulatorService->decrease($wallet, $amount);
+        });
     }
 
-    public function freeze(Wallet $wallet, float|int|string $amount, ?array $meta = null): void {
-        // TODO: Implement freeze() method.
+    public function freeze(Wallet $wallet, float|int|string|null $amount = null): void {
+        $this->atomic($wallet, function () use ($amount, $wallet) {
+            if (null != $amount) {
+                $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+                $this->consistencyService->checkPositive($amount);
+            }
+
+            $this->regulatorService->freeze($wallet, $amount);
+        });
     }
 
-    public function unFreeze(Wallet $wallet, float|int|string|null $amount = null, ?array $meta = null): void {
-        // TODO: Implement unFreeze() method.
+    public function unFreeze(Wallet $wallet, float|int|string|null $amount = null): void {
+        $this->atomic($wallet, function () use ($amount, $wallet) {
+            if (null != $amount) {
+                $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+                $this->consistencyService->checkPositive($amount);
+            }
+
+            $this->regulatorService->unFreeze($wallet, $amount);
+        });
     }
 
     public function atomic(array|Wallet $wallets, $callback): mixed {
@@ -140,51 +135,27 @@ class WalletService implements WalletServiceInterface {
         return $this->atomicService->blocks($wallets, $callback);
     }
 
-    public function validateWalletIntegrity(Wallet $wallet, bool $throw = false): bool {
-        return $this->atomic($wallet, function () use ($throw, $wallet) {
-            $wallet->refresh();
-
-            $walletBalance = $this->mathService->round($wallet->raw_balance, 0);
-            $frozenAmount = $wallet->raw_frozen_amount;
-
-            $transactionsCount = $wallet->transactions()->count();
-            $totalCredit = $this->mathService->intValue((string) $wallet->transactions()->sum('credit'), $wallet->decimal_places);
-            $totalDebit = $this->mathService->intValue((string) $wallet->transactions()->sum('debit'), $wallet->decimal_places);
-            $expectedBalance = $this->mathService->intValue($this->mathService->sub($totalCredit, $totalDebit, 64), $wallet->decimal_places);
-
-            if (0 != $this->mathService->compare($walletBalance, $expectedBalance)) {
-                throw_if($throw, new WalletIntegrityInvalidException);
-
-                return false;
-            }
-
-            $expectedChecksum = $this->createWalletChecksum(
-                $wallet->uuid,
-                $transactionsCount,
-                $totalCredit,
-                $totalDebit,
-                $expectedBalance,
-                $frozenAmount,
-                $wallet->updated_at
-            );
-
-            dd($wallet->decimal_places, $wallet->uuid, $transactionsCount, $totalCredit, $totalDebit, $expectedBalance, $frozenAmount, $wallet->updated_at, $expectedChecksum, $wallet->checksum);
-
-            if (!hash_equals($expectedChecksum, $wallet->checksum)) {
-                throw_if($throw, new WalletIntegrityInvalidException);
-
-                return false;
-            }
-
-            return true;
-        });
+    public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
+        return $this->consistencyService->checkWalletConsistency($wallet, $throw);
     }
 
-    private function createWalletChecksum(string $uuid, int $transactionsCount, string $totalCredit, string $totalDebit, string $balance, string $frozenAmount, Carbon $updatedAt): string {
-        return bin2hex(hash_hmac('sha256', "{$uuid}_{$transactionsCount}_{$totalCredit}_{$totalDebit}_{$balance}_{$frozenAmount}_$updatedAt->timestamp", $this->walletSecret, true));
-    }
+    private function makeTransaction(Wallet $wallet, string $type, string $amount, CreateTransactionData $data): void {
+        $uuid     = Str::uuid7();
+        $time     = now();
+        $amount   = Transaction::TYPE_WITHDRAW == $type ? $this->mathService->negative($amount) : $amount;
+        $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
-    private function createTransactionChecksum(string $walletUuid, string $uuid, string $amount, string $balance, Carbon $time): string {
-        return bin2hex(hash_hmac('sha256', "{$walletUuid}_{$uuid}_{$amount}_{$balance}_$time->timestamp", $this->walletSecret, true));
+        $attributes = [
+            'uuid'       => $uuid,
+            'wallet_id'  => $wallet->id,
+            'type'       => $type,
+            'amount'     => $amount,
+            'meta'       => $data->meta,
+            'checksum'   => $checksum,
+            'created_at' => $time,
+            'updated_at' => $time,
+        ];
+
+        $this->transactionRepository->createTransaction($attributes);
     }
 }

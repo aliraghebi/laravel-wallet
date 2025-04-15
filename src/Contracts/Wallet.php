@@ -13,13 +13,12 @@ use ArsamMe\Wallet\Models\Transaction;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\RecordsNotFoundException;
 
-interface Wallet
-{
+interface Wallet {
     /**
      * Deposit the specified amount of money into the wallet.
      *
-     * @param float|int|string $amount The amount to deposit.
-     * @param array|null $meta Additional information for the transaction.
+     * @param  float|int|string  $amount  The amount to deposit.
+     * @param  array|null  $meta  Additional information for the transaction.
      * @return Transaction The created transaction.
      *
      * @throws AmountInvalid If the amount is invalid.
@@ -32,8 +31,8 @@ interface Wallet
     /**
      * Withdraw the specified amount of money from the wallet.
      *
-     * @param float|int|string $amount The amount to withdraw.
-     * @param array|null $meta Additional information for the transaction.
+     * @param  float|int|string  $amount  The amount to withdraw.
+     * @param  array|null  $meta  Additional information for the transaction.
      * @return Transaction The created transaction.
      *
      * @throws AmountInvalid If the amount is invalid.
@@ -45,12 +44,11 @@ interface Wallet
      */
     public function withdraw(float|int|string $amount, ?array $meta = null): Transaction;
 
-
     /**
      * Checks if the wallet can safely withdraw the specified amount.
      *
-     * @param float|int|string $amount The amount to withdraw.
-     * @param bool $allowZero Whether to allow withdrawing when the balance is zero.
+     * @param  float|int|string  $amount  The amount to withdraw.
+     * @param  bool  $allowZero  Whether to allow withdrawing when the balance is zero.
      * @return bool Returns true if the wallet can withdraw the specified amount, false otherwise.
      */
     public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool;
@@ -72,10 +70,6 @@ interface Wallet
      * @return non-empty-string The balance of the wallet.
      */
     public function getBalanceAttribute(): string;
-
-//    public function getTotalCreditAttribute();
-
-//    public function getTotalDebitAttribute();
 
     /**
      * Represents a relationship where a wallet has many transactions.

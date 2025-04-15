@@ -17,9 +17,8 @@ use function config;
  *
  * @property non-empty-string $uuid
  * @property int $wallet_id
- * @property non-empty-string $credit
- * @property non-empty-string $debit
- * @property non-empty-string $balance
+ * @property string $type
+ * @property non-empty-string $amount
  * @property null|array $meta
  * @property string $checksum
  * @property Wallet $wallet
@@ -29,15 +28,18 @@ use function config;
  * @method int getKey()
  */
 class Transaction extends Model {
+    final public const TYPE_DEPOSIT = 'deposit';
+
+    final public const TYPE_WITHDRAW = 'withdraw';
+
     /**
      * @var array<int, string>
      */
     protected $fillable = [
         'uuid',
         'wallet_id',
-        'credit',
-        'debit',
-        'balance',
+        'type',
+        'amount',
         'meta',
         'checksum',
         'created_at',
@@ -73,33 +75,13 @@ class Transaction extends Model {
         return $this->wallet->decimal_places;
     }
 
-    public function getRawCreditAttribute(): string {
+    public function getRawAmountAttribute(): string {
         return (string) $this->getRawOriginal('credit', 0);
     }
 
-    public function getRawDebitAttribute(): string {
-        return (string) $this->getRawOriginal('debit', 0);
-    }
-
-    public function getRawBalanceAttribute(): string {
-        return (string) $this->getRawOriginal('balance', 0);
-    }
-
-    public function getCreditAttribute(): string {
+    public function getAmountAttribute(): string {
         $math = app(MathServiceInterface::class);
 
         return $math->floatValue($this->attributes['credit'], $this->decimal_places);
-    }
-
-    public function getDebitAttribute(): string {
-        $math = app(MathServiceInterface::class);
-
-        return $math->floatValue($this->attributes['debit'], $this->decimal_places);
-    }
-
-    public function getBalanceAttribute(): string {
-        $math = app(MathServiceInterface::class);
-
-        return $math->floatValue($this->attributes['balance'], $this->decimal_places);
     }
 }

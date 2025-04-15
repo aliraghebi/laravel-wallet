@@ -118,7 +118,7 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
         return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
     }
 
-    public function getRawBalanceAttribute() {
+    public function getRawBalanceAttribute(): string {
         return (string) $this->getRawOriginal('balance', 0);
     }
 
@@ -126,44 +126,43 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
         return $this->getRawOriginal('frozen_amount', 0);
     }
 
-    public function getBalanceAttribute() {
+    public function getRawAvailableBalanceAttribute(): string {
         $mathService = app(MathServiceInterface::class);
 
-        return $mathService->floatValue($this->attributes['balance'], $this->attributes['decimal_places']);
+        return (string) $mathService->sub($this->getRawBalanceAttribute(), $this->getRawFrozenAmountAttribute());
+    }
+
+    public function getBalanceAttribute(): string {
+        $mathService = app(MathServiceInterface::class);
+
+        return $mathService->floatValue($this->getRawBalanceAttribute(), $this->attributes['decimal_places']);
     }
 
     public function getFrozenAmountAttribute() {
         $mathService = app(MathServiceInterface::class);
 
-        return $mathService->floatValue($this->attributes['frozen_amount'], $this->attributes['decimal_places']);
+        return $mathService->floatValue($this->getRawFrozenAmountAttribute(), $this->attributes['decimal_places']);
     }
 
     public function getAvailableBalanceAttribute() {
         $mathService = app(MathServiceInterface::class);
 
-        $balance = $mathService->floatValue($this->attributes['balance'], $this->attributes['decimal_places']);
-        $frozenAmount = $mathService->floatValue($this->attributes['frozen_amount'], $this->attributes['decimal_places']);
-
-        return $mathService->sub($balance, $frozenAmount, $this->attributes['decimal_places']);
+        return $mathService->sub($this->getRawAvailableBalanceAttribute(), $this->attributes['decimal_places']);
     }
 
-    public function deposit(float|int|string $amount, ?array $meta = null): Transaction
-    {
+    public function deposit(float|int|string $amount, ?array $meta = null): Transaction {
         // TODO: Implement deposit() method.
     }
 
-    public function withdraw(float|int|string $amount, ?array $meta = null): Transaction
-    {
+    public function withdraw(float|int|string $amount, ?array $meta = null): Transaction {
         // TODO: Implement withdraw() method.
     }
 
-    public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool
-    {
+    public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool {
         // TODO: Implement canWithdraw() method.
     }
 
-    public function walletTransactions(): HasMany
-    {
+    public function walletTransactions(): HasMany {
         // TODO: Implement walletTransactions() method.
     }
 }
