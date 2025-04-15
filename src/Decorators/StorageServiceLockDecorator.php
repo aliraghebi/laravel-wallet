@@ -32,7 +32,7 @@ readonly class StorageServiceLockDecorator implements StorageServiceInterface {
     }
 
     public function multiSync(array $inputs, bool $convertToJson = true): bool {
-        return $this->lockService->lock(
+        return $this->lockService->blocks(
             array_keys($inputs),
             function () use ($inputs, $convertToJson) {
                 return $this->storageService->multiSync($inputs, $convertToJson);

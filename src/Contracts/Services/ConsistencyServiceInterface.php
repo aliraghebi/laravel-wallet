@@ -39,11 +39,11 @@ interface ConsistencyServiceInterface {
      */
     public function canWithdraw(float|int|string $balance, float|int|string $amount, bool $allowZero = false): bool;
 
-    public function createWalletInitialChecksum(string $uuid, Carbon $time): string;
+    public function createWalletInitialChecksum(string $uuid, string $time): string;
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, Carbon $updatedAt): string;
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, string $updatedAt): string;
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, Carbon $createdAt): string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): string;
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool;
 }

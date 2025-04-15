@@ -9,7 +9,9 @@
       "classes_opening_brace": "same_line"
     },
     "binary_operator_spaces": {
-      "default": "align_single_space_minimal"
+      "operators": {
+        "=>": "align_single_space_minimal"
+      }
     }
   }
 }

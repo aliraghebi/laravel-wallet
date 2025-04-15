@@ -2,6 +2,8 @@
 
 namespace ArsamMe\Wallet;
 
+use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
+use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
@@ -13,6 +15,8 @@ use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Decorators\StorageServiceLockDecorator;
+use ArsamMe\Wallet\Repositories\TransactionRepository;
+use ArsamMe\Wallet\Repositories\WalletRepository;
 use ArsamMe\Wallet\Services\AtomicService;
 use ArsamMe\Wallet\Services\BookkeeperService;
 use ArsamMe\Wallet\Services\CastService;
@@ -69,6 +73,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->mergeConfigFrom(dirname(__DIR__).'/config/config.php', 'wallet');
 
         $this->services();
+        $this->repositories();
     }
 
     private function services(): void {
@@ -129,8 +134,14 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(WalletServiceInterface::class, WalletService::class);
     }
 
+    private function repositories(): void {
+        $this->app->singleton(TransactionRepositoryInterface::class, TransactionRepository::class);
+        $this->app->singleton(WalletRepositoryInterface::class, WalletRepository::class);
+    }
+
     public function provides(): array {
         return [
+            // Services
             AtomicServiceInterface::class,
             BookkeeperServiceInterface::class,
             CastServiceInterface::class,
@@ -141,6 +152,10 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             RegulatorServiceInterface::class,
             StorageServiceInterface::class,
             WalletServiceInterface::class,
+
+            // Repositories
+            WalletRepositoryInterface::class,
+            TransactionRepositoryInterface::class,
         ];
     }
 }

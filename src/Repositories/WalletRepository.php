@@ -67,8 +67,8 @@ readonly class WalletRepository implements WalletRepositoryInterface {
     public function findOrFailBySlug(string $holderType, int|string $holderId, string $slug): Wallet {
         return $this->findOrFailBy([
             'holder_type' => $holderType,
-            'holder_id' => $holderId,
-            'slug' => $slug,
+            'holder_id'   => $holderId,
+            'slug'        => $slug,
         ]);
     }
 
@@ -137,7 +137,8 @@ readonly class WalletRepository implements WalletRepositoryInterface {
             (string) $fWallet->getRawOriginal('frozen_amount'),
             $fWallet->transactions_count,
             (string) $fWallet->transactions_sum_amount,
-            (string) $fWallet->checksum
+            (string) $fWallet->checksum,
+            $fWallet->updated_at->timestamp
         );
     }
 }

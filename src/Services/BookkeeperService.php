@@ -29,7 +29,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
         return $this->get($wallet)->frozenAmount;
     }
 
-    public function getTransactionsCount(Wallet $wallet): string {
+    public function getTransactionsCount(Wallet $wallet): int {
         return $this->get($wallet)->transactionsCount;
     }
 

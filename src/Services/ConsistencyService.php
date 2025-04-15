@@ -75,19 +75,20 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return $mathService->compare($balance, $amount) >= 0;
     }
 
-    public function createWalletInitialChecksum(string $uuid, Carbon $time): string {
+    public function createWalletInitialChecksum(string $uuid, string $time): string {
         return $this->createWalletChecksum($uuid, '0', '0', 0, '0', $time);
     }
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, Carbon $updatedAt): string {
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, string $updatedAt): string {
         $dataToSign = [
             $uuid,
-            $balance,
-            $frozenAmount,
+            $this->mathService->round($balance),
+            $this->mathService->round($frozenAmount),
             $transactionsCount,
-            $transactionsSum,
-            $updatedAt->timestamp,
+            $this->mathService->round($transactionsSum),
+            $updatedAt,
         ];
+
 
         $stringToSign = implode('_', $dataToSign);
         $secret = config('wallet.consistency.secret');
@@ -95,13 +96,13 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $secret);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, Carbon $createdAt): string {
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): string {
         $dataToSign = [
             $uuid,
             $walletId,
             $type,
             $amount,
-            $createdAt->timestamp,
+            $createdAt,
         ];
 
         $stringToSign = implode('_', $dataToSign);

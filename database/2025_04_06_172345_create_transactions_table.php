@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create($this->table(), static function (Blueprint $table) {
+        $walletsTable = $this->walletsTable();
+        Schema::create($this->table(), static function (Blueprint $table) use ($walletsTable) {
             $table->id();
             $table->uuid()->unique();
-            $table->foreignId('wallet_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('wallet_id')->constrained($walletsTable)->cascadeOnUpdate()->restrictOnDelete();
             $table->enum('type', ['deposit', 'withdraw'])->index();
             $table->decimal('amount', 64, 0);
             $table->jsonb('meta')->nullable();

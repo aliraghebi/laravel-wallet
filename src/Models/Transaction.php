@@ -51,7 +51,6 @@ class Transaction extends Model {
      */
     public function casts(): array {
         return [
-            'wallet_id' => 'int',
             'meta' => 'json',
         ];
     }

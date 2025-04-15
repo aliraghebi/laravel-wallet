@@ -29,6 +29,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
     public function forget(Wallet $wallet): bool {
         unset($this->wallets[$wallet->uuid]);
+        $this->bookkeeperService->forget($wallet);
 
         return $this->storageService->forget($wallet->uuid);
     }
@@ -58,7 +59,7 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function getTransactionsCount(Wallet $wallet): int {
-        return (int) $this->mathService->add($this->bookkeeperService->getTransactionsCount($wallet), $this->getTransactionsCountDiff($wallet));
+        return $this->bookkeeperService->getTransactionsCount($wallet) + $this->getTransactionsCountDiff($wallet);
     }
 
     public function get(Wallet $wallet): WalletStateData {
@@ -87,8 +88,8 @@ class RegulatorService implements RegulatorServiceInterface {
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = WalletStateData::make([
-                'uuid' => $wallet->uuid,
-                'balance' => $value,
+                'uuid'              => $wallet->uuid,
+                'balance'           => $value,
                 'transactionsCount' => 1,
             ]);
             $this->storageService->sync($wallet->uuid, $data);
@@ -111,7 +112,7 @@ class RegulatorService implements RegulatorServiceInterface {
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = WalletStateData::make([
-                'uuid' => $wallet->uuid,
+                'uuid'         => $wallet->uuid,
                 'frozenAmount' => $value,
             ]);
             $this->storageService->sync($wallet->uuid, $data);
@@ -142,7 +143,7 @@ class RegulatorService implements RegulatorServiceInterface {
                 $this->getTransactionsCount($wallet),
                 $this->getBalance($wallet),
                 null,
-                now(),
+                now()->timestamp,
             );
             $newWalletState->checksum = $this->consistencyService->createWalletChecksum(
                 $wallet->uuid,
@@ -155,10 +156,10 @@ class RegulatorService implements RegulatorServiceInterface {
             $changes[$wallet->uuid] = $newWalletState;
 
             $updateAttributes = [
-                'balance' => $newWalletState->balance,
+                'balance'       => $newWalletState->balance,
                 'frozen_amount' => $newWalletState->frozenAmount,
-                'checksum' => $newWalletState->checksum,
-                'updated_at' => $newWalletState->updatedAt,
+                'checksum'      => $newWalletState->checksum,
+                'updated_at'    => $newWalletState->updatedAt,
             ];
             $wallet = $this->wallets[$wallet->uuid] = $this->walletRepository->update($wallet, $updateAttributes);
             $this->consistencyService->checkWalletConsistency($wallet, true);

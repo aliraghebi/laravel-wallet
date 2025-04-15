@@ -6,6 +6,7 @@ namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
@@ -19,6 +20,7 @@ final readonly class AtomicService implements AtomicServiceInterface {
     public function __construct(
         private DatabaseServiceInterface $databaseService,
         private LockServiceInterface $lockService,
+        private BookkeeperServiceInterface $bookkeeperService
     ) {}
 
     public function blocks(array $wallets, callable $callback): mixed {
@@ -34,7 +36,9 @@ final readonly class AtomicService implements AtomicServiceInterface {
             return $callback();
         }
 
-        $callable = function () use ($callback) {
+        $callable = function () use ($blockObjects, $callback) {
+            $this->bookkeeperService->multiGet($blockObjects);
+
             return $this->databaseService->transaction($callback);
         };
 

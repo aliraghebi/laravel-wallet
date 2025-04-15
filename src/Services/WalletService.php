@@ -29,9 +29,9 @@ readonly class WalletService implements WalletServiceInterface {
     public function createWallet(CreateWalletData $data): Wallet {
         $defaultParams = array_filter(config('wallet.creating', []));
 
-        $uuid     = Str::uuid7();
-        $time     = now();
-        $checksum = $this->consistencyService->createWalletInitialChecksum($uuid, $time);
+        $uuid = Str::uuid7()->toString();
+        $time = now();
+        $checksum = $this->consistencyService->createWalletInitialChecksum($uuid, $time->timestamp);
 
         $attributes = array_filter([
             'uuid'           => $uuid,
@@ -140,9 +140,9 @@ readonly class WalletService implements WalletServiceInterface {
     }
 
     private function makeTransaction(Wallet $wallet, string $type, string $amount, CreateTransactionData $data): void {
-        $uuid     = Str::uuid7();
-        $time     = now();
-        $amount   = Transaction::TYPE_WITHDRAW == $type ? $this->mathService->negative($amount) : $amount;
+        $uuid = Str::uuid7()->toString();
+        $time = now();
+        $amount = Transaction::TYPE_WITHDRAW == $type ? $this->mathService->negative($amount) : $amount;
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
         $attributes = [
