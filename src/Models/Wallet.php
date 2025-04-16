@@ -9,9 +9,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
-use function array_key_exists;
 use function config;
 
 /**
@@ -82,20 +80,6 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
         }
 
         return parent::getTable();
-    }
-
-    public function setNameAttribute(string $name): void {
-        $this->attributes['name'] = $name;
-        /**
-         * Must be updated only if the model does not exist or the slug is empty.
-         */
-        if ($this->exists) {
-            return;
-        }
-        if (array_key_exists('slug', $this->attributes)) {
-            return;
-        }
-        $this->attributes['slug'] = Str::slug($name);
     }
 
     /**

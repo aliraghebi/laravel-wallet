@@ -43,7 +43,7 @@ trait WalletFunctions {
         // This method uses the CastServiceInterface to retrieve the wallet object from the model.
         // The second argument, `$save = false`, prevents the service from saving the wallet if it does not exist.
         // This is useful to avoid unnecessary database queries when retrieving the balance.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Get the current balance of the wallet using the Regulator service.
         // This method uses the RegulatorServiceInterface to retrieve the current balance of the wallet.
@@ -54,31 +54,31 @@ trait WalletFunctions {
     }
 
     public function getRawFrozenAmountAttribute(): string {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(RegulatorServiceInterface::class)->getFrozenAmount($wallet);
     }
 
     public function getRawAvailableBalanceAttribute(): string {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(RegulatorServiceInterface::class)->getAvailableBalance($wallet);
     }
 
     public function getBalanceAttribute(): string {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(MathServiceInterface::class)->floatValue($this->getRawBalanceAttribute(), $wallet->decimal_places);
     }
 
     public function getFrozenAmountAttribute(): string {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(MathServiceInterface::class)->floatValue($this->getRawFrozenAmountAttribute(), $wallet->decimal_places);
     }
 
     public function getAvailableBalanceAttribute(): string {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(MathServiceInterface::class)->floatValue($this->getRawAvailableBalanceAttribute(), $wallet->decimal_places);
     }
@@ -98,7 +98,7 @@ trait WalletFunctions {
     public function walletTransactions(): HasMany {
         // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
         // The `false` parameter indicates that the wallet should not be saved if it does not exist.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
         // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
@@ -117,7 +117,7 @@ trait WalletFunctions {
      * @return Transaction The transaction object representing the deposit.
      */
     public function deposit(float|int|string $amount, ?array $meta = null): Transaction {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
         return app(WalletServiceInterface::class)->deposit($wallet, $amount, $meta);
@@ -142,21 +142,21 @@ trait WalletFunctions {
      * @see RecordsNotFoundException
      */
     public function withdraw(float|int|string $amount, ?array $meta = null): Transaction {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
         return app(WalletServiceInterface::class)->withdraw($wallet, $amount, $meta);
     }
 
     public function freeze(float|int|string|null $amount = null): bool {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
         return app(WalletServiceInterface::class)->freeze($wallet, $amount);
     }
 
     public function unFreeze(float|int|string|null $amount = null): bool {
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
         return app(WalletServiceInterface::class)->unFreeze($wallet, $amount);

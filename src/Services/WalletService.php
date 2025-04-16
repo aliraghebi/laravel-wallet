@@ -30,20 +30,27 @@ readonly class WalletService implements WalletServiceInterface {
     ) {}
 
     public function createWallet(Model $holder, ?CreateWalletData $data = null): Wallet {
+        $name = $data?->name;
+        $slug = $data?->slug;
+
+        if (null != $name && null == $slug) {
+            $slug = Str::slug($name);
+        }
+        
         $attributes = array_merge(
             config('wallet.wallet.default', []),
             array_filter([
                 'uuid'           => Str::uuid7()->toString(),
                 'holder_type'    => $holder->getMorphClass(),
                 'holder_id'      => $holder->getKey(),
-                'name'           => $data?->name,
-                'slug'           => $data?->slug,
+                'name'           => $name,
+                'slug'           => $slug,
                 'description'    => $data?->description,
                 'decimal_places' => $data?->decimalPlaces,
                 'meta'           => $data?->meta,
             ])
         );
-
+        
         $wallet = $this->walletRepository->createWallet($attributes);
 
         $this->dispatcherService->dispatch(new WalletCreatedEvent(

@@ -44,7 +44,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      * @throws InsufficientFunds
      */
     public function checkPotential(Wallet $object, string $amount, bool $allowZero = false): void {
-        $wallet = $this->castService->getWallet($object, false);
+        $wallet = $this->castService->getWallet($object);
         $balance = $wallet->getRawBalanceAttribute();
         $availableBalance = $wallet->getRawAvailableBalanceAttribute();
 

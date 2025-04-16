@@ -19,10 +19,6 @@ interface CastServiceInterface {
      * @param  Wallet  $object  The object that implements the Wallet interface.
      *                          This can be either a `Model` instance or an instance of a class that implements the
      *                          `Wallet` interface.
-     * @param  bool  $save  Flag indicating whether to save the wallet.
-     *                      If set to `true`, the wallet will be saved if it does not exist yet.
-     *                      If set to `false`, the wallet will be retrieved from the database if it exists,
-     *                      otherwise a new wallet will be created.
      * @return WalletModel The retrieved wallet model.
      *
      * @throws ModelNotFoundException If the wallet does not exist and `$save` is set to `false`.
@@ -30,7 +26,7 @@ interface CastServiceInterface {
      * @see Wallet
      * @see WalletModel
      */
-    public function getWallet(Wallet $object, bool $save = true): WalletModel;
+    public function getWallet(Wallet $object): WalletModel;
 
     /**
      * Get the holder associated with the object.

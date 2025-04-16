@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Traits;
 
+use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Contracts\Wallet;
 use ArsamMe\Wallet\Data\CreateWalletData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;
@@ -23,6 +25,8 @@ use function config;
  * @psalm-require-extends Model
  */
 trait HasWallets {
+    use WalletFunctions;
+
     /**
      * Cache for the wallets to avoid requesting them multiple times. WalletProxy stores the money wallets
      * in memory to avoid errors when you purchase/transfer, etc.
@@ -110,6 +114,34 @@ trait HasWallets {
             // Specify the name of the polymorphic relation.
             'holder'
         );
+    }
+
+    /**
+     * Get the wallet attribute.
+     *
+     * @return Wallet The wallet model associated with the related model.
+     */
+    public function getWalletAttribute(bool $create = true): WalletModel {
+        try {
+            $wallet = $this->findOrFailWallet();
+        } catch (ModelNotFoundException $e) {
+            if (!$create) {
+                throw $e;
+            }
+            $wallet = $this->createWallet();
+        }
+
+        // If the wallet model exists and the 'holder' relationship is not loaded,
+        // associate the related model with the wallet.
+        if (!$wallet->relationLoaded('holder')) {
+            // Get the related holder model.
+            $holder = app(CastServiceInterface::class)->getHolder($this);
+
+            // Associate the related model with the wallet.
+            $wallet->setRelation('holder', $holder->withoutRelations());
+        }
+
+        return $wallet;
     }
 
     /**
