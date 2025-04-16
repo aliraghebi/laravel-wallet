@@ -6,11 +6,13 @@ use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Data\CreateTransactionData;
 use ArsamMe\Wallet\Data\CreateWalletData;
+use ArsamMe\Wallet\Events\TransactionCreatedEvent;
+use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
@@ -23,33 +25,41 @@ readonly class WalletService implements WalletServiceInterface {
         private ConsistencyServiceInterface $consistencyService,
         private RegulatorServiceInterface $regulatorService,
         private WalletRepositoryInterface $walletRepository,
-        private TransactionRepositoryInterface $transactionRepository
+        private TransactionRepositoryInterface $transactionRepository,
+        private DispatcherServiceInterface $dispatcherService
     ) {}
 
-    public function createWallet(CreateWalletData $data): Wallet {
-        $defaultParams = array_filter(config('wallet.creating', []));
+    public function createWallet(Model $holder, CreateWalletData $data): Wallet {
+        $attributes = array_merge(
+            config('wallet.wallet.creating', []),
+            array_filter([
+                'uuid'           => Str::uuid7()->toString(),
+                'holder_type'    => $holder->getMorphClass(),
+                'holder_id'      => $holder->getKey(),
+                'name'           => $data->name,
+                'slug'           => $data->slug,
+                'description'    => $data->description,
+                'decimal_places' => $data->decimalPlaces,
+                'meta'           => $data->meta,
+            ])
+        );
 
-        $uuid = Str::uuid7()->toString();
-        $time = now();
-        $checksum = $this->consistencyService->createWalletInitialChecksum($uuid, $time->timestamp);
+        $wallet = $this->walletRepository->createWallet($attributes);
 
-        $attributes = array_filter([
-            'uuid'           => $uuid,
-            'holder_type'    => $data->holder->getMorphClass(),
-            'holder_id'      => $data->holder->getKey(),
-            'name'           => $data->name,
-            'slug'           => $data->slug,
-            'description'    => $data->description,
-            'decimal_places' => $data->decimalPlaces,
-            'meta'           => $data->meta,
-            'checksum'       => $checksum,
-            'created_at'     => $time,
-            'updated_at'     => $time,
-        ]);
+        $this->dispatcherService->dispatch(new WalletCreatedEvent(
+            $wallet->id,
+            $wallet->uuid,
+            $wallet->holder_type,
+            $wallet->holder_id,
+            $wallet->description,
+            $wallet->meta,
+            $wallet->decimal_places,
+            $wallet->created_at->toImmutable(),
+        ));
 
-        $attributes = array_merge($defaultParams, $attributes);
+        $this->dispatcherService->lazyFlush();
 
-        return $this->walletRepository->createWallet($attributes);
+        return $wallet;
     }
 
     public function findById(int $id): ?Wallet {
@@ -80,50 +90,58 @@ readonly class WalletService implements WalletServiceInterface {
         return $wallet->getBalanceAttribute();
     }
 
-    public function deposit(Wallet $wallet, CreateTransactionData $data): void {
-        $this->atomic($wallet, function () use ($wallet, $data) {
-            $amount = $this->mathService->intValue($data->amount, $wallet->decimal_places);
+    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction {
+        return $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
+            $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
 
             $this->consistencyService->checkPositive($amount);
 
-            $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $data);
+            $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $meta);
 
             $this->regulatorService->increase($wallet, $amount);
+
+            return $transaction;
         });
     }
 
-    public function withdraw(Wallet $wallet, CreateTransactionData $data): void {
-        $this->atomic($wallet, function () use ($wallet, $data) {
-            $amount = $this->mathService->intValue($data->amount, $wallet->decimal_places);
+    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction {
+        return $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
+            $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
 
             $this->consistencyService->checkPositive($amount);
             $this->consistencyService->checkPotential($wallet, $amount);
 
-            $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $data);
+            $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $meta);
 
             $this->regulatorService->decrease($wallet, $amount);
+
+            return $transaction;
         });
     }
 
-    public function freeze(Wallet $wallet, float|int|string|null $amount = null): void {
-        $this->atomic($wallet, function () use ($amount, $wallet) {
+    public function freeze(Wallet $wallet, float|int|string|null $amount = null): bool {
+        return $this->atomic($wallet, function () use ($amount, $wallet) {
             if (null != $amount) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
             }
 
             $this->regulatorService->freeze($wallet, $amount);
+
+            return true;
         });
     }
 
-    public function unFreeze(Wallet $wallet, float|int|string|null $amount = null): void {
-        $this->atomic($wallet, function () use ($amount, $wallet) {
+    public function unFreeze(Wallet $wallet, float|int|string|null $amount = null): bool {
+        return $this->atomic($wallet, function () use ($amount, $wallet) {
             if (null != $amount) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
             }
 
             $this->regulatorService->unFreeze($wallet, $amount);
+
+            return true;
         });
     }
 
@@ -139,7 +157,7 @@ readonly class WalletService implements WalletServiceInterface {
         return $this->consistencyService->checkWalletConsistency($wallet, $throw);
     }
 
-    private function makeTransaction(Wallet $wallet, string $type, string $amount, CreateTransactionData $data): void {
+    private function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null): Transaction {
         $uuid = Str::uuid7()->toString();
         $time = now();
         $amount = Transaction::TYPE_WITHDRAW == $type ? $this->mathService->negative($amount) : $amount;
@@ -150,12 +168,24 @@ readonly class WalletService implements WalletServiceInterface {
             'wallet_id'  => $wallet->id,
             'type'       => $type,
             'amount'     => $amount,
-            'meta'       => $data->meta,
+            'meta'       => $meta,
             'checksum'   => $checksum,
             'created_at' => $time,
             'updated_at' => $time,
         ];
 
-        $this->transactionRepository->createTransaction($attributes);
+        $transaction = $this->transactionRepository->createTransaction($attributes);
+
+        $this->dispatcherService->dispatch(new TransactionCreatedEvent(
+            $transaction->id,
+            $transaction->uuid,
+            $transaction->wallet_id,
+            $transaction->type,
+            $transaction->amount,
+            $transaction->meta,
+            $transaction->created_at->toImmutable()
+        ));
+
+        return $transaction;
     }
 }

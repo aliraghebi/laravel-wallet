@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
@@ -20,7 +21,8 @@ final readonly class AtomicService implements AtomicServiceInterface {
     public function __construct(
         private DatabaseServiceInterface $databaseService,
         private LockServiceInterface $lockService,
-        private BookkeeperServiceInterface $bookkeeperService
+        private BookkeeperServiceInterface $bookkeeperService,
+        private StateServiceInterface $stateService
     ) {}
 
     public function blocks(array $wallets, callable $callback): mixed {
@@ -37,12 +39,21 @@ final readonly class AtomicService implements AtomicServiceInterface {
         }
 
         $callable = function () use ($blockObjects, $callback) {
-            $this->bookkeeperService->multiGet($blockObjects);
+            $this->stateService->multiFork(
+                array_keys($blockObjects),
+                fn () => $this->bookkeeperService->multiGet($blockObjects)
+            );
 
             return $this->databaseService->transaction($callback);
         };
 
-        return $this->lockService->blocks(array_keys($blockObjects), $callable);
+        try {
+            return $this->lockService->blocks(array_keys($blockObjects), $callable);
+        } finally {
+            foreach (array_keys($blockObjects) as $uuid) {
+                $this->stateService->drop($uuid);
+            }
+        }
     }
 
     /**

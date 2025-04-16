@@ -14,7 +14,6 @@ use ArsamMe\Wallet\Exceptions\AmountInvalid;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
-use Carbon\Carbon;
 
 /**
  * @internal
@@ -23,7 +22,9 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     public function __construct(
         private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
-        private WalletRepositoryInterface $walletRepository
+        private WalletRepositoryInterface $walletRepository,
+        private bool $consistencyChecksumsEnabled,
+        private string $checksumSecret,
     ) {}
 
     /**
@@ -75,28 +76,29 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return $mathService->compare($balance, $amount) >= 0;
     }
 
-    public function createWalletInitialChecksum(string $uuid, string $time): string {
-        return $this->createWalletChecksum($uuid, '0', '0', 0, '0', $time);
-    }
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string {
+        if (!$this->consistencyChecksumsEnabled) {
+            return null;
+        }
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, string $updatedAt): string {
         $dataToSign = [
             $uuid,
             $this->mathService->round($balance),
             $this->mathService->round($frozenAmount),
             $transactionsCount,
             $this->mathService->round($transactionsSum),
-            $updatedAt,
         ];
 
-
         $stringToSign = implode('_', $dataToSign);
-        $secret = config('wallet.consistency.secret');
 
-        return hash_hmac('sha256', $stringToSign, $secret);
+        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): string {
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string {
+        if (!$this->consistencyChecksumsEnabled) {
+            return null;
+        }
+
         $dataToSign = [
             $uuid,
             $walletId,
@@ -106,12 +108,15 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         ];
 
         $stringToSign = implode('_', $dataToSign);
-        $secret = config('wallet.consistency.secret');
 
-        return hash_hmac('sha256', $stringToSign, $secret);
+        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
+        if (!$this->consistencyChecksumsEnabled) {
+            return true;
+        }
+
         $wallet = $this->castService->getWallet($wallet);
 
         $walletState = $this->walletRepository->getWalletStateData($wallet);
@@ -121,7 +126,6 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $walletState->frozenAmount,
             $walletState->transactionsCount,
             $walletState->transactionsSum,
-            $walletState->updatedAt
         );
 
         if ($wallet->checksum !== $expectedChecksum || (0 !== $this->mathService->compare($wallet->getRawBalanceAttribute(), $walletState->transactionsSum))) {

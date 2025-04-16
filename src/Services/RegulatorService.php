@@ -5,18 +5,20 @@ namespace ArsamMe\Wallet\Services;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
+use ArsamMe\Wallet\Events\WalletUpdatedEvent;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
 
 class RegulatorService implements RegulatorServiceInterface {
     private array $wallets = [];
 
-    //    private array $changes = [];
+    private array $changes = [];
 
     public function __construct(
         private readonly BookkeeperServiceInterface $bookkeeperService,
@@ -24,7 +26,8 @@ class RegulatorService implements RegulatorServiceInterface {
         private readonly MathServiceInterface $mathService,
         private readonly LockServiceInterface $lockService,
         private readonly ConsistencyServiceInterface $consistencyService,
-        private readonly WalletRepositoryInterface $walletRepository
+        private readonly WalletRepositoryInterface $walletRepository,
+        private readonly DispatcherServiceInterface $dispatcherService,
     ) {}
 
     public function forget(Wallet $wallet): bool {
@@ -75,7 +78,12 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function getAvailableBalance(Wallet $wallet): string {
-        return $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet));
+        $availableBalance = $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet));
+        if (-1 == $this->mathService->compare($availableBalance, 0)) {
+            $availableBalance = '0';
+        }
+
+        return $availableBalance;
     }
 
     public function increase(Wallet $wallet, string $value): string {
@@ -122,7 +130,14 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function unFreeze(Wallet $wallet, ?string $value = null): string {
-        $value ??= $this->getFrozenAmount($wallet);
+        $frozenAmount = $this->getFrozenAmount($wallet);
+        if (null == $value) {
+            $value = $frozenAmount;
+        } else {
+            if (1 == $this->mathService->compare($value, $frozenAmount)) {
+                $value = $frozenAmount;
+            }
+        }
 
         return $this->freeze($wallet, $this->mathService->negative($value));
     }
@@ -142,16 +157,14 @@ class RegulatorService implements RegulatorServiceInterface {
                 $this->getFrozenAmount($wallet),
                 $this->getTransactionsCount($wallet),
                 $this->getBalance($wallet),
-                null,
-                now()->timestamp,
+                null
             );
             $newWalletState->checksum = $this->consistencyService->createWalletChecksum(
                 $wallet->uuid,
                 $newWalletState->balance,
                 $newWalletState->frozenAmount,
                 $newWalletState->transactionsCount,
-                $newWalletState->transactionsSum,
-                $newWalletState->updatedAt,
+                $newWalletState->transactionsSum
             );
             $changes[$wallet->uuid] = $newWalletState;
 
@@ -159,39 +172,46 @@ class RegulatorService implements RegulatorServiceInterface {
                 'balance'       => $newWalletState->balance,
                 'frozen_amount' => $newWalletState->frozenAmount,
                 'checksum'      => $newWalletState->checksum,
-                'updated_at'    => $newWalletState->updatedAt,
             ];
             $wallet = $this->wallets[$wallet->uuid] = $this->walletRepository->update($wallet, $updateAttributes);
             $this->consistencyService->checkWalletConsistency($wallet, true);
         }
 
-        //        $this->changes = $changes;
-        $this->bookkeeperService->multiSync($changes);
+        if ([] !== $changes) {
+            $this->changes = $changes;
+            $this->bookkeeperService->multiSync($changes);
+        }
     }
 
     public function committed(): void {
-        //        try {
-        //            foreach ($this->changes as $uuid => $state) {
-        //                $wallet = $this->wallets[$uuid];
-        //                $event = $this->balanceUpdatedEventAssembler->create($wallet);
-        //                $this->dispatcherService->dispatch($event);
-        //            }
-        //        } finally {
-        //            $this->dispatcherService->flush();
-        //            $this->purge();
-        //        }
+        try {
+            foreach ($this->changes as $uuid => $state) {
+                $wallet = $this->wallets[$uuid];
+                $this->dispatcherService->dispatch(new WalletUpdatedEvent(
+                    $wallet->id,
+                    $wallet->uuid,
+                    $wallet->balance,
+                    $wallet->frozen_amount,
+                    $wallet->available_balance,
+                    $wallet->updated_at->toImmutable()
+                ));
+            }
+        } finally {
+            $this->dispatcherService->flush();
+            $this->purge();
+        }
     }
 
     public function purge(): void {
-        //        try {
-        $this->lockService->releases(array_keys($this->wallets));
-        //        $this->changes = [];
-        foreach ($this->wallets as $wallet) {
-            $this->forget($wallet);
+        try {
+            $this->lockService->releases(array_keys($this->wallets));
+            $this->changes = [];
+            foreach ($this->wallets as $wallet) {
+                $this->forget($wallet);
+            }
+        } finally {
+            $this->dispatcherService->forgot();
         }
-        //        } finally {
-        //            $this->dispatcherService->forgot();
-        //        }
     }
 
     public function persist(Wallet $wallet): void {

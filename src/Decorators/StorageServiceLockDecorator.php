@@ -2,13 +2,15 @@
 
 namespace ArsamMe\Wallet\Decorators;
 
+use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 
 readonly class StorageServiceLockDecorator implements StorageServiceInterface {
     public function __construct(
         private StorageServiceInterface $storageService,
-        private LockServiceInterface $lockService
+        private LockServiceInterface $lockService,
+        private StateServiceInterface $stateService,
     ) {}
 
     public function flush(): bool {
@@ -19,23 +21,45 @@ readonly class StorageServiceLockDecorator implements StorageServiceInterface {
         return $this->storageService->forget($uuid);
     }
 
-    public function get(string $uuid, ?string $class = null): mixed {
-        return $this->storageService->get($uuid, $class);
+    public function get(string $uuid): mixed {
+        return $this->storageService->get($uuid);
     }
 
     public function sync(string $uuid, mixed $value): bool {
         return $this->storageService->sync($uuid, $value);
     }
 
-    public function multiGet(array $uuids, ?string $class = null): array {
-        return $this->storageService->multiGet($uuids, $class);
+    public function multiGet(array $uuids): array {
+        $missingKeys = [];
+        $results = [];
+        foreach ($uuids as $uuid) {
+            $item = $this->stateService->get($uuid);
+            if (null === $item) {
+                $missingKeys[] = $uuid;
+
+                continue;
+            }
+
+            $results[$uuid] = $item;
+        }
+
+        if ([] !== $missingKeys) {
+            $foundValues = $this->storageService->multiGet($missingKeys);
+            foreach ($foundValues as $key => $value) {
+                $results[$key] = $value;
+            }
+        }
+
+        assert([] !== $results);
+
+        return $results;
     }
 
-    public function multiSync(array $inputs, bool $convertToJson = true): bool {
+    public function multiSync(array $inputs): bool {
         return $this->lockService->blocks(
             array_keys($inputs),
-            function () use ($inputs, $convertToJson) {
-                return $this->storageService->multiSync($inputs, $convertToJson);
+            function () use ($inputs) {
+                return $this->storageService->multiSync($inputs);
             }
         );
     }

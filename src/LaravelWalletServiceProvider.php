@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet;
 
+use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
@@ -9,12 +10,15 @@ use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Decorators\StorageServiceLockDecorator;
+use ArsamMe\Wallet\Models\Transaction;
+use ArsamMe\Wallet\Models\Wallet;
 use ArsamMe\Wallet\Repositories\TransactionRepository;
 use ArsamMe\Wallet\Repositories\WalletRepository;
 use ArsamMe\Wallet\Services\AtomicService;
@@ -22,9 +26,11 @@ use ArsamMe\Wallet\Services\BookkeeperService;
 use ArsamMe\Wallet\Services\CastService;
 use ArsamMe\Wallet\Services\ConsistencyService;
 use ArsamMe\Wallet\Services\DatabaseService;
+use ArsamMe\Wallet\Services\DispatcherService;
 use ArsamMe\Wallet\Services\LockService;
 use ArsamMe\Wallet\Services\MathService;
 use ArsamMe\Wallet\Services\RegulatorService;
+use ArsamMe\Wallet\Services\StateService;
 use ArsamMe\Wallet\Services\StorageService;
 use ArsamMe\Wallet\Services\WalletService;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
@@ -74,6 +80,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
 
         $this->services();
         $this->repositories();
+        $this->bindObjects();
     }
 
     private function services(): void {
@@ -90,9 +97,13 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs('$scale')
             ->giveConfig('wallet.math.scale', 64);
 
-        $this->app->when(WalletService::class)
-            ->needs('$walletSecret')
-            ->giveConfig('wallet.secret');
+        $this->app->when(ConsistencyService::class)
+            ->needs('$consistencyChecksumsEnabled')
+            ->giveConfig('wallet.consistency.enabled');
+
+        $this->app->when(ConsistencyService::class)
+            ->needs('$checksumSecret')
+            ->giveConfig('wallet.consistency.secret');
 
         // bookkeepper service
         $this->app->when(StorageServiceLockDecorator::class)
@@ -127,9 +138,11 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(CastServiceInterface::class, CastService::class);
         $this->app->singleton(ConsistencyServiceInterface::class, ConsistencyService::class);
         $this->app->singleton(DatabaseServiceInterface::class, DatabaseService::class);
+        $this->app->singleton(DispatcherServiceInterface::class, DispatcherService::class);
         $this->app->singleton(LockServiceInterface::class, LockService::class);
         $this->app->singleton(MathServiceInterface::class, MathService::class);
         $this->app->singleton(RegulatorServiceInterface::class, RegulatorService::class);
+        $this->app->singleton(StateServiceInterface::class, StateService::class);
         $this->app->singleton(StorageServiceInterface::class, StorageService::class);
         $this->app->singleton(WalletServiceInterface::class, WalletService::class);
     }
@@ -137,6 +150,11 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
     private function repositories(): void {
         $this->app->singleton(TransactionRepositoryInterface::class, TransactionRepository::class);
         $this->app->singleton(WalletRepositoryInterface::class, WalletRepository::class);
+    }
+
+    private function bindObjects() {
+        $this->app->bind(Transaction::class, config('wallet.transaction.model'));
+        $this->app->bind(Wallet::class, config('wallet.wallet.model'));
     }
 
     public function provides(): array {
@@ -147,9 +165,11 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             CastServiceInterface::class,
             ConsistencyServiceInterface::class,
             DatabaseServiceInterface::class,
+            DispatcherServiceInterface::class,
             LockServiceInterface::class,
             MathServiceInterface::class,
             RegulatorServiceInterface::class,
+            StateServiceInterface::class,
             StorageServiceInterface::class,
             WalletServiceInterface::class,
 

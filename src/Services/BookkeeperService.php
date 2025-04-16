@@ -45,7 +45,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
 
     public function multiGet(array $wallets): array {
         try {
-            return $this->storageService->multiGet(array_keys($wallets), WalletStateData::class);
+            return $this->storageService->multiGet(array_keys($wallets));
         } catch (RecordNotFoundException $recordNotFoundException) {
             $this->lockService->blocks(
                 $recordNotFoundException->getMissingKeys(),
@@ -60,7 +60,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
             );
         }
 
-        return $this->storageService->multiGet(array_keys($wallets), WalletStateData::class);
+        return $this->storageService->multiGet(array_keys($wallets));
     }
 
     public function multiSync(array $items): bool {

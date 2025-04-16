@@ -25,7 +25,7 @@ interface WalletRepositoryInterface {
      *     updated_at?: Carbon|null,
      * } $attributes
      */
-    public function createWallet(array $attributes);
+    public function createWallet(array $attributes): Wallet;
 
     /**
      * Find a wallet by its ID.

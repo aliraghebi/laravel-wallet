@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->enum('type', ['deposit', 'withdraw'])->index();
             $table->decimal('amount', 64, 0);
             $table->jsonb('meta')->nullable();
-            $table->string('checksum');
+            $table->string('checksum')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();
         });

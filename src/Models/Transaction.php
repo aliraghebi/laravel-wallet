@@ -9,6 +9,7 @@ use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use function config;
 
@@ -28,6 +29,8 @@ use function config;
  * @method int getKey()
  */
 class Transaction extends Model {
+    use SoftDeletes;
+
     final public const TYPE_DEPOSIT = 'deposit';
 
     final public const TYPE_WITHDRAW = 'withdraw';
@@ -75,12 +78,12 @@ class Transaction extends Model {
     }
 
     public function getRawAmountAttribute(): string {
-        return (string) $this->getRawOriginal('credit', 0);
+        return (string) $this->getRawOriginal('amount', 0);
     }
 
     public function getAmountAttribute(): string {
         $math = app(MathServiceInterface::class);
 
-        return $math->floatValue($this->attributes['credit'], $this->decimal_places);
+        return $math->floatValue($this->attributes['amount'], $this->decimal_places);
     }
 }

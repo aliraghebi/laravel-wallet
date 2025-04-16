@@ -35,12 +35,11 @@ interface StorageServiceInterface {
      * If the value with the given UUID does not exist, a `RecordNotFoundException` is thrown.
      *
      * @param  non-empty-string  $uuid  The UUID of the stored value.
-     * @param  string|null  $class  If you pass data class name, value will be converted to it.
      * @return mixed The stored value.
      *
      * @throws RecordNotFoundException If the value with the given UUID is not found.
      */
-    public function get(string $uuid, ?string $class = null): mixed;
+    public function get(string $uuid): mixed;
 
     /**
      * Synchronizes the stored value for the given UUID.
@@ -61,13 +60,12 @@ interface StorageServiceInterface {
      * If any of the values with the given UUIDs do not exist, a `RecordNotFoundException` is thrown.
      *
      * @param  non-empty-array<non-empty-string>  $uuids  The UUIDs of the stored values.
-     * @param  string|null  $class  If you pass data class name, value will be converted to it.
      * @return non-empty-array<non-empty-string, non-empty-string> The stored values. The keys are the UUIDs and the values are the corresponding
      *                                                             stored values.
      *
      * @throws RecordNotFoundException If any of the values with the given UUIDs are not found.
      */
-    public function multiGet(array $uuids, ?string $class = null): array;
+    public function multiGet(array $uuids): array;
 
     /**
      * Synchronizes multiple stored values at once.
@@ -82,5 +80,5 @@ interface StorageServiceInterface {
      *
      * @throws RecordNotFoundException If any of the values with the given UUIDs are not found.
      */
-    public function multiSync(array $inputs, bool $convertToJson = true): bool;
+    public function multiSync(array $inputs): bool;
 }

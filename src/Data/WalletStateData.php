@@ -12,8 +12,7 @@ class WalletStateData extends BaseData {
         public string $frozenAmount,
         public int $transactionsCount,
         public string $transactionsSum,
-        public ?string $checksum,
-        public string $updatedAt,
+        public ?string $checksum
     ) {}
 
     public static function make(array $data = []): WalletStateData {
@@ -23,8 +22,7 @@ class WalletStateData extends BaseData {
             $data['frozenAmount'] ?? '0',
             $data['transactionsCount'] ?? 0,
             $data['transactionsSum'] ?? '0',
-            $data['checksum'] ?? '',
-            $data['updatedAt'] ?? Carbon::now()->timestamp,
+            $data['checksum'] ?? ''
         );
     }
 }

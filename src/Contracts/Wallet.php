@@ -71,10 +71,18 @@ interface Wallet {
      */
     public function getBalanceAttribute(): string;
 
+    public function getRawFrozenAmountAttribute(): string;
+
+    public function getFrozenAmountAttribute(): string;
+
+    public function getRawAvailableBalanceAttribute(): string;
+
+    public function getAvailableBalanceAttribute(): string;
+
     /**
      * Represents a relationship where a wallet has many transactions.
      *
      * @return HasMany<Transaction> A collection of transactions associated with this wallet.
      */
-    public function transactions(): HasMany;
+    public function walletTransactions(): HasMany;
 }

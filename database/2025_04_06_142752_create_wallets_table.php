@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->decimal('balance', 64, 0)->default(0);
             $table->decimal('frozen_amount', 64, 0)->default(0);
             $table->unsignedSmallInteger('decimal_places')->default(2);
-            $table->string('checksum');
+            $table->string('checksum')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();
 

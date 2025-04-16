@@ -95,6 +95,8 @@ readonly class WalletRepository implements WalletRepositoryInterface {
     }
 
     public function update(Wallet $wallet, array $attributes): Wallet {
+        $attributes['updated_at'] ??= now();
+
         $wallet->fill($attributes)->saveQuietly();
 
         return $wallet;
@@ -127,18 +129,17 @@ readonly class WalletRepository implements WalletRepositoryInterface {
 
     public function getWalletStateData(Wallet $wallet): WalletStateData {
         $fWallet = $this->wallet->newQuery()
-            ->withCount('transactions')
-            ->withSum('transactions', 'amount')
+            ->withCount('walletTransactions')
+            ->withSum('walletTransactions', 'amount')
             ->findOrFail($wallet->id);
 
         return new WalletStateData(
             $fWallet->uuid,
             (string) $fWallet->getRawOriginal('balance'),
             (string) $fWallet->getRawOriginal('frozen_amount'),
-            $fWallet->transactions_count,
-            (string) $fWallet->transactions_sum_amount,
-            (string) $fWallet->checksum,
-            $fWallet->updated_at->timestamp
+            $fWallet->wallet_transactions_count,
+            (string) $fWallet->wallet_transactions_sum_amount,
+            (string) $fWallet->checksum
         );
     }
 }

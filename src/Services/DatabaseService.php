@@ -15,7 +15,7 @@ class DatabaseService implements DatabaseServiceInterface {
     private ConnectionInterface $connection;
 
     public function __construct(ConnectionResolverInterface $connectionResolver) {
-        $this->connection = $connectionResolver->connection(config('wallet.database.connection'));
+        $this->connection = $connectionResolver->connection();
     }
 
     public function getConnection(): ConnectionInterface {

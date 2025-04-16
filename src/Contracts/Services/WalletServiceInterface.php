@@ -2,14 +2,14 @@
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Data\CreateTransactionData;
 use ArsamMe\Wallet\Data\CreateWalletData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
+use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
 
 interface WalletServiceInterface {
-    public function createWallet(CreateWalletData $data): Wallet;
+    public function createWallet(Model $holder, CreateWalletData $data): Wallet;
 
     /**
      * Find a wallet by its ID.
@@ -67,13 +67,13 @@ interface WalletServiceInterface {
 
     public function getBalance(Wallet $wallet): string;
 
-    public function deposit(Wallet $wallet, CreateTransactionData $data): void;
+    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction;
 
-    public function withdraw(Wallet $wallet, CreateTransactionData $data): void;
+    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction;
 
-    public function freeze(Wallet $wallet, int|float|string|null $amount = null): void;
+    public function freeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 
-    public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): void;
+    public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 
     public function atomic(Wallet|array $wallets, $callback): mixed;
 

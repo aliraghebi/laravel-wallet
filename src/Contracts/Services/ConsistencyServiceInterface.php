@@ -6,7 +6,6 @@ namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Wallet;
 use ArsamMe\Wallet\Exceptions\AmountInvalid;
-use Carbon\Carbon;
 
 /**
  * @api
@@ -39,11 +38,9 @@ interface ConsistencyServiceInterface {
      */
     public function canWithdraw(float|int|string $balance, float|int|string $amount, bool $allowZero = false): bool;
 
-    public function createWalletInitialChecksum(string $uuid, string $time): string;
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum, string $updatedAt): string;
-
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string;
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool;
 }
