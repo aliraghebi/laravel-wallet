@@ -3,7 +3,6 @@
 namespace ArsamMe\Wallet\Data;
 
 use ArsamMe\Wallet\Contracts\BaseData;
-use Carbon\Carbon;
 
 class WalletStateData extends BaseData {
     public function __construct(

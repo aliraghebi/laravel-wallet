@@ -3,7 +3,6 @@
 namespace ArsamMe\Wallet\Data;
 
 use ArsamMe\Wallet\Contracts\BaseData;
-use Illuminate\Database\Eloquent\Model;
 
 class CreateWalletData extends BaseData {
     public function __construct(

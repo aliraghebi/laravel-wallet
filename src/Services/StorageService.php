@@ -80,11 +80,11 @@ class StorageService implements StorageServiceInterface {
         foreach ($inputs as $uuid => $value) {
             $values[self::PREFIX.$uuid] = $value;
         }
-        
+
         if (1 === count($values)) {
             return $this->cacheRepository->set(key($values), current($values), $this->ttl);
         }
-        
+
         return $this->cacheRepository->setMultiple($values, $this->ttl);
     }
 }
