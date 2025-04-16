@@ -34,13 +34,13 @@ trait HasWallets {
     /**
      * Get wallet by slug.
      *
-     * @param  string  $slug  The slug of the wallet.
+     * @param  string|null  $slug  The slug of the wallet.
      * @return WalletModel|null The wallet with the given slug, or null if not found.
      *
      * This method is a wrapper around the getWalletOrFail method. It catches the ModelNotFoundException
      * and returns null instead of throwing it.
      */
-    public function findWallet(string $slug): ?WalletModel {
+    public function getWallet(?string $slug = null): ?WalletModel {
         // Try to get the wallet with the given slug.
         try {
             return $this->findOrFailWallet($slug);
@@ -58,12 +58,12 @@ trait HasWallets {
      * If the wallet is not found in the cache, it retrieves it from the database,
      * stores it in the cache, and returns it.
      *
-     * @param  string  $slug  The slug of the wallet.
+     * @param  string|null  $slug  The slug of the wallet.
      * @return WalletModel The wallet with the given slug.
-     *
-     * @throws ModelNotFoundException If the wallet with the given slug is not found.
      */
-    public function findOrFailWallet(string $slug): WalletModel {
+    public function findOrFailWallet(?string $slug = null): WalletModel {
+        $slug ??= config('wallet.wallet.default.slug', 'default');
+
         // Check if wallets are loaded.
         // Load wallets if they are not loaded yet.
         if ([] === $this->_wallets && $this->relationLoaded('wallets')) {
@@ -130,10 +130,10 @@ trait HasWallets {
      * - decimal_places: The number of decimal places for the wallet. If not
      *                   specified, the default value is 2.
      *
-     * @param  CreateWalletData  $data  The data for the new wallet.
+     * @param  CreateWalletData|null  $data  The data for the new wallet.
      * @return WalletModel The new wallet object.
      */
-    public function createWallet(CreateWalletData $data): WalletModel {
+    public function createWallet(?CreateWalletData $data = null): WalletModel {
         // Create the wallet with the given data.
         $wallet = app(WalletServiceInterface::class)->createWallet($this, $data);
 
@@ -160,6 +160,6 @@ trait HasWallets {
         // or null if it does not exist.
         // Casting the result to a boolean converts null to false and the wallet
         // object to true.
-        return (bool) $this->findWallet($slug);
+        return (bool) $this->getWallet($slug);
     }
 }

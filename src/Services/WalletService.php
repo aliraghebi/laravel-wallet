@@ -29,18 +29,18 @@ readonly class WalletService implements WalletServiceInterface {
         private DispatcherServiceInterface $dispatcherService
     ) {}
 
-    public function createWallet(Model $holder, CreateWalletData $data): Wallet {
+    public function createWallet(Model $holder, ?CreateWalletData $data = null): Wallet {
         $attributes = array_merge(
-            config('wallet.wallet.creating', []),
+            config('wallet.wallet.default', []),
             array_filter([
                 'uuid'           => Str::uuid7()->toString(),
                 'holder_type'    => $holder->getMorphClass(),
                 'holder_id'      => $holder->getKey(),
-                'name'           => $data->name,
-                'slug'           => $data->slug,
-                'description'    => $data->description,
-                'decimal_places' => $data->decimalPlaces,
-                'meta'           => $data->meta,
+                'name'           => $data?->name,
+                'slug'           => $data?->slug,
+                'description'    => $data?->description,
+                'decimal_places' => $data?->decimalPlaces,
+                'meta'           => $data?->meta,
             ])
         );
 

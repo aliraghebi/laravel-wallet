@@ -45,15 +45,7 @@ return [
         'model' => Wallet::class,
 
         /*
-        | The configuration options for creating wallets.
-        */
-        'creating' => [
-            'decimal_places' => 24,
-        ],
-
-        /*
         | The default configuration for wallets.
-        | THis
         */
         'default' => [
             /*
@@ -70,6 +62,11 @@ return [
             | The meta information of the default wallet.
             */
             'meta' => [],
+
+            /*
+            | Default decimal places for new wallets if you do not set
+            */
+            'decimal_places' => 24,
         ],
     ],
 

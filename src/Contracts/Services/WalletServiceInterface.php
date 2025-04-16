@@ -9,7 +9,7 @@ use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
 
 interface WalletServiceInterface {
-    public function createWallet(Model $holder, CreateWalletData $data): Wallet;
+    public function createWallet(Model $holder, ?CreateWalletData $data=null): Wallet;
 
     /**
      * Find a wallet by its ID.
