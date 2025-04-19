@@ -18,16 +18,16 @@ hero:
       link: /guide/introduction/upgrade
 
 features:
-  - title: Default Wallet
-    details: For simple projects when there is no need for multiple wallets.
-    icon: 💰
-    link: /guide/single/deposit
+  - title: Atomic Service
+    details: Atomic service for transactions. No need to worry about the state of the wallet.
+    icon: 🔒
+    link: /guide/db/atomic-service
   - title: Multi wallets
     details: Many wallets for one model. Easy API.
-    icon: 🎒
-    link: /guide/multi/new-wallet
+    icon: 💰
+    link: /guide/main/multi-wallet
   - title: Events
     details: For more complex projects there are events and high performance API.
     icon: 📻
-    link: /guide/events/balance-updated-event
+    link: /guide/events/wallet-updated-event
 ---
