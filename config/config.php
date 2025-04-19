@@ -151,6 +151,6 @@ return [
         /*
         | The scale of the calculator.
         */
-        'scale' => env('WALLET_MATH_SCALE',64),
+        'scale' => env('WALLET_MATH_SCALE', 64),
     ],
 ];
