@@ -13,6 +13,7 @@ use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\RecordsNotFoundException;
+use Illuminate\Support\Collection;
 
 /**
  * @internal
@@ -25,7 +26,7 @@ final readonly class AtomicService implements AtomicServiceInterface {
         private StateServiceInterface $stateService
     ) {}
 
-    public function blocks(array $wallets, callable $callback): mixed {
+    public function blocks(Collection|Wallet|array $wallets, callable $callback): mixed {
         /** @var array<string, Wallet> $blockObjects */
         $blockObjects = [];
         foreach ($wallets as $wallet) {

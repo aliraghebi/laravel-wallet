@@ -7,7 +7,10 @@ use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException as EloquentModelNotFoundException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
     public function __construct(private Wallet $wallet) {}
@@ -102,44 +105,77 @@ readonly class WalletRepository implements WalletRepositoryInterface {
         return $wallet;
     }
 
-    public function multiUpdate(string $column, array $data): bool {
+    public function multiUpdate(array $data): bool {
         // One element gives x10 speedup, on some data
         if (1 === count($data)) {
             return $this->wallet->newQuery()
                 ->whereKey(key($data))
-                ->update([
-                    $column => current($data),
-                ]);
+                ->update(current($data));
         }
+        // Multiple wallet updates using CASE WHEN
+        $ids = array_keys($data);
 
+        // Get all unique fields across wallets
+        $allFields = collect($data)
+            ->flatMap(fn ($fields) => array_keys($fields))
+            ->unique()
+            ->values()
+            ->all();
+
+        // Build CASE expressions for each field
         $cases = [];
-        foreach ($data as $walletId => $balance) {
-            $cases[] = 'WHEN id = '.$walletId.' THEN '.$balance;
+
+        foreach ($allFields as $field) {
+            $case = "CASE id\n";
+            foreach ($data as $id => $fields) {
+                if (array_key_exists($field, $fields)) {
+                    $value = $fields[$field];
+                    $case .= "WHEN {$id} THEN {$value}\n";
+                }
+            }
+            $case .= 'END';
+            $cases[$field] = $case;
         }
 
-        $buildQuery = $this->wallet->getConnection()
-            ->raw('CASE '.implode(' ', $cases).' END');
+        // Build SET clause
+        $updateParams = collect($cases)->mapWithKeys(fn ($case, $field) => [$field => $case])->toArray();
 
         return $this->wallet->newQuery()
-            ->whereIn('id', array_keys($data))
-            ->update([
-                $column => $buildQuery,
-            ]);
+            ->whereIn('id', $ids)
+            ->update($updateParams);
     }
 
-    public function getWalletStateData(Wallet $wallet): WalletStateData {
-        $fWallet = $this->wallet->newQuery()
+    public function getMultiWalletStateData(array $wallets): array {
+        $uuids = [];
+        foreach ($wallets as $wallet) {
+            if ($wallet instanceof Wallet) {
+                $uuids[] = $wallet->uuid;
+            } elseif (Str::isUuid($wallet)) {
+                $uuids[] = $wallet;
+            } else {
+                throw new Exception('Invalid wallet identifier provided.');
+            }
+        }
+
+        $results = $this->wallet->newQuery()
             ->withCount('walletTransactions')
             ->withSum('walletTransactions', 'amount')
-            ->findOrFail($wallet->id);
+            ->whereIn('uuid', $uuids)
+            ->get();
 
-        return new WalletStateData(
-            $fWallet->uuid,
-            (string) $fWallet->getRawOriginal('balance'),
-            (string) $fWallet->getRawOriginal('frozen_amount'),
-            $fWallet->wallet_transactions_count,
-            (string) $fWallet->wallet_transactions_sum_amount,
-            (string) $fWallet->checksum
-        );
+        assert($results->isNotEmpty());
+
+        return $results->mapWithKeys(function ($wallet) {
+            return [
+                $wallet->uuid => new WalletStateData(
+                    $wallet->uuid,
+                    (string) $wallet->getRawOriginal('balance'),
+                    (string) $wallet->getRawOriginal('frozen_amount'),
+                    $wallet->wallet_transactions_count,
+                    (string) $wallet->wallet_transactions_sum_amount,
+                    (string) $wallet->checksum
+                ),
+            ];
+        })->all();
     }
 }

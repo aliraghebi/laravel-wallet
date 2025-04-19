@@ -8,6 +8,7 @@ use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\RecordsNotFoundException;
+use Illuminate\Support\Collection;
 
 /**
  * @api
@@ -50,5 +51,5 @@ interface AtomicServiceInterface {
      *
      * @see AtomicServiceInterface::block
      */
-    public function blocks(array $wallets, callable $callback): mixed;
+    public function blocks(Collection|Wallet|array $wallets, callable $callback): mixed;
 }

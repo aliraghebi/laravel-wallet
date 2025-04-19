@@ -16,6 +16,7 @@ use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Str;
 
 readonly class WalletService implements WalletServiceInterface {
@@ -36,7 +37,7 @@ readonly class WalletService implements WalletServiceInterface {
         if (null != $name && null == $slug) {
             $slug = Str::slug($name);
         }
-        
+
         $attributes = array_merge(
             config('wallet.wallet.default', []),
             array_filter([
@@ -50,7 +51,7 @@ readonly class WalletService implements WalletServiceInterface {
                 'meta'           => $data?->meta,
             ])
         );
-        
+
         $wallet = $this->walletRepository->createWallet($attributes);
 
         $this->dispatcherService->dispatch(new WalletCreatedEvent(
@@ -152,7 +153,7 @@ readonly class WalletService implements WalletServiceInterface {
         });
     }
 
-    public function atomic(array|Wallet $wallets, $callback): mixed {
+    public function atomic(Collection|Wallet|array $wallets, $callback): mixed {
         if ($wallets instanceof Wallet) {
             $wallets = [$wallets];
         }

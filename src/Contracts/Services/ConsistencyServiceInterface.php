@@ -43,4 +43,6 @@ interface ConsistencyServiceInterface {
     public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string;
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool;
+
+    public function checkMultiWalletConsistency(array $wallets): void;
 }

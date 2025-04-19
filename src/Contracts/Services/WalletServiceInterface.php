@@ -7,6 +7,7 @@ use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 interface WalletServiceInterface {
     public function createWallet(Model $holder, ?CreateWalletData $data = null): Wallet;
@@ -75,7 +76,7 @@ interface WalletServiceInterface {
 
     public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 
-    public function atomic(Wallet|array $wallets, $callback): mixed;
+    public function atomic(Collection|Wallet|array $wallets, $callback): mixed;
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool;
 }

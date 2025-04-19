@@ -2,7 +2,6 @@
 
 namespace ArsamMe\Wallet\Contracts\Repositories;
 
-use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
 use Carbon\Carbon;
@@ -87,7 +86,7 @@ interface WalletRepositoryInterface {
 
     public function update(Wallet $wallet, array $attributes): Wallet;
 
-    public function multiUpdate(string $column, array $data): bool;
+    public function multiUpdate(array $data): bool;
 
-    public function getWalletStateData(Wallet $wallet): WalletStateData;
+    public function getMultiWalletStateData(array $wallets): array;
 }

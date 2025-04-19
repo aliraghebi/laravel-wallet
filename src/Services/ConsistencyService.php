@@ -113,32 +113,51 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     }
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
-        if (!$this->consistencyChecksumsEnabled) {
-            return true;
-        }
 
-        $wallet = $this->castService->getWallet($wallet);
-
-        $walletState = $this->walletRepository->getWalletStateData($wallet);
-        $expectedChecksum = $this->createWalletChecksum(
-            $walletState->uuid,
-            $walletState->balance,
-            $walletState->frozenAmount,
-            $walletState->transactionsCount,
-            $walletState->transactionsSum,
-        );
-
-        if ($wallet->checksum !== $expectedChecksum || (0 !== $this->mathService->compare($wallet->getRawBalanceAttribute(), $walletState->transactionsSum))) {
+        try {
+            $this->checkMultiWalletConsistency([$wallet]);
+        } catch (WalletConsistencyException $e) {
             if ($throw) {
-                throw new WalletConsistencyException(
-                    'Wallet consistency could not be verified.',
-                    ExceptionInterface::WALLET_INCONSISTENCY
-                );
+                throw $e;
             }
 
             return false;
         }
 
         return true;
+
+    }
+
+    public function checkMultiWalletConsistency(array $wallets): void {
+        if (!$this->consistencyChecksumsEnabled) {
+            return;
+        }
+
+        $uuids = [];
+        $mWallets = [];
+        foreach ($wallets as $wallet) {
+            $wallet = $this->castService->getWallet($wallet);
+            $mWallets[$wallet->uuid] = $wallet;
+            $uuids[] = $wallet->uuid;
+        }
+
+        $states = $this->walletRepository->getMultiWalletStateData($uuids);
+        foreach ($states as $uuid => $state) {
+            $expectedChecksum = $this->createWalletChecksum(
+                $state->uuid,
+                $state->balance,
+                $state->frozenAmount,
+                $state->transactionsCount,
+                $state->transactionsSum,
+            );
+
+            $wallet = $mWallets[$uuid];
+            if ($wallet->checksum !== $expectedChecksum || (0 !== $this->mathService->compare($wallet->getRawBalanceAttribute(), $state->transactionsSum))) {
+                throw new WalletConsistencyException(
+                    'Wallet consistency could not be verified.',
+                    ExceptionInterface::WALLET_INCONSISTENCY
+                );
+            }
+        }
     }
 }

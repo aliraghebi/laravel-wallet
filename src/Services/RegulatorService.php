@@ -167,17 +167,22 @@ class RegulatorService implements RegulatorServiceInterface {
                 $newWalletState->transactionsSum
             );
             $changes[$wallet->uuid] = $newWalletState;
-
-            $updateAttributes = [
-                'balance'       => $newWalletState->balance,
-                'frozen_amount' => $newWalletState->frozenAmount,
-                'checksum'      => $newWalletState->checksum,
-            ];
-            $wallet = $this->wallets[$wallet->uuid] = $this->walletRepository->update($wallet, $updateAttributes);
-            $this->consistencyService->checkWalletConsistency($wallet, true);
         }
 
         if ([] !== $changes) {
+            $updateData = collect($changes)->mapWithKeys(function ($item, $key) {
+                return [
+                    $this->wallets[$key]->id => [
+                        'balance'       => $item->balance,
+                        'frozen_amount' => $item->frozenAmount,
+                        'checksum'      => $item->checksum,
+                    ],
+                ];
+            })->toArray();
+
+            $this->walletRepository->multiUpdate($updateData);
+            $this->consistencyService->checkMultiWalletConsistency($this->wallets);
+
             $this->changes = $changes;
             $this->bookkeeperService->multiSync($changes);
         }
@@ -185,8 +190,16 @@ class RegulatorService implements RegulatorServiceInterface {
 
     public function committed(): void {
         try {
+            /** @var WalletStateData $state */
             foreach ($this->changes as $uuid => $state) {
                 $wallet = $this->wallets[$uuid];
+
+                $wallet->fill([
+                    'balance'       => $state->balance,
+                    'frozen_amount' => $state->frozenAmount,
+                    'checksum'      => $state->checksum,
+                ])->syncOriginalAttributes(['balance', 'frozen_amount', 'checksum']);
+
                 $this->dispatcherService->dispatch(new WalletUpdatedEvent(
                     $wallet->id,
                     $wallet->uuid,
