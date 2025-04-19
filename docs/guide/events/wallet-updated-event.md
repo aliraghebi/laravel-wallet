@@ -19,11 +19,11 @@ protected $listen = [
 And then we create a listener.
 
 ```php
-use ArsamMe\Wallet\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Events\WalletUpdatedEventInterface;
 
 class MyBalanceUpdatedListener
 {
-    public function handle(BalanceUpdatedEventInterface $event): void
+    public function handle(WalletUpdatedEventInterface $event): void
     {
         // And then the implementation...
     }
