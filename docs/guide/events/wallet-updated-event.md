@@ -7,10 +7,10 @@ This is done using standard Laravel methods.
 More information in the [documentation](https://laravel.com/docs/8.x/events).
 
 ```php
-use ArsamMe\Wallet\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Events\WalletUpdatedEventInterface;
 
 protected $listen = [
-    BalanceUpdatedEventInterface::class => [
+    WalletUpdatedEventInterface::class => [
         MyBalanceUpdatedListener::class,
     ],
 ];
