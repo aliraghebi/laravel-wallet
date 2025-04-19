@@ -4,13 +4,11 @@ namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
-use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException as EloquentModelNotFoundException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
     public function __construct(private Wallet $wallet) {}
@@ -146,37 +144,13 @@ readonly class WalletRepository implements WalletRepositoryInterface {
             ->update($updateParams);
     }
 
-    public function getMultiWalletStateData(array $wallets): array {
-        $uuids = [];
-        foreach ($wallets as $wallet) {
-            if ($wallet instanceof Wallet) {
-                $uuids[] = $wallet->uuid;
-            } elseif (Str::isUuid($wallet)) {
-                $uuids[] = $wallet;
-            } else {
-                throw new Exception('Invalid wallet identifier provided.');
-            }
-        }
+    public function multiGet(array $ids, $column = 'id'): Collection {
+        $column = 'id';
 
-        $results = $this->wallet->newQuery()
-            ->withCount('walletTransactions')
-            ->withSum('walletTransactions', 'amount')
-            ->whereIn('uuid', $uuids)
+        return $this->wallet->newQuery()
+            ->withCount('walletTransactions as transactions_count')
+            ->withSum('walletTransactions as transactions_sum', 'amount')
+            ->whereIn($column, $ids)
             ->get();
-
-        assert($results->isNotEmpty());
-
-        return $results->mapWithKeys(function ($wallet) {
-            return [
-                $wallet->uuid => new WalletStateData(
-                    $wallet->uuid,
-                    (string) $wallet->getRawOriginal('balance'),
-                    (string) $wallet->getRawOriginal('frozen_amount'),
-                    $wallet->wallet_transactions_count,
-                    (string) $wallet->wallet_transactions_sum_amount,
-                    (string) $wallet->checksum
-                ),
-            ];
-        })->all();
     }
 }

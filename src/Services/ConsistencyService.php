@@ -132,7 +132,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             return;
         }
 
-        $states = $this->walletRepository->getMultiWalletStateData(array_keys($checksums));
+        $states = $this->walletRepository->multiGet(array_keys($checksums));
         foreach ($states as $uuid => $state) {
             $expectedChecksum = $this->createWalletChecksum(
                 $state->uuid,
