@@ -8,7 +8,7 @@ Sometimes it is necessary to apply actions to the user and the wallet atomically
 You need an Atomic Service Interface.
 
 ```php
-use Bavix\Wallet\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Services\AtomicServiceInterface;
 
 app(AtomicServiceInterface::class)->block($wallet, function () use ($wallet, $entity) {
     $entity->increaseSales(); // update entity set sort_at=NOW() where id=123;
@@ -27,7 +27,7 @@ There is also an opportunity to block a lot of wallets. The operation is expensi
 For example, we need to debit from two wallets at the same time. Then let's use the "blocks" method.
 
 ```php
-use Bavix\Wallet\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Services\AtomicServiceInterface;
 
 app(AtomicServiceInterface::class)->blocks([$wallet1, $wallet2], function () use ($wallet1, $wallet2) {
     $wallet1->withdraw(100);

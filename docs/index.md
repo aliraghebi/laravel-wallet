@@ -7,7 +7,7 @@ hero:
   text: It's simple!
   tagline: It's easy to work with a virtual wallet
   image:
-    src: https://github.com/bavix/laravel-wallet/assets/5111255/24cf424a-0177-4712-b74c-52b4ba88c428
+    src: https://github.com/`arsamme`/laravel-wallet/assets/5111255/24cf424a-0177-4712-b74c-52b4ba88c428
     alt: Laravel Wallet
   actions:
     - theme: brand

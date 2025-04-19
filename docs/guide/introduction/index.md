@@ -8,4 +8,4 @@
 
 ### Support
 
-Please ask questions on the [Github issues page](https://github.com/bavix/laravel-wallet/issues).
+Please ask questions on the [Github issues page](https://github.com/arsamme/laravel-wallet/issues).

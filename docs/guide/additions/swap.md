@@ -7,16 +7,16 @@ The recommended installation method is using [Composer](https://getcomposer.org/
 In your project root just run:
 
 ```bash
-composer req bavix/laravel-wallet-swap
+composer req arsamme/laravel-wallet-swap
 ```
 
 ## User model
 We need a simple model with the ability to work multi-wallets.
 
 ```php
-use Bavix\Wallet\Interfaces\Wallet;
-use Bavix\Wallet\Traits\HasWallets;
-use Bavix\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Interfaces\Wallet;
+use ArsamMe\Wallet\Traits\HasWallets;
+use ArsamMe\Wallet\Traits\HasWallet;
 
 class User extends Model implements Wallet
 {

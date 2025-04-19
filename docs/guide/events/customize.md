@@ -5,13 +5,13 @@ Sometimes you want to modify the standard events of a package. This is done quit
 Let's add broadcast support? We need to implement our event from the interface.
 
 ```php
-use Bavix\Wallet\Internal\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 final class MyUpdatedEvent implements BalanceUpdatedEventInterface, ShouldBroadcast
 {
     public function __construct(
-        private \Bavix\Wallet\Models\Wallet $wallet,
+        private \ArsamMe\Wallet\Models\Wallet $wallet,
         private DateTimeImmutable $updatedAt,
     ) {}
     
@@ -30,11 +30,11 @@ final class MyUpdatedEvent implements BalanceUpdatedEventInterface, ShouldBroadc
 The event is ready, but that's not all. Now you need to implement your assembler class, which will create an event inside the package.
 
 ```php
-use Bavix\Wallet\Internal\Assembler\BalanceUpdatedEventAssemblerInterface;
+use ArsamMe\Wallet\Internal\Assembler\BalanceUpdatedEventAssemblerInterface;
 
 class MyUpdatedEventAssembler implements BalanceUpdatedEventAssemblerInterface
 {
-    public function create(\Bavix\Wallet\Models\Wallet $wallet) : \Bavix\Wallet\Internal\Events\BalanceUpdatedEventInterface
+    public function create(\ArsamMe\Wallet\Models\Wallet $wallet) : \ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface
     {
         return new MyUpdatedEvent($wallet, new DateTimeImmutable());
     }
@@ -53,7 +53,7 @@ We change the event to a new one.
 Then everything is the same as with the standard events of the package.
 
 ```php
-use Bavix\Wallet\Internal\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface;
 
 protected $listen = [
     BalanceUpdatedEventInterface::class => [
@@ -65,7 +65,7 @@ protected $listen = [
 And then we create a listener.
 
 ```php
-use Bavix\Wallet\Internal\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface;
 
 class MyBalanceUpdatedListener
 {

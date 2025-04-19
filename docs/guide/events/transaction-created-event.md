@@ -7,7 +7,7 @@ This is done using standard Laravel methods.
 More information in the [documentation](https://laravel.com/docs/8.x/events).
 
 ```php
-use Bavix\Wallet\Internal\Events\TransactionCreatedEventInterface;
+use ArsamMe\Wallet\Internal\Events\TransactionCreatedEventInterface;
 
 protected $listen = [
     TransactionCreatedEventInterface::class => [
@@ -19,7 +19,7 @@ protected $listen = [
 And then we create a listener.
 
 ```php
-use Bavix\Wallet\Internal\Events\TransactionCreatedEventInterface;
+use ArsamMe\Wallet\Internal\Events\TransactionCreatedEventInterface;
 
 class MyWalletTransactionCreatedListener
 {

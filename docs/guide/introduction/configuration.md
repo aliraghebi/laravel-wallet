@@ -29,12 +29,12 @@ config/wallet.php:
 ],
 ```
 ## Extend base Wallet model
-You can extend base Wallet model by creating a new class that extends `Bavix\Wallet\Models\Wallet` and registering the new class in `config/wallet.php`.
+You can extend base Wallet model by creating a new class that extends `ArsamMe\Wallet\Models\Wallet` and registering the new class in `config/wallet.php`.
 Example `MyWallet.php`
 
 App/Models/MyWallet.php:
 ```php
-use Bavix\Wallet\Models\Wallet as WalletBase;
+use ArsamMe\Wallet\Models\Wallet as WalletBase;
 
 class MyWallet extends WalletBase {
     public function helloWorld(): string { return "hello world"; }

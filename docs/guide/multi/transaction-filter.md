@@ -5,7 +5,7 @@ Yes, this method displays ALL transactions for the wallet owner.
 If you only need to filter one wallet at a time, now you can use the `walletTransactions` method.
 
 ```php
-/** @var \Bavix\Wallet\Models\Wallet $wallet */
+/** @var \ArsamMe\Wallet\Models\Wallet $wallet */
 
 $query = $wallet->walletTransactions();
 ```

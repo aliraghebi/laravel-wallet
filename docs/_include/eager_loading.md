@@ -5,8 +5,8 @@ This means the relationship data is not actually loaded until you first access t
 
 Add the `HasWallet` trait and `Wallet` interface to model.
 ```php
-use Bavix\Wallet\Traits\HasWallet;
-use Bavix\Wallet\Interfaces\Wallet;
+use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Interfaces\Wallet;
 
 class User extends Model implements Wallet
 {

@@ -54,6 +54,6 @@ $user->balanceFloatNum; // -11.00
 There can be two situations:
 
 - The user's balance is zero, then we get an error
-`Bavix\Wallet\Exceptions\BalanceIsEmpty`
+`ArsamMe\Wallet\Exceptions\BalanceIsEmpty`
 - If the balance is greater than zero, but it is not enough
-`Bavix\Wallet\Exceptions\InsufficientFunds`
+`ArsamMe\Wallet\Exceptions\InsufficientFunds`

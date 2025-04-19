@@ -3,7 +3,7 @@
 Sometimes situations arise when there is a need to make multiple changes to wallets.
 For example, we need to change the balance of many wallets at once. For example, the system administrator accrues a bonus for participating in some promotion. Previously, the code would look like this:
 ```php
-use Bavix\Wallet\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Services\AtomicServiceInterface;
 
 app(AtomicServiceInterface::class)->blocks($wallets, function () use ($amount, $wallets) {
     foreach ($wallets as $wallet) {
@@ -51,8 +51,8 @@ interface TransferQueryHandlerInterface
 
 Let's use the API handle.
 ```php
-use Bavix\Wallet\External\Api\TransactionQuery;
-use Bavix\Wallet\External\Api\TransactionQueryHandlerInterface;
+use ArsamMe\Wallet\External\Api\TransactionQuery;
+use ArsamMe\Wallet\External\Api\TransactionQueryHandlerInterface;
 
 app(TransactionQueryHandlerInterface::class)->apply(
     array_map(
@@ -68,10 +68,10 @@ And now look at the result and it is impressive.
 But it is worth noting that these are highly efficient api handles and they do not check the balance of the wallet before making changes. If you need it, then you have to do something like this.
 
 ```php
-use Bavix\Wallet\External\Api\TransactionQuery;
-use Bavix\Wallet\External\Api\TransactionQueryHandlerInterface;
-use Bavix\Wallet\Services\AtomicServiceInterface;
-use Bavix\Wallet\Services\ConsistencyServiceInterface;
+use ArsamMe\Wallet\External\Api\TransactionQuery;
+use ArsamMe\Wallet\External\Api\TransactionQueryHandlerInterface;
+use ArsamMe\Wallet\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Services\ConsistencyServiceInterface;
 
 app(AtomicServiceInterface::class)->blocks($wallets, function () use ($wallets, $amount) {
     foreach ($wallets as $wallet) {
@@ -93,7 +93,7 @@ In version 10.x, it became possible to create transactions with a given uuid (ge
 The main thing is to keep uniqueness.
 
 ```php
-use Bavix\Wallet\External\Api\TransactionQuery;
+use ArsamMe\Wallet\External\Api\TransactionQuery;
 
 // int version
 TransactionQuery::createDeposit($wallet, $amount, null, uuid: '5f7820d1-1e82-4d03-9414-05d0c44da9a1');

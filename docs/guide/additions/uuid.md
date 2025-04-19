@@ -15,13 +15,13 @@ The recommended installation method is using [Composer](https://getcomposer.org/
 In your project root just run:
 
 ```bash
-composer req bavix/laravel-wallet-uuid
+composer req arsamme/laravel-wallet-uuid
 ```
 
 Now you need to migrate!
 
 After migration, you can use the UUID in your models.
 
-You can find implementation examples in the package tests: https://github.com/bavix/laravel-wallet-uuid/tree/master/tests
+You can find implementation examples in the package tests: https://github.com/arsamme/laravel-wallet-uuid/tree/master/tests
 
 It's simple!

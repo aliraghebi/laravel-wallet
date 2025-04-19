@@ -5,8 +5,8 @@ This is done in two stages:
 
 Let's get started.
 ```php
-use Bavix\Wallet\Traits\HasWallet;
-use Bavix\Wallet\Interfaces\Wallet;
+use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Interfaces\Wallet;
 
 class User extends Model implements Wallet
 {

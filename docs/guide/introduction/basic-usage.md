@@ -33,8 +33,8 @@ Add the `CanPay` trait and `Customer` interface to your `User` model.
 > The trait `CanPay` already inherits `HasWallet`, reuse will cause an error.
 
 ```php
-use Bavix\Wallet\Traits\CanPay;
-use Bavix\Wallet\Interfaces\Customer;
+use ArsamMe\Wallet\Traits\CanPay;
+use ArsamMe\Wallet\Interfaces\Customer;
 
 class User extends Model implements Customer
 {
@@ -50,9 +50,9 @@ Starting from version 9.x there are two product interfaces:
 
 An example with an unlimited number of products:
 ```php
-use Bavix\Wallet\Traits\HasWallet;
-use Bavix\Wallet\Interfaces\Customer;
-use Bavix\Wallet\Interfaces\ProductInterface;
+use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Interfaces\Customer;
+use ArsamMe\Wallet\Interfaces\ProductInterface;
 
 class Item extends Model implements ProductInterface
 {
@@ -75,9 +75,9 @@ class Item extends Model implements ProductInterface
 
 Example with a limited number of products:
 ```php
-use Bavix\Wallet\Traits\HasWallet;
-use Bavix\Wallet\Interfaces\Customer;
-use Bavix\Wallet\Interfaces\ProductLimitedInterface;
+use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Interfaces\Customer;
+use ArsamMe\Wallet\Interfaces\ProductLimitedInterface;
 
 class Item extends Model implements ProductLimitedInterface
 {
@@ -138,9 +138,9 @@ var_dump((bool)$user->paid($item)); // bool(false)
 ## How to work with fractional numbers?
 Add the `HasWalletFloat` trait and `WalletFloat` interface to model.
 ```php
-use Bavix\Wallet\Traits\HasWalletFloat;
-use Bavix\Wallet\Interfaces\WalletFloat;
-use Bavix\Wallet\Interfaces\Wallet;
+use ArsamMe\Wallet\Traits\HasWalletFloat;
+use ArsamMe\Wallet\Interfaces\WalletFloat;
+use ArsamMe\Wallet\Interfaces\Wallet;
 
 class User extends Model implements Wallet, WalletFloat
 {
