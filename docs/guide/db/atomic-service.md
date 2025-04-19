@@ -38,4 +38,4 @@ LaravelWallet::atomic([$wallet1, $wallet2], function () use ($wallet1, $wallet2)
 In this case, we blocked both wallets and started the process of debiting funds. Debiting from both wallets will be
 considered a successful operation. If there are not enough funds on some wallet, the operation is canceled.
 
-It's simple!
+It is simple!

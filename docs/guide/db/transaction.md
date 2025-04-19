@@ -17,4 +17,4 @@ The point is that you need to minimize operations within transactions as much as
 The maximum wallet blocking time is set in the configuration. The longer the transaction takes, the more likely it is to get a race for the wallet.
 
 ---
-It's simple!
+It is simple!

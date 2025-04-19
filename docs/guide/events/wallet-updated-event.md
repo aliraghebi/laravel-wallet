@@ -30,4 +30,4 @@ class MyBalanceUpdatedListener
 }
 ```
 
-It's simple!
+It is simple!

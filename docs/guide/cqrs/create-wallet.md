@@ -57,4 +57,4 @@ The user no longer needs to wait for the creation of a wallet, it is enough to k
 application.
 
 ---
-It's simple!
+It is simple!
