@@ -7,7 +7,7 @@ hero:
   text: It's simple!
   tagline: It's easy to work with a virtual wallet
   image:
-    src: https://arsamme.github.io/arsamme/laravel-wallet/assets/logo.png
+    src: https://github.com/user-attachments/assets/c5b4aace-03aa-4a0a-a7d4-5bff559cd3d3
     alt: Laravel Wallet
   actions:
     - theme: brand

@@ -22,7 +22,7 @@ export default defineConfig({
     [
       'link', {
         rel: 'icon',
-        href: 'https://github.com/arsamme/laravel-wallet/assets/5111255/f48a8e79-8a9d-469a-b056-b3d04835992d',
+        href: 'https://github.com/user-attachments/assets/9e796229-de50-4f00-acd0-165cf139bec9',
         sizes: "any",
         type: "image/svg+xml",
       }
