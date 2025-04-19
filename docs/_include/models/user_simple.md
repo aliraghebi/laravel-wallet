@@ -6,11 +6,10 @@ This is done in two stages:
 Let's get started.
 ```php
 use ArsamMe\Wallet\Traits\HasWallet;
-use ArsamMe\Wallet\Interfaces\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
-    use HasWallet;
+    use HasWallets;
 }
 ```
 

@@ -31,4 +31,3 @@ features:
     icon: 📻
     link: /guide/events/balance-updated-event
 ---
-
