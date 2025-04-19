@@ -164,7 +164,7 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the <a href="https://github.com/arsamme/laravel-wallet/blob/master/LICENSE">MIT License</a>.',
-      copyright: 'Copyright © 2018-present <a href="https://github.com/rez1dent3">Babichev Maksim</a>'
+      copyright: 'Copyright © 2025-present <a href="https://github.com/arsamme">Arsam</a>'
     }
   }
 })

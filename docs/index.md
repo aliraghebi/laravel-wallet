@@ -26,7 +26,7 @@ features:
     details: Many wallets for one model. Easy API.
     icon: 🎒
     link: /guide/multi/new-wallet
-   - title: Events
+  - title: Events
     details: For more complex projects there are events and high performance API.
     icon: 📻
     link: /guide/events/balance-updated-event
