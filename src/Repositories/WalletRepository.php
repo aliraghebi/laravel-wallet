@@ -112,6 +112,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
                 ->whereKey(key($data))
                 ->update(current($data));
         }
+
         // Multiple wallet updates using CASE WHEN
         $ids = array_keys($data);
 
@@ -129,7 +130,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
             $case = "CASE id\n";
             foreach ($data as $id => $fields) {
                 if (array_key_exists($field, $fields)) {
-                    $value = $fields[$field];
+                    $value = DB::getPdo()->quote($fields[$field]);
                     $case .= "WHEN {$id} THEN {$value}\n";
                 }
             }
@@ -138,7 +139,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
         }
 
         // Build SET clause
-        $updateParams = collect($cases)->mapWithKeys(fn ($case, $field) => [$field => $case])->toArray();
+        $updateParams = collect($cases)->mapWithKeys(fn ($case, $field) => [$field => $this->wallet->getConnection()->raw($case)])->toArray();
 
         return $this->wallet->newQuery()
             ->whereIn('id', $ids)

@@ -112,10 +112,9 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
-
+    public function checkWalletConsistency(string $uuid, string $checksum, bool $throw = false): bool {
         try {
-            $this->checkMultiWalletConsistency([$wallet]);
+            $this->checkMultiWalletConsistency([$uuid => $checksum]);
         } catch (WalletConsistencyException $e) {
             if ($throw) {
                 throw $e;
@@ -128,20 +127,12 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
     }
 
-    public function checkMultiWalletConsistency(array $wallets): void {
+    public function checkMultiWalletConsistency(array $checksums): void {
         if (!$this->consistencyChecksumsEnabled) {
             return;
         }
 
-        $uuids = [];
-        $mWallets = [];
-        foreach ($wallets as $wallet) {
-            $wallet = $this->castService->getWallet($wallet);
-            $mWallets[$wallet->uuid] = $wallet;
-            $uuids[] = $wallet->uuid;
-        }
-
-        $states = $this->walletRepository->getMultiWalletStateData($uuids);
+        $states = $this->walletRepository->getMultiWalletStateData(array_keys($checksums));
         foreach ($states as $uuid => $state) {
             $expectedChecksum = $this->createWalletChecksum(
                 $state->uuid,
@@ -151,8 +142,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
                 $state->transactionsSum,
             );
 
-            $wallet = $mWallets[$uuid];
-            if ($wallet->checksum !== $expectedChecksum || (0 !== $this->mathService->compare($wallet->getRawBalanceAttribute(), $state->transactionsSum))) {
+            $checksum = $checksums[$uuid];
+            if ($checksum !== $expectedChecksum) {
                 throw new WalletConsistencyException(
                     'Wallet consistency could not be verified.',
                     ExceptionInterface::WALLET_INCONSISTENCY

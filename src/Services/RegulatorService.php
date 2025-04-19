@@ -151,28 +151,26 @@ class RegulatorService implements RegulatorServiceInterface {
                 continue;
             }
 
-            $newWalletState = new WalletStateData(
-                $wallet->uuid,
-                $this->getBalance($wallet),
-                $this->getFrozenAmount($wallet),
-                $this->getTransactionsCount($wallet),
-                $this->getBalance($wallet),
-                null
+            $uuid = $wallet->uuid;
+            $balance = $this->getBalance($wallet);
+            $frozenAmount = $this->getFrozenAmount($wallet);
+            $transactionsCount = $this->getTransactionsCount($wallet);
+            $checksum = $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance);
+
+            $changes[$wallet->uuid] = new WalletStateData(
+                $uuid,
+                $balance,
+                $frozenAmount,
+                $transactionsCount,
+                $balance,
+                $checksum
             );
-            $newWalletState->checksum = $this->consistencyService->createWalletChecksum(
-                $wallet->uuid,
-                $newWalletState->balance,
-                $newWalletState->frozenAmount,
-                $newWalletState->transactionsCount,
-                $newWalletState->transactionsSum
-            );
-            $changes[$wallet->uuid] = $newWalletState;
         }
 
         if ([] !== $changes) {
             $updateData = collect($changes)->mapWithKeys(function ($item, $key) {
                 return [
-                    $this->wallets[$key]->id => [
+                    $this->wallets[$key]->getKey() => [
                         'balance'       => $item->balance,
                         'frozen_amount' => $item->frozenAmount,
                         'checksum'      => $item->checksum,
@@ -181,7 +179,13 @@ class RegulatorService implements RegulatorServiceInterface {
             })->toArray();
 
             $this->walletRepository->multiUpdate($updateData);
-            $this->consistencyService->checkMultiWalletConsistency($this->wallets);
+
+            $checksums = collect($changes)->mapWithKeys(function ($item, $key) {
+                return [
+                    $key => $item->checksum,
+                ];
+            })->toArray();
+            $this->consistencyService->checkMultiWalletConsistency($checksums);
 
             $this->changes = $changes;
             $this->bookkeeperService->multiSync($changes);
