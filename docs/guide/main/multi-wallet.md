@@ -65,4 +65,4 @@ $wallet = $user->wallet;
 $wallet->balance; // 10
 ```
 
-It's simple!
+It is simple!

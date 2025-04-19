@@ -13,21 +13,21 @@ Find user:
 $user = User::first(); 
 ```
 
-As the user uses `HasWallets`, he will have `balance` property.
-Check the user's balance.
+Since the user uses `HasWallets`, he will have `balance` property.
+Let’s check the user's balance.
 
 ```php
 $user->balance; // 100
 ```
 
-The balance is not empty, so you can withdraw funds.
+The balance is now not empty, so you can withdraw funds.
 
 ```php
 $user->withdraw(10); 
 $user->balance; // 90
 ```
 
-It's simple!
+It is simple!
 
 ## And what will happen if the money is not enough?
 

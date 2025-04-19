@@ -13,14 +13,14 @@ Find user:
 $user = User::first(); 
 ```
 
-As the user uses `HasWallets`, he will have `balance` property.
-Check the user's balance.
+Since the user uses `HasWallets`, he will have `balance` property.
+Let’s check the user's balance.
 
 ```php
 $user->balance; // 0
 ```
 
-The balance is zero, which is what we expected.
+The balance is now zero, as expected.
 Put it on his 10 cents account.
 
 ```php
@@ -28,4 +28,4 @@ $user->deposit(10);
 $user->balance; // 10
 ```
 
-Wow! The balance is 10 cents, the money is credited.
+Great! The balance is now 10 cents, the funds have been successfully added.
