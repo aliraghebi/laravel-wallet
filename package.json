@@ -1,0 +1,24 @@
+{
+  "name": "laravel-wallet",
+  "version": "1.0.0",
+  "description": "Package documentation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arsamme/laravel-wallet.git"
+  },
+  "author": "Arsam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arsamme/laravel-wallet/issues"
+  },
+  "homepage": "https://arsamme.github.io/laravel-wallet/",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "build": "vitepress build docs"
+  },
+  "dependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
