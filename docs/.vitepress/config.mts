@@ -22,7 +22,7 @@ export default defineConfig({
     [
       'link', {
         rel: 'icon',
-        href: 'https://github.com/user-attachments/assets/9e796229-de50-4f00-acd0-165cf139bec9',
+        href: 'https://github.com/user-attachments/assets/8576320a-f93b-4757-929b-955b22d9197c',
         sizes: "any",
         type: "image/svg+xml",
       }
