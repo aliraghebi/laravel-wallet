@@ -4,13 +4,12 @@ You can create an unlimited number of wallets, but the `slug` for each wallet sh
 
 ## User Model
 
-Add the `HasWallets` trait's and `Wallet` interface to model.
+Add the `HasWallets` trait to model.
 
 ```php
 use ArsamMe\Wallet\Traits\HasWallets;
-use ArsamMe\Wallet\Interfaces\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
     use HasWallets;
 }
@@ -37,7 +36,6 @@ $user->hasWallet('my-wallet'); // bool(true)
 
 $wallet->deposit(100);
 $wallet->balance; // 100
-$wallet->balanceFloatNum; // 1.00
 ```
 
 ## How to get the right wallet?
@@ -45,7 +43,6 @@ $wallet->balanceFloatNum; // 1.00
 ```php
 $myWallet = $user->getWallet('my-wallet');
 $myWallet->balance; // 100
-$myWallet->balanceFloatNum; // 1.00
 ```
 
 ## Default Wallet + MultiWallet
@@ -53,11 +50,9 @@ $myWallet->balanceFloatNum; // 1.00
 Is it possible to use the default wallet and multi-wallets at the same time? Yes.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
 use ArsamMe\Wallet\Traits\HasWallets;
-use ArsamMe\Wallet\Interfaces\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
     use HasWallet, HasWallets;
 }
@@ -68,7 +63,6 @@ How to get the default wallet?
 ```php
 $wallet = $user->wallet;
 $wallet->balance; // 10
-$wallet->balanceFloatNum; // 0.10
 ```
 
 It's simple!

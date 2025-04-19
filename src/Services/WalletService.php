@@ -17,7 +17,7 @@ use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Str;
+use Illuminate\Support\Str;
 
 readonly class WalletService implements WalletServiceInterface {
     public function __construct(
@@ -41,7 +41,7 @@ readonly class WalletService implements WalletServiceInterface {
         $attributes = array_merge(
             config('wallet.wallet.default', []),
             array_filter([
-                'uuid'           => Str::uuid7()->toString(),
+                'uuid'           => $data->uuid ?? Str::uuid7()->toString(),
                 'holder_type'    => $holder->getMorphClass(),
                 'holder_id'      => $holder->getKey(),
                 'name'           => $name,

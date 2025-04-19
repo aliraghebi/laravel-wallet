@@ -35,7 +35,7 @@ interface AtomicServiceInterface {
     /**
      * This method is similar to the `block` method, but it allows you to atomically change a lot of wallets at once.
      *
-     * It's useful when you need to perform multiple changes to different wallets in a single transaction.
+     * It's useful when you need to perform multiple changes to different wallets in a main transaction.
      *
      * However, use it with caution. It generates N requests to the lock service, where N is the number of wallets.
      *
