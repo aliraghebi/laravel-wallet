@@ -15,7 +15,7 @@ return [
         /*
         | Weather to enable consistency check.
         */
-        'enabled' => true,
+        'enabled' => env('WALLET_CONSISTENCY_CHECK_ENABLED', true),
         /*
         | Secret key for checksum generation.
         */
@@ -66,7 +66,7 @@ return [
             /*
             | Default decimal places for new wallets if you do not set
             */
-            'decimal_places' => 24,
+            'decimal_places' => env('WALLET_DEFAULT_WALLET_DECIMAL_PLACES', 24),
         ],
     ],
 
@@ -135,7 +135,7 @@ return [
         /*
         | The time to live for the lock in seconds.
         */
-        'seconds' => 1,
+        'seconds' => env('WALLET_LOCK_TTL', 1),
     ],
 
     /*
@@ -151,6 +151,6 @@ return [
         /*
         | The scale of the calculator.
         */
-        'scale' => 64,
+        'scale' => env('WALLET_MATH_SCALE',64),
     ],
 ];
