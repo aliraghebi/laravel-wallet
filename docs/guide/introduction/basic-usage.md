@@ -18,7 +18,7 @@ You can use functions in two ways:
 
 ## Using Facade
 
-You can use `LaravelWallet` facade to call functions directly without needing to add the `HasWallet` trait to your
+You can use `LaravelWallet` facade to call functions directly without needing to add the `HasWallets` trait to your
 model.
 
 ```php
@@ -32,12 +32,12 @@ $wallet = LaravelWallet::findOrFailBySlug($user, 'my-wallet');
 LaravelWallet::deposit($wallet, 1000);
 ```
 
-## Using `HasWallet` trait
+## Using `HasWallets` trait
 
-Add the `HasWallet` trait to model.
+Add the `HasWallets` trait to model.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Traits\HasWallets;
 
 class User extends Model
 {
