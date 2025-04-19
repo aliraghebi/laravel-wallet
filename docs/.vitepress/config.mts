@@ -68,37 +68,6 @@ export default defineConfig({
                 collapsed: false,
             },
             {
-                text: 'Multi Wallet',
-                items: [
-                    {text: 'New Wallet', link: '/guide/multi/new-wallet'},
-                    {text: 'Transfer', link: '/guide/multi/transfer'},
-                    {text: 'Transaction Filter', link: '/guide/multi/transaction-filter'},
-                ],
-                collapsed: false,
-            },
-            {
-                text: 'Fractional Wallet',
-                items: [
-                    {text: 'Deposit', link: '/guide/fractional/deposit'},
-                    {text: 'Withdraw', link: '/guide/fractional/withdraw'},
-                    {text: 'Transfer', link: '/guide/fractional/transfer'},
-                ],
-                collapsed: false,
-            },
-            {
-                text: 'Purchases',
-                items: [
-                    {text: 'Payment', link: '/guide/purchases/payment'},
-                    {text: 'Payment Free', link: '/guide/purchases/payment-free'},
-                    {text: 'Refund', link: '/guide/purchases/refund'},
-                    {text: 'Gift', link: '/guide/purchases/gift'},
-                    {text: 'Cart', link: '/guide/purchases/cart'},
-                    {text: 'Commissions', link: '/guide/purchases/commissions'},
-                    {text: 'Customize receiving', link: '/guide/purchases/receiving'},
-                ],
-                collapsed: false,
-            },
-            {
                 text: 'Database Transaction',
                 items: [
                     {text: 'Atomic Service', link: '/guide/db/atomic-service'},
@@ -110,25 +79,9 @@ export default defineConfig({
             {
                 text: 'Events',
                 items: [
-                    {text: 'Balance Updated', link: '/guide/events/balance-updated-event'},
+                    {text: 'Wallet Updated', link: '/guide/events/wallet-updated-event'},
                     {text: 'Wallet Created', link: '/guide/events/wallet-created-event'},
                     {text: 'Transaction Created', link: '/guide/events/transaction-created-event'},
-                    {text: 'Customize', link: '/guide/events/customize'},
-                ],
-                collapsed: false,
-            },
-            {
-                text: 'Helpers',
-                items: [
-                    {text: 'Formatter', link: '/guide/helpers/formatter'},
-                ],
-                collapsed: false,
-            },
-            {
-                text: 'High performance api handles',
-                items: [
-                    {text: 'Batch Transactions', link: '/guide/high-performance/batch-transactions'},
-                    {text: 'Batch Transfers', link: '/guide/high-performance/batch-transfers'},
                 ],
                 collapsed: false,
             },
@@ -136,14 +89,6 @@ export default defineConfig({
                 text: 'CQRS',
                 items: [
                     {text: 'Create Wallet', link: '/guide/cqrs/create-wallet'},
-                ],
-                collapsed: false,
-            },
-            {
-                text: 'Additions',
-                items: [
-                    {text: 'Wallet Swap', link: '/guide/additions/swap'},
-                    {text: 'Support UUID', link: '/guide/additions/uuid'},
                 ],
                 collapsed: false,
             },

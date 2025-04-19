@@ -1,19 +1,18 @@
 # Asynchronous wallet creation
 
-The idea is based on the division into teams for creating wallets, transactions, etc. The creation of a wallet can be accelerated if the client "generates a wallet himself".
+The idea is based on the division into teams for creating wallets, transactions, etc. The creation of a wallet can be
+accelerated if the client "generates a wallet himself".
 
 ## User Model
 
-Add the `HasWallet`, `HasWallets` trait's and `Wallet` interface to model.
+Add the `HasWallets` trait to model.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
 use ArsamMe\Wallet\Traits\HasWallets;
-use ArsamMe\Wallet\Interfaces\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
-    use HasWallet, HasWallets;
+    use HasWallets;
 }
 ```
 
@@ -50,9 +49,12 @@ public function __invoke(CreateWalletCommandMessage $message): void
 }
 ```
 
-You receive requests to create a wallet on the backend, and you create them asynchronously. UUID is generated on the client side and the client already knows it. You will not be able to create two wallets with one uuid, because the column in the database is unique.
+You receive requests to create a wallet on the backend, and you create them asynchronously. UUID is generated on the
+client side and the client already knows it. You will not be able to create two wallets with one uuid, because the
+column in the database is unique.
 
-The user no longer needs to wait for the creation of a wallet, it is enough to know the uuid. You get the most stable application.
+The user no longer needs to wait for the creation of a wallet, it is enough to know the uuid. You get the most stable
+application.
 
 ---
 It's simple!

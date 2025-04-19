@@ -7,7 +7,7 @@ This is done using standard Laravel methods.
 More information in the [documentation](https://laravel.com/docs/8.x/events).
 
 ```php
-use ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Events\BalanceUpdatedEventInterface;
 
 protected $listen = [
     BalanceUpdatedEventInterface::class => [
@@ -19,7 +19,7 @@ protected $listen = [
 And then we create a listener.
 
 ```php
-use ArsamMe\Wallet\Internal\Events\BalanceUpdatedEventInterface;
+use ArsamMe\Wallet\Events\BalanceUpdatedEventInterface;
 
 class MyBalanceUpdatedListener
 {
