@@ -6,8 +6,8 @@ hero:
   text: Simple and powerful!
   tagline: Effortlessly manage virtual wallets with elegance and control.
   image:
-  src: https://github.com/user-attachments/assets/d45104c9-2388-4ed3-8386-6e7152029697
-  alt: Laravel Wallet
+    src: https://github.com/user-attachments/assets/d45104c9-2388-4ed3-8386-6e7152029697
+    alt: Laravel Wallet
   actions:
     - theme: brand
       text: Getting Started
