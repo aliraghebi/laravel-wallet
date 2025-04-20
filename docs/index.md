@@ -20,7 +20,7 @@ features:
   - title: Atomic Transactions
     details: Execute transactions atomically—no need to worry about inconsistent wallet states.
     icon: ⚙️
-    link: /guide/reliability/atomic-service
+    link: /guide/reliability/atomic-transactions
 
   - title: Consistency Checks
     details: Maintain wallet integrity with built-in consistency verification.
