@@ -68,11 +68,12 @@ export default defineConfig({
                 collapsed: false,
             },
             {
-                text: 'Database Transaction',
+                text: 'Reliability & Consistency',
                 items: [
-                    {text: 'Atomic Service', link: '/guide/db/atomic-service'},
-                    {text: 'Race Condition', link: '/guide/db/race-condition'},
-                    {text: 'Transaction', link: '/guide/db/transaction'},
+                    {text: 'Atomic Service', link: '/guide/reliability/atomic-service'},
+                    {text: 'Consistency Check', link: '/guide/reliability/consistency-check'},
+                    {text: 'Race Condition', link: '/guide/reliability/race-condition'},
+                    {text: 'Transaction', link: '/guide/reliability/transaction'},
                 ],
                 collapsed: false,
             },
