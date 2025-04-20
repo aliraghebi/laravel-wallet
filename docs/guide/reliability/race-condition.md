@@ -7,7 +7,7 @@ If you have not yet imported the config into the project, then you need to do th
 php artisan vendor:publish --tag=laravel-wallet-config
 ```
 
-Previously, there was a vacuum package, but now it is a part of the core. You just need to configure the lock service and the cache service in the package configuration `wallet.php`.
+You just need to configure the lock service and the cache service in the package configuration `wallet.php`.
 
 ```php
     /**
