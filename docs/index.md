@@ -30,7 +30,7 @@ features:
   - title: Multi Wallets
     details: Effortlessly manage multiple wallets per model using a clean and intuitive API.
     icon: 👛
-    link: /guide/main/multi-wallet
+    link: /guide/core/multi-wallet
 
   - title: Events
     details: Extend functionality with events and a high-performance architecture.
@@ -40,7 +40,7 @@ features:
   - title: Freezing Balances
     details: Temporarily freeze wallet balances without needing to withdraw and redeposit.
     icon: 🧊
-    link: /guide/main/freeze
+    link: /guide/core/freeze
 
   - title: Fractional Numbers
     details: Seamlessly handle any numeric type or precision level.
