@@ -17,7 +17,7 @@ final class TransactionBeginningListener {
         $transactionLevel = app(DatabaseServiceInterface::class)->getConnection()->transactionLevel();
 
         // If the transaction level is 1, it means it is the top level of a transaction
-        if (1 === $transactionLevel) {
+        if ($transactionLevel === 1) {
             // Get the regulator service instance
             /** @var RegulatorServiceInterface $regulatorService */
             $regulatorService = app(RegulatorServiceInterface::class);

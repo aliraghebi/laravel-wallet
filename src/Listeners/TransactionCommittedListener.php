@@ -28,7 +28,7 @@ final class TransactionCommittedListener {
         $transactionLevel = $connection->transactionLevel();
 
         // Check if the transaction level is 0 indicating the top level of the transaction
-        if (0 === $transactionLevel) {
+        if ($transactionLevel === 0) {
             // The transaction is at the top level, so perform actions when the transaction is successfully committed
 
             // Call the `committed` method of the `RegulatorServiceInterface` to perform actions like updating the transaction status in the database

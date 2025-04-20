@@ -25,13 +25,13 @@ abstract class BaseData implements Arrayable, JsonSerializable {
                     settype($value, $typeName); // for classes, this won't work, needs custom logic
                 } elseif ($type instanceof \ReflectionNamedType) {
                     $typeName = $type->getName();
-                    if ('int' === $typeName) {
+                    if ($typeName === 'int') {
                         $value = (int) $value;
-                    } elseif ('float' === $typeName) {
+                    } elseif ($typeName === 'float') {
                         $value = (float) $value;
-                    } elseif ('bool' === $typeName) {
+                    } elseif ($typeName === 'bool') {
                         $value = (bool) $value;
-                    } elseif ('string' === $typeName) {
+                    } elseif ($typeName === 'string') {
                         $value = (string) $value;
                     }
                 }

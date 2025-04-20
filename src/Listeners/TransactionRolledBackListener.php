@@ -27,7 +27,7 @@ final class TransactionRolledBackListener {
         $transactionLevel = $connection->transactionLevel();
 
         // If the transaction level is 0, it means it is the top level of a transaction
-        if (0 === $transactionLevel) {
+        if ($transactionLevel === 0) {
             // Call the `purge` method of the `RegulatorServiceInterface`
             // This method is responsible for purging the regulator service.
             // It clears any cached data related to the wallet.

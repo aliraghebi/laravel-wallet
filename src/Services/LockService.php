@@ -87,7 +87,7 @@ final class LockService implements LockServiceInterface {
     }
 
     public function isBlocked(string $key): bool {
-        return true === $this->lockedKeys->get(self::INNER_KEYS.$key);
+        return $this->lockedKeys->get(self::INNER_KEYS.$key) === true;
     }
 
     private function getLockProvider(): LockProvider {

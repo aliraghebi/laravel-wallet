@@ -35,7 +35,7 @@ final readonly class AtomicService implements AtomicServiceInterface {
             }
         }
 
-        if ([] === $blockObjects) {
+        if ($blockObjects === []) {
             return $callback();
         }
 

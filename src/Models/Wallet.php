@@ -59,8 +59,8 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
      * @var array<string, int|string>
      */
     protected $attributes = [
-        'balance'        => 0,
-        'frozen_amount'  => 0,
+        'balance' => 0,
+        'frozen_amount' => 0,
         'decimal_places' => 2,
     ];
 
@@ -70,12 +70,12 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
     public function casts(): array {
         return [
             'decimal_places' => 'int',
-            'meta'           => 'json',
+            'meta' => 'json',
         ];
     }
 
     public function getTable(): string {
-        if ('' === (string) $this->table) {
+        if ((string) $this->table === '') {
             $this->table = config('wallet.wallet.table', 'wallets');
         }
 

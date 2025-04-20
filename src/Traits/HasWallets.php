@@ -70,7 +70,7 @@ trait HasWallets {
 
         // Check if wallets are loaded.
         // Load wallets if they are not loaded yet.
-        if ([] === $this->_wallets && $this->relationLoaded('wallets')) {
+        if ($this->_wallets === [] && $this->relationLoaded('wallets')) {
             /** @var Collection<WalletModel> $wallets */
             $wallets = $this->getRelation('wallets');
             // Load the wallets into the cache.

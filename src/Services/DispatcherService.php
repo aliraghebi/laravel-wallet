@@ -43,7 +43,7 @@ final class DispatcherService implements DispatcherServiceInterface {
     }
 
     public function lazyFlush(): void {
-        if (0 === $this->databaseService->getConnection()->transactionLevel()) {
+        if ($this->databaseService->getConnection()->transactionLevel() === 0) {
             $this->flush();
         }
     }

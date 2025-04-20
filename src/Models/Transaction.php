@@ -59,7 +59,7 @@ class Transaction extends Model {
     }
 
     public function getTable(): string {
-        if ('' === (string) $this->table) {
+        if ((string) $this->table === '') {
             $this->table = config('wallet.transaction.table', 'transactions');
         }
 

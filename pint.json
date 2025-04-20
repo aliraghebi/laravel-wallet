@@ -2,16 +2,10 @@
   "preset": "laravel",
   "rules": {
     "not_operator_with_successor_space": false,
-    "yoda_style": true,
     "single_quote": true,
     "curly_braces_position": {
       "functions_opening_brace": "same_line",
       "classes_opening_brace": "same_line"
-    },
-    "binary_operator_spaces": {
-      "operators": {
-        "=>": "align_single_space_minimal"
-      }
     }
   }
 }

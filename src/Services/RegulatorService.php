@@ -14,11 +14,12 @@ use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Events\WalletUpdatedEvent;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
+use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {
     private array $wallets = [];
 
-    private array $changes = [];
+    private array $walletChanges = [];
 
     public function __construct(
         private readonly BookkeeperServiceInterface $bookkeeperService,
@@ -136,61 +137,65 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function committing(): void {
-        $changes = [];
+        $walletChanges = [];
+        $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
-            $frozenAmountDiff = $this->getFrozenAmountDiff($wallet);
-            $transactionsCountDiff = $this->getTransactionsCountDiff($wallet);
-            if (0 === $this->mathService->compare($transactionsCountDiff, 0) && 0 === $this->mathService->compare($frozenAmountDiff, 0)) {
+            $balanceChanged = 0 != $this->mathService->compare($this->getBalanceDiff($wallet), 0);
+            $frozenAmountChanged = 0 != $this->mathService->compare($this->getFrozenAmountDiff($wallet), 0);
+            $transactionsCountChanged = 0 != $this->mathService->compare($this->getTransactionsCountDiff($wallet), 0);
+
+            // Check if no changes occurred to the wallet, then skip it
+            if (!$balanceChanged && !$frozenAmountChanged && !$transactionsCountChanged) {
                 continue;
             }
 
+            $id = $wallet->getKey();
             $uuid = $wallet->uuid;
             $balance = $this->getBalance($wallet);
             $frozenAmount = $this->getFrozenAmount($wallet);
             $transactionsCount = $this->getTransactionsCount($wallet);
-            $checksum = $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance);
 
-            $changes[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
+            // Fill wallet changes with new data.
+            $walletChanges[$uuid] = array_filter([
+                'id' => $id,
+                'balance' => $balanceChanged ? $balance : null,
+                'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
+                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance),
+            ]);
+
+            // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
+            $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
         }
 
-        if ([] !== $changes) {
-            $this->changes = $changes;
+        if ([] !== $walletChanges) {
+            // map changes into key => value array where key is the `id` of wallet and value is array of changes like `balance`, `frozen_amount`
+            $changes = array_combine(
+                array_column($walletChanges, 'id'),
+                array_map(fn ($item) => array_diff_key($item, ['id' => null]), $walletChanges)
+            );
+            $this->walletRepository->multiUpdate($changes);
 
-            $updateData = collect($changes)->mapWithKeys(function ($item, $key) {
-                return [
-                    $this->wallets[$key]->getKey() => [
-                        'balance'       => $item->balance,
-                        'frozen_amount' => $item->frozenAmount,
-                        'checksum'      => $item->checksum,
-                    ],
-                ];
-            })->toArray();
-
-            $this->walletRepository->multiUpdate($updateData);
-
-            $checksums = collect($changes)->mapWithKeys(function ($item, $key) {
-                return [
-                    $key => $item->checksum,
-                ];
-            })->toArray();
+            // create a key => value array where key is the `id` of wallet and value is created `checksum` for wallet
+            $checksums = array_column($walletChanges, 'checksum', 'id');
             $this->consistencyService->checkMultiWalletConsistency($checksums);
+        }
 
-            $this->changes = $changes;
-            $this->bookkeeperService->multiSync($changes);
+        // Set wallet changes variable so we can use later in committed method.
+        $this->walletChanges = $walletChanges;
+
+        // Sync bookkeeper with new data.
+        if ([] !== $bookkeeperChanges) {
+            $this->bookkeeperService->multiSync($bookkeeperChanges);
         }
     }
 
     public function committed(): void {
         try {
-            /** @var WalletStateData $state */
-            foreach ($this->changes as $uuid => $state) {
+            foreach ($this->walletChanges as $uuid => $changes) {
                 $wallet = $this->wallets[$uuid];
 
-                $wallet->fill([
-                    'balance'       => $state->balance,
-                    'frozen_amount' => $state->frozenAmount,
-                    'checksum'      => $state->checksum,
-                ])->syncOriginalAttributes(['balance', 'frozen_amount', 'checksum']);
+                $changes = Arr::only($changes, ['balance', 'frozen_amount', 'checksum']);
+                $wallet->fill($changes)->syncOriginalAttributes(array_keys($changes));
 
                 $this->dispatcherService->dispatch(new WalletUpdatedEvent(
                     $wallet->id,
@@ -210,7 +215,7 @@ class RegulatorService implements RegulatorServiceInterface {
     public function purge(): void {
         try {
             $this->lockService->releases(array_keys($this->wallets));
-            $this->changes = [];
+            $this->walletChanges = [];
             foreach ($this->wallets as $wallet) {
                 $this->forget($wallet);
             }
@@ -222,8 +227,4 @@ class RegulatorService implements RegulatorServiceInterface {
     public function persist(Wallet $wallet): void {
         $this->wallets[$wallet->uuid] = $wallet;
     }
-
-    private function updateWallets() {}
-
-    private function syncBookkeeper() {}
 }

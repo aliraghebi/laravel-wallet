@@ -34,21 +34,21 @@ readonly class WalletService implements WalletServiceInterface {
         $name = $data?->name;
         $slug = $data?->slug;
 
-        if (null != $name && null == $slug) {
+        if ($name != null && $slug == null) {
             $slug = Str::slug($name);
         }
 
         $attributes = array_merge(
             config('wallet.wallet.default', []),
             array_filter([
-                'uuid'           => $data->uuid ?? Str::uuid7()->toString(),
-                'holder_type'    => $holder->getMorphClass(),
-                'holder_id'      => $holder->getKey(),
-                'name'           => $name,
-                'slug'           => $slug,
-                'description'    => $data?->description,
+                'uuid' => $data->uuid ?? Str::uuid7()->toString(),
+                'holder_type' => $holder->getMorphClass(),
+                'holder_id' => $holder->getKey(),
+                'name' => $name,
+                'slug' => $slug,
+                'description' => $data?->description,
                 'decimal_places' => $data?->decimalPlaces,
-                'meta'           => $data?->meta,
+                'meta' => $data?->meta,
             ])
         );
 
@@ -129,7 +129,7 @@ readonly class WalletService implements WalletServiceInterface {
 
     public function freeze(Wallet $wallet, float|int|string|null $amount = null): bool {
         return $this->atomic($wallet, function () use ($amount, $wallet) {
-            if (null != $amount) {
+            if ($amount != null) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
             }
@@ -142,7 +142,7 @@ readonly class WalletService implements WalletServiceInterface {
 
     public function unFreeze(Wallet $wallet, float|int|string|null $amount = null): bool {
         return $this->atomic($wallet, function () use ($amount, $wallet) {
-            if (null != $amount) {
+            if ($amount != null) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
             }
@@ -168,16 +168,16 @@ readonly class WalletService implements WalletServiceInterface {
     private function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null): Transaction {
         $uuid = Str::uuid7()->toString();
         $time = now();
-        $amount = Transaction::TYPE_WITHDRAW == $type ? $this->mathService->negative($amount) : $amount;
+        $amount = $type == Transaction::TYPE_WITHDRAW ? $this->mathService->negative($amount) : $amount;
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
         $attributes = [
-            'uuid'       => $uuid,
-            'wallet_id'  => $wallet->id,
-            'type'       => $type,
-            'amount'     => $amount,
-            'meta'       => $meta,
-            'checksum'   => $checksum,
+            'uuid' => $uuid,
+            'wallet_id' => $wallet->id,
+            'type' => $type,
+            'amount' => $amount,
+            'meta' => $meta,
+            'checksum' => $checksum,
             'created_at' => $time,
             'updated_at' => $time,
         ];

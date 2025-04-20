@@ -37,7 +37,7 @@ class DatabaseService implements DatabaseServiceInterface {
             return $connection->transaction(function () use ($callback) {
                 $result = $callback();
 
-                if (false === $result || (is_countable($result) && 0 === count($result))) {
+                if ($result === false || (is_countable($result) && count($result) === 0)) {
                     throw new TransactionRollbackException($result);
                 }
 

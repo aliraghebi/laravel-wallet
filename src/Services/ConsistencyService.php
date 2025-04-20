@@ -112,9 +112,10 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function checkWalletConsistency(string $uuid, string $checksum, bool $throw = false): bool {
+    public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool {
         try {
-            $this->checkMultiWalletConsistency([$uuid => $checksum]);
+            $wallet = $this->castService->getWallet($wallet);
+            $this->checkMultiWalletConsistency([$wallet->id => $checksum ?? $wallet->checksum]);
         } catch (WalletConsistencyException $e) {
             if ($throw) {
                 throw $e;
@@ -127,22 +128,22 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
     }
 
-    public function checkMultiWalletConsistency(array $checksums): void {
+    public function checkMultiWalletConsistency(array $checksums, string $column = 'id'): void {
         if (!$this->consistencyChecksumsEnabled) {
             return;
         }
 
-        $states = $this->walletRepository->multiGet(array_keys($checksums));
-        foreach ($states as $uuid => $state) {
+        $wallets = $this->walletRepository->multiGet(array_keys($checksums), $column);
+        foreach ($wallets as $wallet) {
             $expectedChecksum = $this->createWalletChecksum(
-                $state->uuid,
-                $state->balance,
-                $state->frozenAmount,
-                $state->transactionsCount,
-                $state->transactionsSum,
+                $wallet->uuid,
+                (string) $wallet->getRawOriginal('balance'),
+                (string) $wallet->getRawOriginal('frozen_amount'),
+                $wallet->transactions_count,
+                (string) $wallet->transactions_sum,
             );
 
-            $checksum = $checksums[$uuid];
+            $checksum = $checksums[$wallet[$column]];
             if ($checksum !== $expectedChecksum) {
                 throw new WalletConsistencyException(
                     'Wallet consistency could not be verified.',

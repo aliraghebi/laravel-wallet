@@ -68,8 +68,8 @@ readonly class WalletRepository implements WalletRepositoryInterface {
     public function findOrFailBySlug(string $holderType, int|string $holderId, string $slug): Wallet {
         return $this->findOrFailBy([
             'holder_type' => $holderType,
-            'holder_id'   => $holderId,
-            'slug'        => $slug,
+            'holder_id' => $holderId,
+            'slug' => $slug,
         ]);
     }
 
@@ -77,7 +77,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
      * @param  array<string, int|string>  $attributes
      */
     private function findOrFailBy(array $attributes): Wallet {
-        assert([] !== $attributes);
+        assert($attributes !== []);
 
         try {
             $wallet = $this->wallet->newQuery()
@@ -105,7 +105,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
 
     public function multiUpdate(array $data): bool {
         // One element gives x10 speedup, on some data
-        if (1 === count($data)) {
+        if (count($data) === 1) {
             return $this->wallet->newQuery()
                 ->whereKey(key($data))
                 ->update(current($data));
@@ -144,13 +144,11 @@ readonly class WalletRepository implements WalletRepositoryInterface {
             ->update($updateParams);
     }
 
-    public function multiGet(array $ids, $column = 'id'): Collection {
-        $column = 'id';
-
+    public function multiGet(array $keys, string $column = 'id'): Collection {
         return $this->wallet->newQuery()
             ->withCount('walletTransactions as transactions_count')
             ->withSum('walletTransactions as transactions_sum', 'amount')
-            ->whereIn($column, $ids)
+            ->whereIn($column, $keys)
             ->get();
     }
 }

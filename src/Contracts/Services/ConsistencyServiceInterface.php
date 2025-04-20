@@ -42,7 +42,11 @@ interface ConsistencyServiceInterface {
 
     public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string;
 
-    public function checkWalletConsistency(string $uuid, string $checksum, bool $throw = false): bool;
+    public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool;
 
-    public function checkMultiWalletConsistency(array $checksums): void;
+    /**
+     * @param  array<string, string>  $checksums  Array of checksums to check. Key may be `id` or `uuid`.
+     * @param  string  $column  DB column name of `checksums` array keys.
+     */
+    public function checkMultiWalletConsistency(array $checksums, string $column = 'id'): void;
 }

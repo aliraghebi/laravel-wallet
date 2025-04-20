@@ -34,7 +34,7 @@ readonly class StorageServiceLockDecorator implements StorageServiceInterface {
         $results = [];
         foreach ($uuids as $uuid) {
             $item = $this->stateService->get($uuid);
-            if (null === $item) {
+            if ($item === null) {
                 $missingKeys[] = $uuid;
 
                 continue;
@@ -43,14 +43,14 @@ readonly class StorageServiceLockDecorator implements StorageServiceInterface {
             $results[$uuid] = $item;
         }
 
-        if ([] !== $missingKeys) {
+        if ($missingKeys !== []) {
             $foundValues = $this->storageService->multiGet($missingKeys);
             foreach ($foundValues as $key => $value) {
                 $results[$key] = $value;
             }
         }
 
-        assert([] !== $results);
+        assert($results !== []);
 
         return $results;
     }

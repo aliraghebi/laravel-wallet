@@ -54,7 +54,7 @@ use ArsamMe\Wallet\Traits\HasWallets;
 
 class User extends Model
 {
-    use HasWallet, HasWallets;
+    use HasWallets;
 }
 ```
 

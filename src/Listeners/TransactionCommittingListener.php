@@ -26,7 +26,7 @@ final class TransactionCommittingListener {
         // Check if the transaction level is 1 indicating the top level of the transaction
         // The transaction level represents the nesting level of the transaction.
         // The top level of the transaction is 1, indicating that the current transaction is the outermost transaction.
-        if (1 === $connection->transactionLevel()) {
+        if ($connection->transactionLevel() === 1) {
             // Call the `committing` method of the `RegulatorServiceInterface`
             // This method is responsible for performing actions when a transaction is successfully committed.
             // It is typically used to update the transaction status in the database.
