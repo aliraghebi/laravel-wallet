@@ -20,12 +20,12 @@ features:
   - title: Atomic Service
     details: Execute transactions atomically—no need to worry about inconsistent wallet states.
     icon: ⚙️
-    link: /guide/db/atomic-service
+    link: /guide/reliability/atomic-service
 
   - title: Consistency Checks
     details: Maintain wallet integrity with built-in consistency verification.
     icon: ✅
-    link: /guide/main/multi-wallet
+    link: /guide/reliability/consistency-check
 
   - title: Multi Wallets
     details: Effortlessly manage multiple wallets per model using a clean and intuitive API.
@@ -40,7 +40,7 @@ features:
   - title: Freezing Balances
     details: Temporarily freeze wallet balances without needing to withdraw and redeposit.
     icon: 🧊
-    link: /guide/events/wallet-updated-event
+    link: /guide/main/freeze
 
   - title: Fractional Numbers
     details: Seamlessly handle any numeric type or precision level.
