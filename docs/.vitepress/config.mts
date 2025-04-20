@@ -70,7 +70,7 @@ export default defineConfig({
             {
                 text: 'Reliability & Consistency',
                 items: [
-                    {text: 'Atomic Service', link: '/guide/reliability/atomic-service'},
+                    {text: 'Atomic Transactions', link: '/guide/reliability/atomic-transactions'},
                     {text: 'Consistency Check', link: '/guide/reliability/consistency-check'},
                     {text: 'Race Condition', link: '/guide/reliability/race-condition'},
                     {text: 'Transaction', link: '/guide/reliability/transaction'},

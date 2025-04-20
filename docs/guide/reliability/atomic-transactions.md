@@ -1,4 +1,4 @@
-# Atomic Service
+# Atomic Transactions
 
 Working with atomic wallet operations.
 

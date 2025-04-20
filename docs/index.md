@@ -17,7 +17,7 @@ hero:
       link: /guide/introduction/upgrade
 
 features:
-  - title: Atomic Service
+  - title: Atomic Transactions
     details: Execute transactions atomically—no need to worry about inconsistent wallet states.
     icon: ⚙️
     link: /guide/reliability/atomic-service
