@@ -45,5 +45,5 @@ features:
   - title: Fractional Numbers
     details: Seamlessly handle any numeric type or precision level.
     icon: 🔬
-    link: /guide/events/wallet-updated-event
+    link: /guide/introduction/basic-usage.html#how-to-work-with-fractional-numbers
 ---
