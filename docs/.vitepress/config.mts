@@ -7,18 +7,18 @@ export default defineConfig({
     base: '/laravel-wallet/',
     lastUpdated: true,
     head: [
-        [
-            'script',
-            {async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LNEGT551DV'}
-        ],
-        [
-            'script',
-            {},
-            `window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-LNEGT551DV');`
-        ],
+        // [
+        //     'script',
+        //     {async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LNEGT551DV'}
+        // ],
+      //   [
+      //       'script',
+      //       {},
+      //       `window.dataLayer = window.dataLayer || [];
+      // function gtag(){dataLayer.push(arguments);}
+      // gtag('js', new Date());
+      // gtag('config', 'G-LNEGT551DV');`
+      //   ],
         [
             'link', {
             rel: 'icon',
