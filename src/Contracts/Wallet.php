@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Contracts;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Exceptions\AmountInvalid;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
@@ -21,7 +21,7 @@ interface Wallet {
      * @param  array|null  $meta  Additional information for the transaction.
      * @return Transaction The created transaction.
      *
-     * @throws AmountInvalid If the amount is invalid.
+     * @throws InvalidAmountException If the amount is invalid.
      * @throws RecordsNotFoundException If the wallet is not found.
      * @throws TransactionFailedException If the transaction fails.
      * @throws ExceptionInterface If an exception occurs.
@@ -35,7 +35,7 @@ interface Wallet {
      * @param  array|null  $meta  Additional information for the transaction.
      * @return Transaction The created transaction.
      *
-     * @throws AmountInvalid If the amount is invalid.
+     * @throws InvalidAmountException If the amount is invalid.
      * @throws BalanceIsEmpty If the balance is empty.
      * @throws InsufficientFunds If the amount exceeds the balance.
      * @throws RecordsNotFoundException If the wallet is not found.

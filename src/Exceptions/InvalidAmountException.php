@@ -7,4 +7,4 @@ namespace ArsamMe\Wallet\Exceptions;
 use ArsamMe\Wallet\Contracts\Exceptions\InvalidArgumentExceptionInterface;
 use InvalidArgumentException;
 
-final class AmountInvalid extends InvalidArgumentException implements InvalidArgumentExceptionInterface {}
+final class InvalidAmountException extends InvalidArgumentException implements InvalidArgumentExceptionInterface {}

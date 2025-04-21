@@ -11,14 +11,14 @@ export default defineConfig({
         //     'script',
         //     {async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LNEGT551DV'}
         // ],
-      //   [
-      //       'script',
-      //       {},
-      //       `window.dataLayer = window.dataLayer || [];
-      // function gtag(){dataLayer.push(arguments);}
-      // gtag('js', new Date());
-      // gtag('config', 'G-LNEGT551DV');`
-      //   ],
+        //   [
+        //       'script',
+        //       {},
+        //       `window.dataLayer = window.dataLayer || [];
+        // function gtag(){dataLayer.push(arguments);}
+        // gtag('js', new Date());
+        // gtag('config', 'G-LNEGT551DV');`
+        //   ],
         [
             'link', {
             rel: 'icon',
@@ -64,6 +64,7 @@ export default defineConfig({
                     {text: 'Freeze', link: '/guide/core/freeze'},
                     {text: 'UnFreeze', link: '/guide/core/un-freeze'},
                     {text: 'Multi Wallet', link: '/guide/core/multi-wallet'},
+                    {text: 'Transfer', link: '/guide/core/transfer'},
                 ],
                 collapsed: false,
             },

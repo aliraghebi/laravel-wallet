@@ -10,7 +10,7 @@ use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Wallet;
-use ArsamMe\Wallet\Exceptions\AmountInvalid;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
@@ -28,11 +28,11 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     ) {}
 
     /**
-     * @throws AmountInvalid
+     * @throws InvalidAmountException
      */
     public function checkPositive(float|int|string $amount): void {
-        if (-1 === $this->mathService->compare($amount, 0)) {
-            throw new AmountInvalid(
+        if ($this->mathService->compare($amount, 0) === -1) {
+            throw new InvalidAmountException(
                 'Amount must be positive.',
                 ExceptionInterface::AMOUNT_INVALID
             );
@@ -48,7 +48,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         $balance = $wallet->getRawBalanceAttribute();
         $availableBalance = $wallet->getRawAvailableBalanceAttribute();
 
-        if ((0 !== $this->mathService->compare($amount, 0)) && (0 === $this->mathService->compare($balance, 0))) {
+        if (($this->mathService->compare($amount, 0) !== 0) && ($this->mathService->compare($balance, 0) === 0)) {
             throw new BalanceIsEmpty(
                 'Balance is empty.',
                 ExceptionInterface::BALANCE_IS_EMPTY
@@ -104,6 +104,25 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $walletId,
             $type,
             $amount,
+            $createdAt,
+        ];
+
+        $stringToSign = implode('_', $dataToSign);
+
+        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+    }
+
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, string $createdAt): ?string {
+        if (!$this->consistencyChecksumsEnabled) {
+            return null;
+        }
+
+        $dataToSign = [
+            $uuid,
+            $fromWalletId,
+            $toWalletId,
+            $amount,
+            $fee,
             $createdAt,
         ];
 

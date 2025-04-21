@@ -32,6 +32,11 @@ features:
     icon: 👛
     link: /guide/core/multi-wallet
 
+  - title: Transfers
+    details: This package enables seamless and reliable fund transfers between wallets.
+    icon: 💸
+    link: /guide/core/transfer
+    
   - title: Events
     details: Extend functionality with events and a high-performance architecture.
     icon: 📡
@@ -42,8 +47,4 @@ features:
     icon: 🧊
     link: /guide/core/freeze
 
-  - title: Fractional Numbers
-    details: Seamlessly handle any numeric type or precision level.
-    icon: 🔬
-    link: /guide/introduction/basic-usage.html#how-to-work-with-fractional-numbers
 ---

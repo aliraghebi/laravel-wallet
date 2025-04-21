@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Wallet;
-use ArsamMe\Wallet\Exceptions\AmountInvalid;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 
 /**
  * @api
@@ -18,7 +18,7 @@ interface ConsistencyServiceInterface {
      *
      * @param  float|int|string  $amount  The amount to check.
      *
-     * @throws AmountInvalid If the given amount is not positive.
+     * @throws InvalidAmountException If the given amount is not positive.
      */
     public function checkPositive(float|int|string $amount): void;
 
@@ -34,13 +34,15 @@ interface ConsistencyServiceInterface {
      * @param  bool  $allowZero  Whether to allow zero amounts. Defaults to false.
      * @return bool Returns true if the balance can be withdrawn, false otherwise.
      *
-     * @throws AmountInvalid If the given balance or amount is not positive.
+     * @throws InvalidAmountException If the given balance or amount is not positive.
      */
     public function canWithdraw(float|int|string $balance, float|int|string $amount, bool $allowZero = false): bool;
 
     public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
 
     public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string;
+
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, string $createdAt): ?string;
 
     public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool;
 

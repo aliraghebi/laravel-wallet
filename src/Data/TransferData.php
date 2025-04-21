@@ -1,19 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ArsamMe\Wallet\Data;
 
 use ArsamMe\Wallet\Contracts\BaseData;
 use DateTimeImmutable;
 
-class WalletData extends BaseData {
+/** @immutable */
+final class TransferData extends BaseData {
     public function __construct(
         public readonly string $uuid,
-        public readonly string $holderType,
-        public readonly int|string $holderId,
-        public readonly string $name,
-        public readonly string $slug,
+        public readonly int $depositId,
+        public readonly int $withdrawalId,
+        public readonly int $fromId,
+        public readonly int $toId,
+        public readonly string $amount,
+        public readonly string $fee,
         public readonly int $decimalPlaces,
-        public readonly ?string $description,
         public readonly ?array $meta,
         public readonly ?string $checksum,
         public readonly DateTimeImmutable $createdAt,

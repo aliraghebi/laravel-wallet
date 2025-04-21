@@ -9,14 +9,15 @@ use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
-use ArsamMe\Wallet\Contracts\WalletCoordinatorInterface;
+use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Contracts\Wallet;
-use ArsamMe\Wallet\Exceptions\AmountInvalid;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use ArsamMe\Wallet\Models\Transaction;
+use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\RecordsNotFoundException;
@@ -120,7 +121,7 @@ trait WalletFunctions {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletCoordinatorInterface::class)->deposit($wallet, $amount, $meta);
+        return app(WalletServiceInterface::class)->deposit($wallet, $amount, $meta);
     }
 
     /**
@@ -136,7 +137,7 @@ trait WalletFunctions {
      * @see AtomicServiceInterface
      * @see ConsistencyServiceInterface
      * @see TransactionFailedException
-     * @see AmountInvalid
+     * @see InvalidAmountException
      * @see BalanceIsEmpty
      * @see InsufficientFunds
      * @see RecordsNotFoundException
@@ -145,21 +146,29 @@ trait WalletFunctions {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletCoordinatorInterface::class)->withdraw($wallet, $amount, $meta);
+        return app(WalletServiceInterface::class)->withdraw($wallet, $amount, $meta);
     }
 
     public function freeze(float|int|string|null $amount = null): bool {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletCoordinatorInterface::class)->freeze($wallet, $amount);
+        return app(WalletServiceInterface::class)->freeze($wallet, $amount);
     }
 
     public function unFreeze(float|int|string|null $amount = null): bool {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletCoordinatorInterface::class)->unFreeze($wallet, $amount);
+        return app(WalletServiceInterface::class)->unFreeze($wallet, $amount);
+    }
+
+    public function transfer(Wallet $destination, float|int|string $amount, float|int|string $fee = 0, ?array $meta = null): Transfer {
+        $wallet = app(CastServiceInterface::class)->getWallet($this);
+        $destination = app(CastServiceInterface::class)->getWallet($destination);
+
+        // Execute the deposit transaction within an atomic block to ensure data consistency.
+        return app(WalletServiceInterface::class)->transfer($wallet, $destination, $amount, $fee, $meta);
     }
 
     /**

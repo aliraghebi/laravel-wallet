@@ -5,15 +5,12 @@ namespace ArsamMe\Wallet\Data;
 use ArsamMe\Wallet\Contracts\BaseData;
 use DateTimeImmutable;
 
-class WalletData extends BaseData {
+class TransactionData extends BaseData {
     public function __construct(
         public readonly string $uuid,
-        public readonly string $holderType,
-        public readonly int|string $holderId,
-        public readonly string $name,
-        public readonly string $slug,
-        public readonly int $decimalPlaces,
-        public readonly ?string $description,
+        public readonly int $walletId,
+        public readonly string $type,
+        public readonly string $amount,
         public readonly ?array $meta,
         public readonly ?string $checksum,
         public readonly DateTimeImmutable $createdAt,

@@ -86,24 +86,25 @@ class RegulatorService implements RegulatorServiceInterface {
         return $availableBalance;
     }
 
-    public function increase(Wallet $wallet, string $value): string {
+    public function increase(Wallet $wallet, string $value, int $transactionCount = 1): string {
+        assert($transactionCount > 0);
         $this->persist($wallet);
 
         try {
             $data = $this->get($wallet);
             $data->balance = $this->mathService->add($data->balance, $value);
-            $data->transactionsCount++;
+            $data->transactionsCount += $transactionCount;
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
-            $data = new WalletStateData($value, '0', 1);
+            $data = new WalletStateData($value, '0', $transactionCount);
             $this->storageService->sync($wallet->uuid, $data);
         }
 
         return $this->getBalance($wallet);
     }
 
-    public function decrease(Wallet $wallet, string $value): string {
-        return $this->increase($wallet, $this->mathService->negative($value));
+    public function decrease(Wallet $wallet, string $value, int $transactionCount = 1): string {
+        return $this->increase($wallet, $this->mathService->negative($value), $transactionCount);
     }
 
     public function freeze(Wallet $wallet, ?string $value = null): string {

@@ -4,6 +4,8 @@ namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
+use ArsamMe\Wallet\Contracts\Transformers\WalletDataTransformerInterface;
+use ArsamMe\Wallet\Data\WalletData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\Eloquent\ModelNotFoundException as EloquentModelNotFoundException;
@@ -11,72 +13,32 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
-    public function __construct(private Wallet $wallet) {}
+    public function __construct(
+        private Wallet $wallet,
+        private WalletDataTransformerInterface $walletDataTransformer
+    ) {}
 
-    public function createWallet(array $attributes): Wallet {
+    public function createWallet(WalletData $data): Wallet {
+        $attributes = $this->walletDataTransformer->extract($data);
+
         $instance = $this->wallet->newInstance($attributes);
         $instance->saveQuietly();
 
         return $instance;
     }
 
-    public function findById(int $id): ?Wallet {
+    public function findBy(array $attributes): ?Wallet {
         try {
-            return $this->findOrFailById($id);
+            return $this->findOrFailBy($attributes);
         } catch (ModelNotFoundException) {
             return null;
         }
-    }
-
-    public function findByUuid(string $uuid): ?Wallet {
-        try {
-            return $this->findOrFailByUuid($uuid);
-        } catch (ModelNotFoundException) {
-            return null;
-        }
-    }
-
-    public function findBySlug(string $holderType, int|string $holderId, string $slug): ?Wallet {
-        try {
-            return $this->findOrFailBySlug($holderType, $holderId, $slug);
-        } catch (ModelNotFoundException) {
-            return null;
-        }
-    }
-
-    /**
-     * @throws ModelNotFoundException
-     */
-    public function findOrFailById(int $id): Wallet {
-        return $this->findOrFailBy([
-            'id' => $id,
-        ]);
-    }
-
-    /**
-     * @throws ModelNotFoundException
-     */
-    public function findOrFailByUuid(string $uuid): Wallet {
-        return $this->findOrFailBy([
-            'uuid' => $uuid,
-        ]);
-    }
-
-    /**
-     * @throws ModelNotFoundException
-     */
-    public function findOrFailBySlug(string $holderType, int|string $holderId, string $slug): Wallet {
-        return $this->findOrFailBy([
-            'holder_type' => $holderType,
-            'holder_id' => $holderId,
-            'slug' => $slug,
-        ]);
     }
 
     /**
      * @param  array<string, int|string>  $attributes
      */
-    private function findOrFailBy(array $attributes): Wallet {
+    public function findOrFailBy(array $attributes): Wallet {
         assert($attributes !== []);
 
         try {
@@ -96,9 +58,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
     }
 
     public function update(Wallet $wallet, array $attributes): Wallet {
-        $attributes['updated_at'] ??= now();
-
-        $wallet->fill($attributes)->saveQuietly();
+        $wallet->update($attributes);
 
         return $wallet;
     }

@@ -1,6 +1,7 @@
 <?php
 
 use ArsamMe\Wallet\Models\Transaction;
+use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Models\Wallet;
 
 return [
@@ -89,6 +90,27 @@ return [
         | This value is used to create new transactions.
         */
         'model' => Transaction::class,
+    ],
+
+    /*
+   |--------------------------------------------------------------------------
+   |  Base model 'transfer'.
+   |--------------------------------------------------------------------------
+   */
+    'transfer' => [
+        /*
+         | The table name for transfers.
+         |
+         | This value is used to store transfers in a database.
+         */
+        'table' => env('WALLET_TRANSFER_TABLE_NAME', 'transfers'),
+
+        /*
+        | The model class for transfer.
+        |
+        | This value is used to create new transfer.
+        */
+        'model' => Transfer::class,
     ],
 
     /*
