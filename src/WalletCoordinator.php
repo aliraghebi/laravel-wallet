@@ -79,7 +79,7 @@ readonly class WalletCoordinator implements WalletCoordinatorInterface {
     }
 
     public function findByUuid(string $uuid): ?Wallet {
-        $this->walletRepository->findByUuid($uuid);
+        return $this->walletRepository->findByUuid($uuid);
     }
 
     public function findBySlug(Model $holder, string $slug): ?Wallet {

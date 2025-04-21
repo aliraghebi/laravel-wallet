@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Traits;
 
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\WalletCoordinatorInterface;
 use ArsamMe\Wallet\Contracts\Wallet;
-use ArsamMe\Wallet\Data\WalletData;
+use ArsamMe\Wallet\Contracts\WalletCoordinatorInterface;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
@@ -162,18 +161,27 @@ trait HasWallets {
      * - decimal_places: The number of decimal places for the wallet. If not
      *                   specified, the default value is 2.
      *
-     * @param  WalletData|null  $data  The data for the new wallet.
      * @return WalletModel The new wallet object.
      */
-    public function createWallet(?WalletData $data = null): WalletModel {
+    public function createWallet(
+        ?string $name = null,
+        ?string $slug = null,
+        ?int $decimalPlaces = null,
+        ?string $description = null,
+        ?array $meta = null,
+        ?string $uuid = null
+    ): WalletModel {
+        // Get holder model
+        $holder = app(CastServiceInterface::class)->getHolder($this);
+
         // Create the wallet with the given data.
-        $wallet = app(WalletCoordinatorInterface::class)->createWallet($this, $data);
+        $wallet = app(WalletCoordinatorInterface::class)->createWallet($holder, $name, $slug, $decimalPlaces, $description, $meta, $uuid);
 
         // Cache the wallet.
         $this->_wallets[$wallet->slug] = $wallet;
 
         // Set the relation between the wallet and the current model.
-        $wallet->setRelation('holder', $this->withoutRelations());
+        $wallet->setRelation('holder', $holder->withoutRelations());
 
         return $wallet;
     }
