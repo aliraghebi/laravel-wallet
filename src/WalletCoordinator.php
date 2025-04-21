@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace ArsamMe\Wallet;
 
 use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
@@ -9,8 +9,7 @@ use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Data\CreateWalletData;
+use ArsamMe\Wallet\Contracts\WalletCoordinatorInterface;
 use ArsamMe\Wallet\Events\TransactionCreatedEvent;
 use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-readonly class WalletService implements WalletServiceInterface {
+readonly class WalletCoordinator implements WalletCoordinatorInterface {
     public function __construct(
         private AtomicServiceInterface $atomicService,
         private MathServiceInterface $mathService,
@@ -30,10 +29,15 @@ readonly class WalletService implements WalletServiceInterface {
         private DispatcherServiceInterface $dispatcherService
     ) {}
 
-    public function createWallet(Model $holder, ?CreateWalletData $data = null): Wallet {
-        $name = $data?->name;
-        $slug = $data?->slug;
-
+    public function createWallet(
+        Model $holder,
+        ?string $name = null,
+        ?string $slug = null,
+        ?int $decimalPlaces = null,
+        ?string $description = null,
+        ?array $meta = null,
+        ?string $uuid = null
+    ): Wallet {
         if ($name != null && $slug == null) {
             $slug = Str::slug($name);
         }
@@ -41,14 +45,14 @@ readonly class WalletService implements WalletServiceInterface {
         $attributes = array_merge(
             config('wallet.wallet.default', []),
             array_filter([
-                'uuid' => $data->uuid ?? Str::uuid7()->toString(),
+                'uuid' => $uuid ?? Str::uuid7()->toString(),
                 'holder_type' => $holder->getMorphClass(),
                 'holder_id' => $holder->getKey(),
                 'name' => $name,
                 'slug' => $slug,
-                'description' => $data?->description,
-                'decimal_places' => $data?->decimalPlaces,
-                'meta' => $data?->meta,
+                'description' => $description,
+                'decimal_places' => $decimalPlaces,
+                'meta' => $meta,
             ])
         );
 

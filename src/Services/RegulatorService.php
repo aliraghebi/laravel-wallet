@@ -33,7 +33,6 @@ class RegulatorService implements RegulatorServiceInterface {
 
     public function forget(Wallet $wallet): bool {
         unset($this->wallets[$wallet->uuid]);
-        $this->bookkeeperService->forget($wallet);
 
         return $this->storageService->forget($wallet->uuid);
     }
@@ -80,7 +79,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
     public function getAvailableBalance(Wallet $wallet): string {
         $availableBalance = $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet));
-        if (-1 == $this->mathService->compare($availableBalance, 0)) {
+        if ($this->mathService->compare($availableBalance, 0) == -1) {
             $availableBalance = '0';
         }
 
@@ -125,10 +124,10 @@ class RegulatorService implements RegulatorServiceInterface {
 
     public function unFreeze(Wallet $wallet, ?string $value = null): string {
         $frozenAmount = $this->getFrozenAmount($wallet);
-        if (null == $value) {
+        if ($value == null) {
             $value = $frozenAmount;
         } else {
-            if (1 == $this->mathService->compare($value, $frozenAmount)) {
+            if ($this->mathService->compare($value, $frozenAmount) == 1) {
                 $value = $frozenAmount;
             }
         }
@@ -140,9 +139,9 @@ class RegulatorService implements RegulatorServiceInterface {
         $walletChanges = [];
         $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
-            $balanceChanged = 0 != $this->mathService->compare($this->getBalanceDiff($wallet), 0);
-            $frozenAmountChanged = 0 != $this->mathService->compare($this->getFrozenAmountDiff($wallet), 0);
-            $transactionsCountChanged = 0 != $this->mathService->compare($this->getTransactionsCountDiff($wallet), 0);
+            $balanceChanged = $this->mathService->compare($this->getBalanceDiff($wallet), 0) != 0;
+            $frozenAmountChanged = $this->mathService->compare($this->getFrozenAmountDiff($wallet), 0) != 0;
+            $transactionsCountChanged = $this->mathService->compare($this->getTransactionsCountDiff($wallet), 0) != 0;
 
             // Check if no changes occurred to the wallet, then skip it
             if (!$balanceChanged && !$frozenAmountChanged && !$transactionsCountChanged) {
@@ -167,7 +166,7 @@ class RegulatorService implements RegulatorServiceInterface {
             $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
         }
 
-        if ([] !== $walletChanges) {
+        if ($walletChanges !== []) {
             // map changes into key => value array where key is the `id` of wallet and value is array of changes like `balance`, `frozen_amount`
             $changes = array_combine(
                 array_column($walletChanges, 'id'),
@@ -184,7 +183,7 @@ class RegulatorService implements RegulatorServiceInterface {
         $this->walletChanges = $walletChanges;
 
         // Sync bookkeeper with new data.
-        if ([] !== $bookkeeperChanges) {
+        if ($bookkeeperChanges !== []) {
             $this->bookkeeperService->multiSync($bookkeeperChanges);
         }
     }

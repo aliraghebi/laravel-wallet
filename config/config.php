@@ -66,7 +66,7 @@ return [
             /*
             | Default decimal places for new wallets if you do not set
             */
-            'decimal_places' => env('WALLET_DEFAULT_WALLET_DECIMAL_PLACES', 24),
+            'decimal_places' => env('WALLET_DEFAULT_WALLET_DECIMAL_PLACES', 2),
         ],
     ],
 

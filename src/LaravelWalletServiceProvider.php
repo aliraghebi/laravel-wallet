@@ -15,7 +15,7 @@ use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Contracts\WalletCoordinatorInterface;
 use ArsamMe\Wallet\Decorators\StorageServiceLockDecorator;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Wallet;
@@ -32,7 +32,6 @@ use ArsamMe\Wallet\Services\MathService;
 use ArsamMe\Wallet\Services\RegulatorService;
 use ArsamMe\Wallet\Services\StateService;
 use ArsamMe\Wallet\Services\StorageService;
-use ArsamMe\Wallet\Services\WalletService;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Database\Events\TransactionBeginning;
@@ -144,7 +143,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(RegulatorServiceInterface::class, RegulatorService::class);
         $this->app->singleton(StateServiceInterface::class, StateService::class);
         $this->app->singleton(StorageServiceInterface::class, StorageService::class);
-        $this->app->singleton(WalletServiceInterface::class, WalletService::class);
+        $this->app->singleton(WalletCoordinatorInterface::class, WalletCoordinator::class);
     }
 
     private function repositories(): void {
@@ -152,7 +151,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(WalletRepositoryInterface::class, WalletRepository::class);
     }
 
-    private function bindObjects() {
+    private function bindObjects(): void {
         $this->app->bind(Transaction::class, config('wallet.transaction.model'));
         $this->app->bind(Wallet::class, config('wallet.wallet.model'));
     }
@@ -171,7 +170,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             RegulatorServiceInterface::class,
             StateServiceInterface::class,
             StorageServiceInterface::class,
-            WalletServiceInterface::class,
+            WalletCoordinatorInterface::class,
 
             // Repositories
             WalletRepositoryInterface::class,

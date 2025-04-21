@@ -4,7 +4,7 @@ namespace ArsamMe\Wallet\Data;
 
 use ArsamMe\Wallet\Contracts\BaseData;
 
-class CreateWalletData extends BaseData {
+class WalletData extends BaseData {
     public function __construct(
         public ?string $uuid = null,
         public ?string $name = null,
