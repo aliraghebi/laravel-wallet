@@ -1,6 +1,6 @@
 # Transfer between wallets
 
-Transfer in our system are two well-known [Deposit](../single/deposit) and [Withdraw](../single/withdraw)
+Transfer in our system are two well-known [Deposit](deposit) and [Withdraw](withdraw)
 operations that are performed in one transaction.
 
 The transfer takes place between wallets.
