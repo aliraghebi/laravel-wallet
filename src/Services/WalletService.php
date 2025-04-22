@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet\Services;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
@@ -15,7 +16,7 @@ use ArsamMe\Wallet\Data\WalletData;
 use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet;
+use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -40,7 +41,7 @@ readonly class WalletService implements WalletServiceInterface {
         ?string $description = null,
         ?array $meta = null,
         ?string $uuid = null
-    ): Wallet {
+    ): WalletModel {
         if ($name != null && $slug == null) {
             $slug = Str::slug($name);
         }
@@ -62,31 +63,22 @@ readonly class WalletService implements WalletServiceInterface {
 
         $wallet = $this->walletRepository->createWallet($data);
 
-        $this->dispatcherService->dispatch(new WalletCreatedEvent(
-            $wallet->id,
-            $wallet->uuid,
-            $wallet->holder_type,
-            $wallet->holder_id,
-            $wallet->description,
-            $wallet->meta,
-            $wallet->decimal_places,
-            $wallet->created_at->toImmutable(),
-        ));
+        $this->dispatcherService->dispatch(WalletCreatedEvent::fromWallet($wallet));
 
         $this->dispatcherService->lazyFlush();
 
         return $wallet;
     }
 
-    public function findById(int $id): ?Wallet {
+    public function findById(int $id): ?WalletModel {
         return $this->walletRepository->findBy(['id' => $id]);
     }
 
-    public function findByUuid(string $uuid): ?Wallet {
+    public function findByUuid(string $uuid): ?WalletModel {
         return $this->walletRepository->findBy(['uuid' => $uuid]);
     }
 
-    public function findBySlug(Model $holder, string $slug): ?Wallet {
+    public function findBySlug(Model $holder, string $slug): ?WalletModel {
         return $this->walletRepository->findBy([
             'holder_type' => $holder->getMorphClass(),
             'holder_id' => $holder->getKey(),
@@ -94,15 +86,15 @@ readonly class WalletService implements WalletServiceInterface {
         ]);
     }
 
-    public function findOrFailById(int $id): Wallet {
+    public function findOrFailById(int $id): WalletModel {
         return $this->walletRepository->findOrFailBy(['id' => $id]);
     }
 
-    public function findOrFailByUuid(string $uuid): Wallet {
+    public function findOrFailByUuid(string $uuid): WalletModel {
         return $this->walletRepository->findOrFailBy(['uuid' => $uuid]);
     }
 
-    public function findOrFailBySlug(Model $holder, string $slug): Wallet {
+    public function findOrFailBySlug(Model $holder, string $slug): WalletModel {
         return $this->walletRepository->findOrFailBy([
             'holder_type' => $holder->getMorphClass(),
             'holder_id' => $holder->getKey(),

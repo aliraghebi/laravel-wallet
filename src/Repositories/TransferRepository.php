@@ -3,21 +3,16 @@
 namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Transformers\TransferDataTransformerInterface;
 use ArsamMe\Wallet\Data\TransferData;
 use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Utils\JsonUtil;
 use Illuminate\Support\Collection;
 
 readonly class TransferRepository implements TransferRepositoryInterface {
-    public function __construct(
-        private Transfer $transfer,
-        private TransferDataTransformerInterface $transferDataTransformer,
-    ) {}
+    public function __construct(private Transfer $transfer) {}
 
     public function create(TransferData $data): Transfer {
-        $attributes = $this->transferDataTransformer->extract($data);
-        $instance = $this->transfer->newInstance($attributes);
+        $instance = $this->transfer->newInstance($data->toArray());
         $instance->saveQuietly();
 
         return $instance;
@@ -28,7 +23,7 @@ readonly class TransferRepository implements TransferRepositoryInterface {
         foreach ($transfers as $transfer) {
             $values[] = array_map(
                 fn ($value) => is_array($value) ? JsonUtil::encode($value) : $value,
-                $this->transferDataTransformer->extract($transfer)
+                $transfer->toArray()
             );
         }
 

@@ -5,39 +5,27 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Events;
 
 use ArsamMe\Wallet\Contracts\Events\EventInterface;
+use ArsamMe\Wallet\Models\Wallet;
 use DateTimeImmutable;
 
 final readonly class WalletUpdatedEvent implements EventInterface {
     public function __construct(
-        private int $walletId,
-        private string $walletUuid,
-        private string $balance,
-        private string $frozenAmount,
-        private string $availableBalance,
-        private DateTimeImmutable $updatedAt
+        public int $walletId,
+        public string $walletUuid,
+        public string $balance,
+        public string $frozenAmount,
+        public string $availableBalance,
+        public DateTimeImmutable $updatedAt
     ) {}
 
-    public function getWalletId(): int {
-        return $this->walletId;
-    }
-
-    public function getWalletUuid(): string {
-        return $this->walletUuid;
-    }
-
-    public function getBalance(): string {
-        return $this->balance;
-    }
-
-    public function getFrozenAmount(): string {
-        return $this->frozenAmount;
-    }
-
-    public function getAvailableBalance(): string {
-        return $this->availableBalance;
-    }
-
-    public function getUpdatedAt(): DateTimeImmutable {
-        return $this->updatedAt;
+    public static function fromWallet(Wallet $wallet): self {
+        return new self(
+            $wallet->id,
+            $wallet->uuid,
+            $wallet->balance,
+            $wallet->frozen_amount,
+            $wallet->available_balance,
+            DateTimeImmutable::createFromMutable($wallet->updated_at),
+        );
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Wallet;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;

@@ -3,16 +3,18 @@
 namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
-use ArsamMe\Wallet\Contracts\Wallet;
 use ArsamMe\Wallet\Data\TransferData;
 use ArsamMe\Wallet\Data\TransferLazyData;
+use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
@@ -25,7 +27,8 @@ readonly class TransferService implements TransferServiceInterface {
         private DatabaseServiceInterface $databaseService,
         private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
-        private TransferRepositoryInterface $transferRepository
+        private TransferRepositoryInterface $transferRepository,
+        private DispatcherServiceInterface $dispatcherService
     ) {}
 
     public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): TransferLazyData {
@@ -136,6 +139,7 @@ readonly class TransferService implements TransferServiceInterface {
             $models = $this->insertMultiple($transfers);
             foreach ($models as $model) {
                 $model->setRelations($links[$model->uuid] ?? []);
+                $this->dispatcherService->dispatch(TransferCreatedEvent::fromTransfer($model));
             }
 
             return $models;

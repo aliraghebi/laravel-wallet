@@ -2,8 +2,8 @@
 
 namespace ArsamMe\Wallet\Data;
 
-use ArsamMe\Wallet\Contracts\BaseData;
-use ArsamMe\Wallet\Contracts\Wallet;
+use ArsamMe\Wallet\Contracts\Data\BaseData;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 
 class TransferLazyData extends BaseData {
     public function __construct(

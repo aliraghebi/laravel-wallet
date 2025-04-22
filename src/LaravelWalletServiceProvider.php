@@ -2,7 +2,6 @@
 
 namespace ArsamMe\Wallet;
 
-use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
@@ -15,13 +14,11 @@ use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Contracts\Transformers\TransactionDataTransformerInterface;
-use ArsamMe\Wallet\Contracts\Transformers\TransferDataTransformerInterface;
-use ArsamMe\Wallet\Contracts\Transformers\WalletDataTransformerInterface;
 use ArsamMe\Wallet\Decorators\StorageServiceLockDecorator;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
@@ -43,9 +40,6 @@ use ArsamMe\Wallet\Services\StorageService;
 use ArsamMe\Wallet\Services\TransactionService;
 use ArsamMe\Wallet\Services\TransferService;
 use ArsamMe\Wallet\Services\WalletService;
-use ArsamMe\Wallet\Transformers\TransactionDataTransformer;
-use ArsamMe\Wallet\Transformers\TransferDataTransformer;
-use ArsamMe\Wallet\Transformers\WalletDataTransformer;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Database\Events\TransactionBeginning;
@@ -93,7 +87,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
 
         $this->services();
         $this->repositories();
-        $this->transformers();
         $this->bindObjects();
     }
 
@@ -119,7 +112,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs('$checksumSecret')
             ->giveConfig('wallet.consistency.secret');
 
-        // bookkeepper service
+        // bookkeeper service
         $this->app->when(StorageServiceLockDecorator::class)
             ->needs(StorageServiceInterface::class)
             ->give(function () {
@@ -169,12 +162,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(WalletRepositoryInterface::class, WalletRepository::class);
     }
 
-    private function transformers(): void {
-        $this->app->singleton(WalletDataTransformerInterface::class, WalletDataTransformer::class);
-        $this->app->singleton(TransactionDataTransformerInterface::class, TransactionDataTransformer::class);
-        $this->app->singleton(TransferDataTransformerInterface::class, TransferDataTransformer::class);
-    }
-
     private function bindObjects(): void {
         $this->app->bind(Wallet::class, config('wallet.wallet.model'));
         $this->app->bind(Transaction::class, config('wallet.transaction.model'));
@@ -203,11 +190,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             WalletRepositoryInterface::class,
             TransactionRepositoryInterface::class,
             TransferRepositoryInterface::class,
-
-            // Transformers
-            WalletDataTransformerInterface::class,
-            TransactionDataTransformerInterface::class,
-            TransferDataTransformerInterface::class,
         ];
     }
 }

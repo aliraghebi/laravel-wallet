@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
-use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Support\Collection;
 

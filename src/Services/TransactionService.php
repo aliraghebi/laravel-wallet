@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet\Services;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
@@ -11,7 +12,6 @@ use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Data\TransactionData;
 use ArsamMe\Wallet\Events\TransactionCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Wallet;
 use ArsamMe\Wallet\Repositories\TransactionRepository;
 use Str;
 
@@ -41,14 +41,14 @@ readonly class TransactionService implements TransactionServiceInterface {
         return new TransactionData($uuid, $wallet->id, $type, $amount, $meta, $checksum, $time, $time);
     }
 
-    public function deposit(Wallet $wallet, string $amount, ?array $meta = null) {
+    public function deposit(Wallet $wallet, string $amount, ?array $meta = null): Transaction {
         $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $meta);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
         return current($transactions);
     }
 
-    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null) {
+    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null): Transaction {
         $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $meta);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
@@ -63,7 +63,7 @@ readonly class TransactionService implements TransactionServiceInterface {
 
         foreach ($counts as $walletId => $count) {
             $wallet = $wallets[$walletId] ?? null;
-            assert($wallet instanceof \ArsamMe\Wallet\Contracts\Wallet);
+            assert($wallet instanceof Wallet);
 
             $object = $this->castService->getWallet($wallet);
             assert($object->getKey() === $walletId);
@@ -72,15 +72,7 @@ readonly class TransactionService implements TransactionServiceInterface {
         }
 
         foreach ($transactions as $transaction) {
-            $this->dispatcherService->dispatch(new TransactionCreatedEvent(
-                $transaction->id,
-                $transaction->uuid,
-                $transaction->wallet_id,
-                $transaction->type,
-                $transaction->amount,
-                $transaction->meta,
-                $transaction->created_at->toImmutable()
-            ));
+            $this->dispatcherService->dispatch(TransactionCreatedEvent::fromTransaction($transaction));
         }
 
         return $transactions;

@@ -40,7 +40,7 @@ class StorageService implements StorageServiceInterface {
         }
 
         $missingKeys = [];
-        if (1 === count($keys)) {
+        if (count($keys) === 1) {
             $values = [];
             foreach (array_keys($keys) as $key) {
                 $values[$key] = $this->cacheRepository->get($key);
@@ -53,7 +53,7 @@ class StorageService implements StorageServiceInterface {
         /** @var array<float|int|non-empty-string|null> $values */
         foreach ($values as $key => $value) {
             $uuid = $keys[$key];
-            if (null === $value) {
+            if ($value === null) {
                 $missingKeys[] = $uuid;
 
                 continue;
@@ -62,7 +62,7 @@ class StorageService implements StorageServiceInterface {
             $results[$uuid] = $value;
         }
 
-        if ([] !== $missingKeys) {
+        if ($missingKeys !== []) {
             throw new RecordNotFoundException(
                 'The repository did not find the object',
                 ExceptionInterface::RECORD_NOT_FOUND,
@@ -70,7 +70,7 @@ class StorageService implements StorageServiceInterface {
             );
         }
 
-        assert([] !== $results);
+        assert($results !== []);
 
         return $results;
     }
@@ -81,7 +81,7 @@ class StorageService implements StorageServiceInterface {
             $values[self::PREFIX.$uuid] = $value;
         }
 
-        if (1 === count($values)) {
+        if (count($values) === 1) {
             return $this->cacheRepository->set(key($values), current($values), $this->ttl);
         }
 

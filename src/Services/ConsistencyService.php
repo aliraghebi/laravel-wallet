@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Contracts\Wallet;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
 
 /**
@@ -45,8 +45,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      */
     public function checkPotential(Wallet $object, string $amount, bool $allowZero = false): void {
         $wallet = $this->castService->getWallet($object);
-        $balance = $wallet->getRawBalanceAttribute();
-        $availableBalance = $wallet->getRawAvailableBalanceAttribute();
+        $balance = $wallet->getRawBalance();
+        $availableBalance = $wallet->getRawAvailableBalance();
 
         if (($this->mathService->compare($amount, 0) !== 0) && ($this->mathService->compare($balance, 0) === 0)) {
             throw new BalanceIsEmpty(

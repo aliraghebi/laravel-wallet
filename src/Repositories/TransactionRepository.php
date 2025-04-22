@@ -3,7 +3,6 @@
 namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Transformers\TransactionDataTransformerInterface;
 use ArsamMe\Wallet\Data\TransactionData;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Utils\JsonUtil;
@@ -11,13 +10,11 @@ use Illuminate\Support\Collection;
 
 readonly class TransactionRepository implements TransactionRepositoryInterface {
     public function __construct(
-        private Transaction $transaction,
-        private TransactionDataTransformerInterface $transactionDataTransformer,
+        private Transaction $transaction
     ) {}
 
     public function create(TransactionData $data): Transaction {
-        $attributes = $this->transactionDataTransformer->extract($data);
-        $instance = $this->transaction->newInstance($attributes);
+        $instance = $this->transaction->newInstance($data->toArray());
         $instance->saveQuietly();
 
         return $instance;
@@ -28,7 +25,7 @@ readonly class TransactionRepository implements TransactionRepositoryInterface {
         foreach ($transactions as $transaction) {
             $values[] = array_map(
                 fn ($value) => is_array($value) ? JsonUtil::encode($value) : $value,
-                $this->transactionDataTransformer->extract($transaction)
+                $transaction->toArray()
             );
         }
 

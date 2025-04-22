@@ -13,15 +13,11 @@ interface ExceptionInterface extends Throwable {
 
     public const INSUFFICIENT_FUNDS = -3;
 
-    public const CART_EMPTY = -4;
+    public const RECORD_NOT_FOUND = -4;
 
-    public const LOCK_PROVIDER_NOT_FOUND = -5;
+    public const TRANSACTION_FAILED = -5;
 
-    public const RECORD_NOT_FOUND = -6;
+    public const WALLET_INCONSISTENCY = -6;
 
-    public const TRANSACTION_FAILED = -7;
-
-    public const WALLET_INCONSISTENCY = -8;
-
-    public const MODEL_NOT_FOUND = -9;
+    public const MODEL_NOT_FOUND = -7;
 }

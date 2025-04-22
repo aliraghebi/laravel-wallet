@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Traits;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Wallet;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;

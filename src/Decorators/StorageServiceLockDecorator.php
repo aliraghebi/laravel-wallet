@@ -2,8 +2,8 @@
 
 namespace ArsamMe\Wallet\Decorators;
 
-use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 
 readonly class StorageServiceLockDecorator implements StorageServiceInterface {

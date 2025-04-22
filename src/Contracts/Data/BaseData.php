@@ -1,23 +1,25 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts;
+namespace ArsamMe\Wallet\Contracts\Data;
 
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionProperty;
+use Str;
 
 abstract class BaseData implements Arrayable, JsonSerializable {
     public static function fromArray(array $data): static {
-        $reflector = new \ReflectionClass(static::class);
+        $reflector = new ReflectionClass(static::class);
         $params = [];
 
         foreach ($reflector->getConstructor()->getParameters() as $param) {
             $name = $param->getName();
+            $snakeName = Str::snake($name);
             $type = $param->getType();
 
-            if (array_key_exists($name, $data)) {
-                $value = $data[$name];
+            if (array_key_exists($name, $data) || array_key_exists($snakeName, $data)) {
+                $value = $data[$name] ?? $data[$snakeName];
 
                 // Cast to appropriate type if type is declared
                 if ($type && !$type->isBuiltin()) {
@@ -55,7 +57,7 @@ abstract class BaseData implements Arrayable, JsonSerializable {
         $array = [];
         foreach ($props as $prop) {
             $name = $prop->getName();
-            $array[$name] = $this->{$name};
+            $array[Str::snake($name)] = $this->{$name};
         }
 
         return $array;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Models;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet as WalletContract;
 use ArsamMe\Wallet\Traits\WalletFunctions;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -33,7 +34,7 @@ use function config;
  *
  * @method int getKey()
  */
-class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
+class Wallet extends Model implements WalletContract {
     use SoftDeletes, WalletFunctions;
 
     /**
@@ -53,15 +54,6 @@ class Wallet extends Model implements \ArsamMe\Wallet\Contracts\Wallet {
         'checksum',
         'created_at',
         'updated_at',
-    ];
-
-    /**
-     * @var array<string, int|string>
-     */
-    protected $attributes = [
-        'balance' => 0,
-        'frozen_amount' => 0,
-        'decimal_places' => 2,
     ];
 
     /**

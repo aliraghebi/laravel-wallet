@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
-namespace ArsamMe\Wallet\Contracts;
+namespace ArsamMe\Wallet\Contracts\Models;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use ArsamMe\Wallet\Models\Transaction;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -60,7 +58,7 @@ interface Wallet {
      *
      * @return non-empty-string The balance of the wallet.
      */
-    public function getRawBalanceAttribute(): string;
+    public function getRawBalance(): string;
 
     /**
      * Returns the balance of the wallet as a string.
@@ -71,11 +69,11 @@ interface Wallet {
      */
     public function getBalanceAttribute(): string;
 
-    public function getRawFrozenAmountAttribute(): string;
+    public function getRawFrozenAmount(): string;
 
     public function getFrozenAmountAttribute(): string;
 
-    public function getRawAvailableBalanceAttribute(): string;
+    public function getRawAvailableBalance(): string;
 
     public function getAvailableBalanceAttribute(): string;
 

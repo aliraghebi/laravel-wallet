@@ -3,7 +3,6 @@
 namespace ArsamMe\Wallet\Contracts\Repositories;
 
 use ArsamMe\Wallet\Data\TransferData;
-use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
 use Illuminate\Support\Collection;
 

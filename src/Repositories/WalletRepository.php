@@ -4,7 +4,6 @@ namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Transformers\WalletDataTransformerInterface;
 use ArsamMe\Wallet\Data\WalletData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
@@ -13,15 +12,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
-    public function __construct(
-        private Wallet $wallet,
-        private WalletDataTransformerInterface $walletDataTransformer
-    ) {}
+    public function __construct(private Wallet $wallet) {}
 
     public function createWallet(WalletData $data): Wallet {
-        $attributes = $this->walletDataTransformer->extract($data);
-
-        $instance = $this->wallet->newInstance($attributes);
+        $instance = $this->wallet->newInstance($data->toArray());
         $instance->saveQuietly();
 
         return $instance;

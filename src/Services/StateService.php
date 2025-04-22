@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Repositories\StateServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Data\WalletStateData;
-use ArsamMe\Wallet\Models\Wallet;
 
 /**
  * @api

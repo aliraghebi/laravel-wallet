@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ArsamMe\Wallet\Contracts\Repositories;
+namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Data\WalletStateData;
 

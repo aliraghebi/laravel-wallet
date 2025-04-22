@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace ArsamMe\Wallet\Traits;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Contracts\Wallet;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -29,7 +29,7 @@ trait WalletFunctions {
     /**
      * Magic Laravel framework method that makes it possible to call property balance.
      *
-     * This method is called by Laravel's magic getter when the `balance` property is accessed.
+     * This method is called by Laravel magic getter when the `balance` property is accessed.
      * It returns the current balance of the wallet as a string.
      *
      * @return non-empty-string The current balance of the wallet as a string.
@@ -39,7 +39,7 @@ trait WalletFunctions {
      * @see Wallet
      * @see WalletModel
      */
-    public function getRawBalanceAttribute(): string {
+    public function getRawBalance(): string {
         // Get the wallet object from the model.
         // This method uses the CastServiceInterface to retrieve the wallet object from the model.
         // The second argument, `$save = false`, prevents the service from saving the wallet if it does not exist.
@@ -54,13 +54,13 @@ trait WalletFunctions {
         return app(RegulatorServiceInterface::class)->getBalance($wallet);
     }
 
-    public function getRawFrozenAmountAttribute(): string {
+    public function getRawFrozenAmount(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(RegulatorServiceInterface::class)->getFrozenAmount($wallet);
     }
 
-    public function getRawAvailableBalanceAttribute(): string {
+    public function getRawAvailableBalance(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
         return app(RegulatorServiceInterface::class)->getAvailableBalance($wallet);
@@ -69,19 +69,19 @@ trait WalletFunctions {
     public function getBalanceAttribute(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
-        return app(MathServiceInterface::class)->floatValue($this->getRawBalanceAttribute(), $wallet->decimal_places);
+        return app(MathServiceInterface::class)->floatValue($this->getRawBalance(), $wallet->decimal_places);
     }
 
     public function getFrozenAmountAttribute(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
-        return app(MathServiceInterface::class)->floatValue($this->getRawFrozenAmountAttribute(), $wallet->decimal_places);
+        return app(MathServiceInterface::class)->floatValue($this->getRawFrozenAmount(), $wallet->decimal_places);
     }
 
     public function getAvailableBalanceAttribute(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
 
-        return app(MathServiceInterface::class)->floatValue($this->getRawAvailableBalanceAttribute(), $wallet->decimal_places);
+        return app(MathServiceInterface::class)->floatValue($this->getRawAvailableBalance(), $wallet->decimal_places);
     }
 
     /**
@@ -189,7 +189,7 @@ trait WalletFunctions {
         $wallet = app(CastServiceInterface::class)->getWallet($this);
         $amount = $mathService->intValue($amount, $wallet->decimal_places);
 
-        $balance = $this->getRawBalanceAttribute();
+        $balance = $this->getRawBalance();
 
         // Check if the withdrawal is possible.
         return app(ConsistencyServiceInterface::class)->canWithdraw($balance, $amount, $allowZero);

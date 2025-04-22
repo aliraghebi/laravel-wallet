@@ -3,7 +3,7 @@
 namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Wallet;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Data\TransferLazyData;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;

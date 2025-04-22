@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet\Services;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
@@ -13,7 +14,6 @@ use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Events\WalletUpdatedEvent;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
-use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {
@@ -197,14 +197,7 @@ class RegulatorService implements RegulatorServiceInterface {
                 $changes = Arr::only($changes, ['balance', 'frozen_amount', 'checksum']);
                 $wallet->fill($changes)->syncOriginalAttributes(array_keys($changes));
 
-                $this->dispatcherService->dispatch(new WalletUpdatedEvent(
-                    $wallet->id,
-                    $wallet->uuid,
-                    $wallet->balance,
-                    $wallet->frozen_amount,
-                    $wallet->available_balance,
-                    $wallet->updated_at->toImmutable()
-                ));
+                $this->dispatcherService->dispatch(WalletUpdatedEvent::fromWallet($wallet));
             }
         } finally {
             $this->dispatcherService->flush();

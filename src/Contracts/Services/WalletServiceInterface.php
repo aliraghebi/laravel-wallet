@@ -2,10 +2,11 @@
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet;
+use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -18,61 +19,61 @@ interface WalletServiceInterface {
         ?string $description = null,
         ?array $meta = null,
         ?string $uuid = null
-    ): Wallet;
+    ): WalletModel;
 
     /**
      * Find a wallet by its ID.
      *
      * @param  int  $id  The ID of the wallet to find.
-     * @return Wallet|null The wallet with the given ID if found, otherwise null.
+     * @return WalletModel|null The wallet with the given ID if found, otherwise null.
      */
-    public function findById(int $id): ?Wallet;
+    public function findById(int $id): ?WalletModel;
 
     /**
      * Find a wallet by its UUID.
      *
      * @param  string  $uuid  The UUID of the wallet to find.
-     * @return Wallet|null The wallet with the given UUID if found, otherwise null.
+     * @return WalletModel|null The wallet with the given UUID if found, otherwise null.
      */
-    public function findByUuid(string $uuid): ?Wallet;
+    public function findByUuid(string $uuid): ?WalletModel;
 
     /**
      * Find a wallet by its holder type, holder ID, and slug.
      *
      * @param  string  $slug  The wallet's slug.
-     * @return Wallet|null The wallet with the given holder type, holder ID, and slug if found, otherwise null.
+     * @return WalletModel|null The wallet with the given holder type, holder ID, and slug if found, otherwise null.
      */
-    public function findBySlug(Model $holder, string $slug): ?Wallet;
+    public function findBySlug(Model $holder, string $slug): ?WalletModel;
 
     /**
      * Find a wallet by its ID.
      *
      * @param  int  $id  The ID of the wallet to find.
-     * @return Wallet The wallet with the given ID if found, otherwise null.
+     * @return WalletModel The wallet with the given ID if found, otherwise null.
      *
      * @throws ModelNotFoundException
      */
-    public function findOrFailById(int $id): Wallet;
+    public function findOrFailById(int $id): WalletModel;
 
     /**
      * Find a wallet by its UUID.
      *
      * @param  string  $uuid  The UUID of the wallet to find.
-     * @return Wallet The wallet with the given UUID if found, otherwise null.
+     * @return WalletModel The wallet with the given UUID if found, otherwise null.
      *
      * @throws ModelNotFoundException
      */
-    public function findOrFailByUuid(string $uuid): Wallet;
+    public function findOrFailByUuid(string $uuid): WalletModel;
 
     /**
      * Find a wallet by its holder type, holder ID, and slug.
      *
      * @param  string  $slug  The wallet's slug.
-     * @return Wallet The wallet with the given holder type, holder ID, and slug if found, otherwise null.
+     * @return WalletModel The wallet with the given holder type, holder ID, and slug if found, otherwise null.
      *
      * @throws ModelNotFoundException
      */
-    public function findOrFailBySlug(Model $holder, string $slug): Wallet;
+    public function findOrFailBySlug(Model $holder, string $slug): WalletModel;
 
     public function getBalance(Wallet $wallet): string;
 
