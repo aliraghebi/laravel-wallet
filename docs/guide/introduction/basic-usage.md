@@ -32,7 +32,7 @@ $wallet = LaravelWallet::findOrFailBySlug($user, 'my-wallet');
 LaravelWallet::deposit($wallet, 1000);
 ```
 
-## Using `HasWallets` trait and `Wallet` interface
+## Using `HasWallets` trait
 
 Add the `HasWallets` trait and `Wallet` interface to model.
 
