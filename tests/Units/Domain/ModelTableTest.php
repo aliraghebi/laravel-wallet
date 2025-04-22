@@ -38,6 +38,6 @@ final class ModelTableTest extends TestCase {
         /** @var Manager $manager */
         $manager = ManagerFactory::new()->create();
         $user2->transfer($manager, 1000);
-        self::assertSame(1000, $manager->balanceInt);
+        self::assertSame(1000, (int) $manager->balance);
     }
 }

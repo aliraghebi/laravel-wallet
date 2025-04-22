@@ -2,8 +2,8 @@
 
 namespace ArsamMe\Wallet\Test\Infra\Models;
 
-use ArsamMe\Wallet\Interfaces\Wallet;
-use ArsamMe\Wallet\Traits\HasWallet;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
+use ArsamMe\Wallet\Traits\HasWallets;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method int getKey()
  */
 final class Manager extends Model implements Wallet {
-    use HasWallet;
+    use HasWallets;
 
     /**
      * @var array<int, string>

@@ -32,14 +32,15 @@ $wallet = LaravelWallet::findOrFailBySlug($user, 'my-wallet');
 LaravelWallet::deposit($wallet, 1000);
 ```
 
-## Using `HasWallets` trait
+## Using `HasWallets` trait and `Wallet` interface
 
-Add the `HasWallets` trait to model.
+Add the `HasWallets` trait and `Wallet` interface to model.
 
 ```php
 use ArsamMe\Wallet\Traits\HasWallets;
+use ArsamMe\Wallet\Contracts\Models\Wallet;
 
-class User extends Model
+class User extends Model implements Wallet
 {
     use HasWallets;
 }

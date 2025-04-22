@@ -59,8 +59,8 @@ abstract class TestCase extends OrchestraTestCase {
         $config->set('database.connections.mariadb.port', 3307);
 
         // new table name's
-        $config->set('wallet.transaction.table', 'transactions');
-        $config->set('wallet.transfer.table', 'transfers');
-        $config->set('wallet.wallet.table', 'wallets');
+        $config->set('wallet.transaction.table', 'transaction');
+        $config->set('wallet.transfer.table', 'transfer');
+        $config->set('wallet.wallet.table', 'wallet');
     }
 }
