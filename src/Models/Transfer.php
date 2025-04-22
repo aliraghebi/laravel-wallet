@@ -1,9 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArsamMe\Wallet\Models;
 
+use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +20,7 @@ use function config;
  * @property Wallet $to
  * @property int $deposit_id
  * @property int $withdrawal_id
+ * @property non-empty-string $amount
  * @property non-empty-string $fee
  * @property ?array $meta
  * @property Transaction $deposit
@@ -95,5 +95,25 @@ class Transfer extends Model {
      */
     public function withdrawal(): BelongsTo {
         return $this->belongsTo(config('wallet.transaction.model', Transaction::class), 'withdrawal_id');
+    }
+
+    public function getRawAmount(): string {
+        return (string) $this->getRawOriginal('amount', 0);
+    }
+
+    public function getRawFee(): string {
+        return (string) $this->getRawOriginal('fee', 0);
+    }
+
+    public function getAmountAttribute(): string {
+        $mathService = app(MathServiceInterface::class);
+
+        return $mathService->floatValue($this->getRawAmount(), $this->decimal_places);
+    }
+
+    public function getFeeAttribute(): string {
+        $mathService = app(MathServiceInterface::class);
+
+        return $mathService->floatValue($this->getRawFee(), $this->decimal_places);
     }
 }

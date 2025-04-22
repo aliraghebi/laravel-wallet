@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArsamMe\Wallet\Traits;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet;
@@ -118,26 +116,13 @@ trait HasWallets {
     /**
      * Get the wallet attribute.
      *
-     * @return Wallet The wallet model associated with the related model.
+     * @return WalletModel The wallet model associated with the related model.
      */
-    public function getWalletAttribute(bool $create = true): WalletModel {
+    public function getWalletAttribute(): WalletModel {
         try {
             $wallet = $this->findOrFailWallet();
         } catch (ModelNotFoundException $e) {
-            if (!$create) {
-                throw $e;
-            }
             $wallet = $this->createWallet();
-        }
-
-        // If the wallet model exists and the 'holder' relationship is not loaded,
-        // associate the related model with the wallet.
-        if (!$wallet->relationLoaded('holder')) {
-            // Get the related holder model.
-            $holder = app(CastServiceInterface::class)->getHolder($this);
-
-            // Associate the related model with the wallet.
-            $wallet->setRelation('holder', $holder->withoutRelations());
         }
 
         return $wallet;

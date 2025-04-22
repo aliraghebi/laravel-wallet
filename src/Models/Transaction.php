@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArsamMe\Wallet\Models;
 
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
@@ -77,13 +75,13 @@ class Transaction extends Model {
         return $this->wallet->decimal_places;
     }
 
-    public function getRawAmountAttribute(): string {
+    public function getRawAmount(): string {
         return (string) $this->getRawOriginal('amount', 0);
     }
 
     public function getAmountAttribute(): string {
         $math = app(MathServiceInterface::class);
 
-        return $math->floatValue($this->attributes['amount'], $this->decimal_places);
+        return $math->floatValue($this->getRawAmount(), $this->decimal_places);
     }
 }

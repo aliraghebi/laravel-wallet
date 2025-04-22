@@ -47,21 +47,19 @@ $myWallet->balance; // 100
 
 ## Default Wallet + MultiWallet
 
-Is it possible to use the default wallet and multi-wallets at the same time? Yes.
+Can you use the default wallet and multiple wallets simultaneously? Absolutely.
 
+You can access the default wallet using the `wallet` attribute or the `getWallet()` method without providing a `slug`.
+
+**⚠️ Using the `wallet` attribute will create the default wallet if it does not already exist.**
 ```php
-use ArsamMe\Wallet\Traits\HasWallets;
-
-class User extends Model
-{
-    use HasWallets;
-}
-```
-
-How to get the default wallet?
-
-```php
+// Get the default wallet using `wallet` attribute, Creates the wallet if it does not already exist.
 $wallet = $user->wallet;
+
+// Get the default wallet using `getWallet()` method, Returns null if it does not already exist.
+$wallet = $user->getWallet();
+
+// Get wallet balance
 $wallet->balance; // 10
 ```
 

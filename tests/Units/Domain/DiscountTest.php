@@ -1,0 +1,286 @@
+<?php
+
+namespace ArsamMe\Wallet\Test\Units\Domain;
+
+use ArsamMe\Wallet\Exceptions\ProductEnded;
+use ArsamMe\Wallet\Internal\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Models\Transaction;
+use ArsamMe\Wallet\Models\Transfer;
+use ArsamMe\Wallet\Models\Wallet;
+use ArsamMe\Wallet\Test\Infra\Factories\BuyerFactory;
+use ArsamMe\Wallet\Test\Infra\Factories\ItemDiscountFactory;
+use ArsamMe\Wallet\Test\Infra\Models\Buyer;
+use ArsamMe\Wallet\Test\Infra\Models\ItemDiscount;
+use ArsamMe\Wallet\Test\Infra\PackageModels\Transaction as InfraTransaction;
+use ArsamMe\Wallet\Test\Infra\PackageModels\Wallet as InfraWallet;
+use ArsamMe\Wallet\Test\Infra\TestCase;
+
+/**
+ * @internal
+ */
+final class DiscountTest extends TestCase {
+    public function test_pay(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create();
+
+        self::assertSame(0, $buyer->balanceInt);
+        $buyer->deposit($product->getAmountProduct($buyer));
+
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        $transfer = $buyer->pay($product);
+        self::assertNotNull($transfer);
+        self::assertSame(Transfer::STATUS_PAID, $transfer->status);
+
+        self::assertSame($buyer->balanceInt, $product->getPersonalDiscount($buyer));
+
+        self::assertSame((int) $transfer->discount, $product->getPersonalDiscount($buyer));
+
+        $withdraw = $transfer->withdraw;
+        $deposit = $transfer->deposit;
+
+        self::assertInstanceOf(Transaction::class, $withdraw);
+        self::assertInstanceOf(Transaction::class, $deposit);
+
+        self::assertInstanceOf(Buyer::class, $withdraw->payable);
+        self::assertInstanceOf(ItemDiscount::class, $deposit->payable);
+
+        self::assertSame($buyer->getKey(), $withdraw->payable->getKey());
+        self::assertSame($product->getKey(), $deposit->payable->getKey());
+
+        self::assertInstanceOf(Buyer::class, $transfer->from->holder);
+        self::assertInstanceOf(Wallet::class, $transfer->from);
+        self::assertInstanceOf(ItemDiscount::class, $transfer->to->holder);
+        self::assertInstanceOf(Wallet::class, $transfer->to->wallet);
+
+        self::assertSame($buyer->wallet->getKey(), $transfer->from->getKey());
+        self::assertSame($buyer->getKey(), $transfer->from->holder->getKey());
+        self::assertSame($product->wallet->getKey(), $transfer->to->getKey());
+        self::assertSame($product->getKey(), $transfer->to->holder->getKey());
+    }
+
+    public function test_item_transactions(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create();
+
+        self::assertSame(0, $buyer->balanceInt);
+        $buyer->deposit($product->getAmountProduct($buyer));
+
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        $transfer = $buyer->pay($product);
+        self::assertNotNull($transfer);
+        self::assertSame(Transfer::STATUS_PAID, $transfer->status);
+
+        self::assertSame($buyer->balanceInt, $product->getPersonalDiscount($buyer));
+
+        self::assertSame((int) $transfer->discount, $product->getPersonalDiscount($buyer));
+
+        $withdraw = $transfer->withdraw;
+        $deposit = $transfer->deposit;
+
+        self::assertInstanceOf(Transaction::class, $withdraw);
+        self::assertInstanceOf(Transaction::class, $deposit);
+
+        self::assertTrue($withdraw->is(
+            $buyer->transactions()
+                ->where('type', Transaction::TYPE_WITHDRAW)
+                ->latest()
+                ->first()
+        ));
+
+        self::assertTrue($deposit->is($product->transactions()->latest()->first()));
+    }
+
+    public function test_refund(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        self::assertSame(0, $buyer->balanceInt);
+        $buyer->deposit($product->getAmountProduct($buyer));
+
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        $transfer = $buyer->pay($product);
+        self::assertNotNull($transfer);
+        self::assertSame(Transfer::STATUS_PAID, $transfer->status);
+
+        self::assertSame((int) $transfer->discount, $product->getPersonalDiscount($buyer));
+
+        self::assertTrue($buyer->refund($product));
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        self::assertSame(0, $product->balanceInt);
+
+        $transfer->refresh();
+        self::assertSame(Transfer::STATUS_REFUND, $transfer->status);
+
+        self::assertFalse($buyer->safeRefund($product));
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+
+        $transfer = $buyer->pay($product);
+        self::assertNotNull($transfer);
+        self::assertSame($buyer->balanceInt, $product->getPersonalDiscount($buyer));
+        self::assertSame(
+            $product->balanceInt,
+            $product->getAmountProduct($buyer) - $product->getPersonalDiscount($buyer)
+        );
+
+        self::assertSame(Transfer::STATUS_PAID, $transfer->status);
+
+        self::assertTrue($buyer->refund($product));
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        self::assertSame(0, $product->balanceInt);
+
+        $transfer->refresh();
+        self::assertSame(Transfer::STATUS_REFUND, $transfer->status);
+    }
+
+    public function test_force_refund(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        self::assertSame(0, $buyer->balanceInt);
+        $buyer->deposit($product->getAmountProduct($buyer));
+
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+
+        $transfer = $buyer->pay($product);
+        self::assertSame($buyer->balanceInt, $product->getPersonalDiscount($buyer));
+
+        self::assertSame(
+            $product->balanceInt,
+            $product->getAmountProduct($buyer) - $product->getPersonalDiscount($buyer)
+        );
+
+        self::assertSame((int) $transfer->discount, $product->getPersonalDiscount($buyer));
+
+        $product->withdraw($product->balance);
+        self::assertSame(0, $product->balanceInt);
+
+        self::assertFalse($buyer->safeRefund($product));
+        self::assertTrue($buyer->forceRefund($product));
+
+        self::assertSame(
+            $product->balanceInt,
+            -($product->getAmountProduct($buyer) - $product->getPersonalDiscount($buyer))
+        );
+
+        self::assertSame($buyer->balanceInt, $product->getAmountProduct($buyer));
+        $product->deposit(-$product->balanceInt);
+        $buyer->withdraw($buyer->balance);
+
+        self::assertSame(0, $product->balanceInt);
+        self::assertSame(0, $buyer->balanceInt);
+    }
+
+    public function test_out_of_stock(): void {
+        $this->expectException(ProductEnded::class);
+        $this->expectExceptionCode(ExceptionInterface::PRODUCT_ENDED);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.product_stock'));
+
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        $buyer->deposit($product->getAmountProduct($buyer));
+        $buyer->pay($product);
+        $buyer->pay($product);
+    }
+
+    public function test_force_pay(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        self::assertSame(0, $buyer->balanceInt);
+        $buyer->forcePay($product);
+
+        self::assertSame(
+            $buyer->balanceInt,
+            -($product->getAmountProduct($buyer) - $product->getPersonalDiscount($buyer))
+        );
+
+        $buyer->deposit(-$buyer->balanceInt);
+        self::assertSame(0, $buyer->balanceInt);
+    }
+
+    public function test_pay_free(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        self::assertSame(0, $buyer->balanceInt);
+
+        $transfer = $buyer->payFree($product);
+        self::assertSame(Transaction::TYPE_DEPOSIT, $transfer->deposit->type);
+        self::assertInstanceOf(InfraTransaction::class, $transfer->deposit);
+        self::assertInstanceOf(InfraWallet::class, $transfer->from);
+        self::assertSame(Transaction::TYPE_WITHDRAW, $transfer->withdraw->type);
+        self::assertInstanceOf(InfraTransaction::class, $transfer->withdraw);
+        self::assertInstanceOf(InfraWallet::class, $transfer->to);
+
+        self::assertSame(0, $buyer->balanceInt);
+        self::assertSame(0, $product->balanceInt);
+
+        $buyer->refund($product);
+        self::assertSame(0, $buyer->balanceInt);
+        self::assertSame(0, $product->balanceInt);
+    }
+
+    public function test_free_pay(): void {
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        $buyer->forceWithdraw(1000);
+        self::assertSame(-1000, $buyer->balanceInt);
+
+        $transfer = $buyer->payFree($product);
+        self::assertSame(Transaction::TYPE_DEPOSIT, $transfer->deposit->type);
+        self::assertSame(Transaction::TYPE_WITHDRAW, $transfer->withdraw->type);
+
+        self::assertSame(-1000, $buyer->balanceInt);
+        self::assertSame(0, $product->balanceInt);
+
+        $buyer->refund($product);
+        self::assertSame(-1000, $buyer->balanceInt);
+        self::assertSame(0, $product->balanceInt);
+    }
+
+    public function test_pay_free_out_of_stock(): void {
+        $this->expectException(ProductEnded::class);
+        $this->expectExceptionCode(ExceptionInterface::PRODUCT_ENDED);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.product_stock'));
+
+        /** @var Buyer $buyer */
+        $buyer = BuyerFactory::new()->create();
+        /** @var ItemDiscount $product */
+        $product = ItemDiscountFactory::new()->create([
+            'quantity' => 1,
+        ]);
+
+        self::assertNotNull($buyer->payFree($product));
+        $buyer->payFree($product);
+    }
+}

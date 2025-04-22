@@ -1,0 +1,343 @@
+<?php
+
+namespace ArsamMe\Wallet\Test\Units\Domain;
+
+use ArsamMe\Wallet\Exceptions\AmountInvalid;
+use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
+use ArsamMe\Wallet\Internal\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Internal\Service\DatabaseServiceInterface;
+use ArsamMe\Wallet\Internal\Service\MathServiceInterface;
+use ArsamMe\Wallet\Models\Transaction;
+use ArsamMe\Wallet\Test\Infra\Factories\UserFloatFactory;
+use ArsamMe\Wallet\Test\Infra\Models\UserFloat;
+use ArsamMe\Wallet\Test\Infra\Models\UserFloat as User;
+use ArsamMe\Wallet\Test\Infra\TestCase;
+
+/**
+ * @internal
+ */
+final class WalletFloatTest extends TestCase {
+    public function test_deposit(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+        self::assertSame(0., (float) $user->balanceFloat);
+        self::assertSame(0., $user->balanceFloatNum);
+
+        $user->depositFloat(.1);
+        self::assertSame(10, $user->balanceInt);
+        self::assertSame(.1, (float) $user->balanceFloat);
+        self::assertSame(.1, $user->balanceFloatNum);
+
+        $user->depositFloat(1.25);
+        self::assertSame(135, $user->balanceInt);
+        self::assertSame(1.35, (float) $user->balanceFloat);
+        self::assertSame(1.35, $user->balanceFloatNum);
+
+        $user->deposit(865);
+        self::assertSame(1000, $user->balanceInt);
+        self::assertSame(10., (float) $user->balanceFloat);
+        self::assertSame(10., $user->balanceFloatNum);
+
+        self::assertSame(3, $user->transactions()->count());
+
+        $user->withdraw($user->balance);
+        self::assertSame(0, $user->balanceInt);
+        self::assertSame(0., (float) $user->balanceFloat);
+        self::assertSame(0., $user->getBalanceFloatNumAttribute());
+    }
+
+    public function test_invalid_deposit(): void {
+        $this->expectException(AmountInvalid::class);
+        $this->expectExceptionCode(ExceptionInterface::AMOUNT_INVALID);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.price_positive'));
+        /** @var UserFloat $user */
+        $user = UserFloatFactory::new()->create();
+        $user->depositFloat(-1);
+    }
+
+    public function test_withdraw(): void {
+        $this->expectException(BalanceIsEmpty::class);
+        $this->expectExceptionCode(ExceptionInterface::BALANCE_IS_EMPTY);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.wallet_empty'));
+
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->depositFloat(1);
+        self::assertSame(1., (float) $user->balanceFloat);
+
+        $user->withdrawFloat(.1);
+        self::assertSame(0.9, (float) $user->balanceFloat);
+
+        $user->withdrawFloat(.81);
+        self::assertSame(.09, (float) $user->balanceFloat);
+
+        $user->withdraw(9);
+        self::assertSame(0, $user->balanceInt);
+
+        $user->withdraw(1);
+    }
+
+    public function test_invalid_withdraw(): void {
+        $this->expectException(BalanceIsEmpty::class);
+        $this->expectExceptionCode(ExceptionInterface::BALANCE_IS_EMPTY);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.wallet_empty'));
+        /** @var UserFloat $user */
+        $user = UserFloatFactory::new()->create();
+        $user->withdrawFloat(-1);
+    }
+
+    public function test_transfer(): void {
+        /**
+         * @var User $first
+         * @var User $second
+         */
+        [$first, $second] = UserFloatFactory::times(2)->create();
+        self::assertNotSame($first->getKey(), $second->getKey());
+        self::assertSame((float) $first->balanceFloat, 0.);
+        self::assertSame((float) $second->balanceFloat, 0.);
+
+        $first->depositFloat(1);
+        self::assertSame((float) $first->balanceFloat, 1.);
+
+        $second->depositFloat(1);
+        self::assertSame((float) $second->balanceFloat, 1.);
+
+        $first->transferFloat($second, 1);
+        self::assertSame((float) $first->balanceFloat, 0.);
+        self::assertSame((float) $second->balanceFloat, 2.);
+
+        $second->transferFloat($first, 1);
+        self::assertSame((float) $second->balanceFloat, 1.);
+        self::assertSame((float) $first->balanceFloat, 1.);
+
+        $second->transferFloat($first, 1);
+        self::assertSame((float) $second->balanceFloat, 0.);
+        self::assertSame((float) $first->balanceFloat, 2.);
+
+        $first->withdrawFloat($first->balanceFloat);
+        self::assertSame((float) $first->balanceFloat, 0.);
+
+        self::assertNull($first->safeTransferFloat($second, 1));
+        self::assertSame((float) $first->balanceFloat, 0.);
+        self::assertSame((float) $second->balanceFloat, 0.);
+
+        self::assertNotNull($first->forceTransferFloat($second, 1));
+        self::assertSame((float) $first->balanceFloat, -1.);
+        self::assertSame((float) $second->balanceFloat, 1.);
+
+        self::assertNotNull($second->forceTransferFloat($first, 1));
+        self::assertSame((float) $first->balanceFloat, 0.);
+        self::assertSame((float) $second->balanceFloat, 0.);
+    }
+
+    public function test_transfer_yourself(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0., (float) $user->balanceFloat);
+
+        $user->depositFloat(1);
+        $user->transferFloat($user, 1);
+        self::assertSame(100, $user->balanceInt);
+
+        $user->withdrawFloat($user->balanceFloat);
+        self::assertSame(0, $user->balanceInt);
+    }
+
+    public function test_balance_is_empty(): void {
+        $this->expectException(BalanceIsEmpty::class);
+        $this->expectExceptionCode(ExceptionInterface::BALANCE_IS_EMPTY);
+        $this->expectExceptionMessageStrict(trans('wallet::errors.wallet_empty'));
+
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+        $user->withdrawFloat(1);
+    }
+
+    public function test_confirmed(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame($user->balanceInt, 0);
+
+        $user->depositFloat(1);
+        self::assertSame((float) $user->balanceFloat, 1.);
+
+        $user->withdrawFloat(1, null, false);
+        self::assertSame((float) $user->balanceFloat, 1.);
+
+        self::assertTrue($user->canWithdrawFloat(1));
+        $user->withdrawFloat(1);
+        self::assertFalse($user->canWithdrawFloat(1));
+        $user->forceWithdrawFloat(1);
+        self::assertSame((float) $user->balanceFloat, -1.);
+        $user->depositFloat(1);
+        self::assertSame((float) $user->balanceFloat, 0.);
+    }
+
+    public function test_mantissa(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->deposit(1_000_000);
+        self::assertSame($user->balanceInt, 1_000_000);
+        self::assertSame((float) $user->balanceFloat, 10000.00);
+
+        $transaction = $user->withdrawFloat(2556.72);
+        self::assertSame($transaction->amountInt, -255672);
+        self::assertSame((float) $transaction->getAmountFloatAttribute(), -2556.72);
+        self::assertSame($transaction->type, Transaction::TYPE_WITHDRAW);
+
+        self::assertSame($user->balanceInt, 1_000_000 - 255672);
+        self::assertSame((float) $user->balanceFloat, 7443.28);
+
+        $transaction = $user->depositFloat(2556.72 * 2);
+        self::assertSame($transaction->amountInt, 255672 * 2);
+        self::assertSame((float) $transaction->amountFloat, 2556.72 * 2);
+        self::assertSame($transaction->type, Transaction::TYPE_DEPOSIT);
+
+        self::assertSame($user->balanceInt, 1_000_000 + 255672);
+        self::assertSame((float) $user->balanceFloat, 10000.00 + 2556.72);
+    }
+
+    public function test_update_transaction(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->deposit(1_000_000);
+        self::assertSame(1_000_000, $user->balanceInt);
+        self::assertSame(10000.00, (float) $user->balanceFloat);
+
+        $transaction = $user->withdrawFloat(2556.72);
+        self::assertSame(-255672, $transaction->amountInt);
+        self::assertSame(-2556.72, (float) $transaction->amountFloat);
+        self::assertSame(Transaction::TYPE_WITHDRAW, $transaction->type);
+
+        $transaction->type = Transaction::TYPE_DEPOSIT;
+        $transaction->setAmountFloatAttribute(2556.72);
+
+        self::assertTrue($transaction->save());
+        self::assertTrue($user->wallet->refreshBalance());
+
+        self::assertSame(255672, $transaction->amountInt);
+        self::assertSame(2556.72, (float) $transaction->amountFloat);
+        self::assertSame(Transaction::TYPE_DEPOSIT, $transaction->type);
+
+        self::assertSame($user->balanceInt, 1_000_000 + 255672);
+        self::assertSame((float) $user->balanceFloat, 10000.00 + 2556.72);
+    }
+
+    public function test_math_rounding(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->deposit(1_000_000);
+        self::assertSame(1_000_000, $user->balanceInt);
+        self::assertSame(10000.00, (float) $user->balanceFloat);
+
+        $transaction = $user->withdrawFloat(0.2 + 0.1);
+        self::assertSame($transaction->amountInt, -30);
+        self::assertSame($transaction->type, Transaction::TYPE_WITHDRAW);
+
+        $transaction = $user->withdrawFloat(0.2 + 0.105);
+        self::assertSame($transaction->amountInt, -31);
+        self::assertSame($transaction->type, Transaction::TYPE_WITHDRAW);
+
+        $transaction = $user->withdrawFloat(0.2 + 0.104);
+        self::assertSame($transaction->amountInt, -30);
+        self::assertSame($transaction->type, Transaction::TYPE_WITHDRAW);
+    }
+
+    public function test_ether(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->wallet->decimal_places = 18;
+        $user->wallet->save();
+
+        $math = app(MathServiceInterface::class);
+
+        $user->depositFloat('545.8754855274419');
+        self::assertSame('545875485527441900000', $user->balance);
+        self::assertSame(0, $math->compare($user->balanceFloat, '545.8754855274419'));
+    }
+
+    public function test_bitcoin(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->wallet->decimal_places = 32; // bitcoin wallet
+        $user->wallet->save();
+
+        $math = app(MathServiceInterface::class);
+
+        // optimize
+        app(DatabaseServiceInterface::class)->transaction(function () use ($user) {
+            for ($i = 0; $i < 256; $i++) {
+                $user->depositFloat('0.00000001'); // Satoshi
+            }
+        });
+
+        self::assertSame($user->balance, '256'.str_repeat('0', 32 - 8));
+        self::assertSame(0, $math->compare($user->balanceFloat, '0.00000256'));
+
+        $user->deposit(256 .str_repeat('0', 32));
+        $user->depositFloat('0.'.str_repeat('0', 31).'1');
+
+        [$q, $r] = explode('.', $user->balanceFloat, 2);
+        self::assertSame(strlen($r), $user->wallet->decimal_places);
+        self::assertSame('25600000256000000000000000000000001', $user->balance);
+        self::assertSame('256.00000256000000000000000000000001', $user->balanceFloat);
+    }
+
+    /**
+     * Case from @EdX9.
+     *
+     * @see https://github.com/ArsamMe/laravel-wallet/issues/469
+     *
+     * @throws ExceptionInterface
+     */
+    public function test_big_float(): void {
+        /** @var User[] $users */
+        $users = UserFloatFactory::times(2)->create();
+
+        [$first, $second] = $users;
+
+        self::assertSame(0, $first->balanceInt);
+        self::assertSame(0, $second->balanceInt);
+
+        $first->forceTransferFloat($second, 6629944401);
+
+        self::assertSame(-662994440100, $first->balanceInt);
+        self::assertSame(662994440100, $second->balanceInt);
+    }
+
+    /**
+     * Case from @ucanbehack.
+     *
+     * @see https://github.com/ArsamMe/laravel-wallet/issues/149
+     */
+    public function test_bitcoin2(): void {
+        /** @var User $user */
+        $user = UserFloatFactory::new()->create();
+        self::assertSame(0, $user->balanceInt);
+
+        $user->wallet->decimal_places = 8;
+        $user->wallet->save();
+
+        $user->depositFloat(0.09699977);
+
+        $user->wallet->refreshBalance();
+        $user->refresh();
+
+        self::assertSame(0.09699977, (float) $user->balanceFloat);
+        self::assertSame(9_699_977, $user->balanceInt);
+    }
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         executionOrder="random" resolveDependencies="true"
+         bootstrap="vendor/autoload.php" backupGlobals="false"
+         colors="true" processIsolation="false" stopOnFailure="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd"
+         cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+    <coverage>
+        <report>
+            <clover outputFile="./build/logs/clover.xml"/>
+            <html outputDirectory="./build/html/"/>
+        </report>
+    </coverage>
+    <testsuites>
+        <testsuite name="Wallet Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <logging/>
+    <php>
+        <env name="DB_CONNECTION" value="testing"/>
+        <env name="DB_DATABASE" value="wallet"/>
+        <env name="DB_USERNAME" value="root"/>
+        <env name="DB_PASSWORD" value="wallet"/>
+        <env name="WALLET_CACHE_DRIVER" value="array"/>
+        <env name="WALLET_LOCK_DRIVER" value="array"/>
+    </php>
+    <source>
+        <include>
+            <directory suffix=".php">./src/</directory>
+        </include>
+    </source>
+</phpunit>

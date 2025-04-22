@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Models\Wallet;

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArsamMe\Wallet\Events;
 
 use ArsamMe\Wallet\Contracts\Events\EventInterface;
