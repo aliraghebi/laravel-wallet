@@ -10,10 +10,9 @@ The transfer takes place between wallets.
 Prepare the model, add the `HasWallets` trait;
 
 ```php
-use Bavix\Wallet\Traits\HasWallets;
-use Bavix\Wallet\Interfaces\Wallet;
+use ArsamMe\Wallet\Traits\HasWallets;
 
-class User extends Model implements Wallet
+class User extends Model
 {
     use HasWallets;
 }
