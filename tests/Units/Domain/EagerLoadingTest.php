@@ -29,7 +29,7 @@ final class EagerLoadingTest extends TestCase {
         }
 
         /** @var Collection<int, Buyer> $buyers */
-        $buyers = Buyer::with('wallet.walletTransactions')
+        $buyers = Buyer::with('wallet.transactions')
             ->whereIn('id', $buyerTimes->pluck('id')->toArray())
             ->paginate(10);
 
@@ -38,7 +38,7 @@ final class EagerLoadingTest extends TestCase {
         foreach ($buyers as $buyer) {
             self::assertTrue($buyer->relationLoaded('wallet'));
             self::assertTrue($buyer->wallet->relationLoaded('holder'));
-            self::assertTrue($buyer->wallet->relationLoaded('walletTransactions'));
+            self::assertTrue($buyer->wallet->relationLoaded('transactions'));
 
             $uuids[] = $buyer->wallet->uuid;
             $balances[] = $buyer->wallet->balanceInt;
@@ -85,7 +85,7 @@ final class EagerLoadingTest extends TestCase {
         self::assertNotEmpty($user->wallets);
 
         foreach ($user->wallets as $wallet) {
-            self::assertTrue($wallet->relationLoaded('walletTransactions'));
+            self::assertTrue($wallet->relationLoaded('transactions'));
         }
 
         self::assertNotNull($user->getWallet('hello'));

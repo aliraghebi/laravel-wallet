@@ -3,12 +3,14 @@
 namespace ArsamMe\Wallet\Models;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet as WalletContract;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Traits\WalletFunctions;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 use function config;
 
@@ -78,5 +80,42 @@ class Wallet extends Model implements WalletContract {
      */
     public function holder(): MorphTo {
         return $this->morphTo();
+    }
+
+    /**
+     * Returns all transactions related to the wallet.
+     *
+     * This method retrieves all transactions associated with the wallet.
+     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
+     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
+     * The method then uses the `hasMany` method on the wallet instance to retrieve all transactions related to the wallet.
+     * The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
+     * The relationship is defined using the `wallet_id` foreign key.
+     *
+     * @return HasMany<Transaction> Returns a `HasMany` relationship of transactions related to the wallet.
+     */
+    public function transactions(): HasMany {
+        // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
+        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
+        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+
+        // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
+        // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
+        // The relationship is defined using the `wallet_id` foreign key.
+        return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
+    }
+
+    public function setNameAttribute(string $name): void {
+        $this->attributes['name'] = $name;
+        /**
+         * Must be updated only if the model does not exist or the slug is empty.
+         */
+        if ($this->exists) {
+            return;
+        }
+        if (array_key_exists('slug', $this->attributes)) {
+            return;
+        }
+        $this->attributes['slug'] = Str::slug($name);
     }
 }

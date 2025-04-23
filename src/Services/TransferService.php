@@ -20,8 +20,6 @@ use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Services\ClockService;
-use Str;
 
 readonly class TransferService implements TransferServiceInterface {
     public function __construct(

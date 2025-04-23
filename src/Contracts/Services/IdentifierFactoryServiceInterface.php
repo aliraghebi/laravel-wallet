@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace ArsamMe\Wallet\Contracts\Services;
 
 use Ramsey\Uuid\Exception\InvalidArgumentException;

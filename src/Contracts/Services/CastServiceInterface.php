@@ -24,7 +24,7 @@ interface CastServiceInterface {
      * @see Wallet
      * @see WalletModel
      */
-    public function getWallet(Wallet $object,bool $save = true): WalletModel;
+    public function getWallet(object $object, bool $save = true): WalletModel;
 
     /**
      * Get the holder associated with the object.

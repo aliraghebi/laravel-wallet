@@ -2,7 +2,6 @@
 
 namespace ArsamMe\Wallet\Test\Infra\Models;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Traits\HasWallets;
 use Illuminate\Database\Eloquent\Model;
 

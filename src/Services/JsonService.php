@@ -1,7 +1,5 @@
 <?php
 
-
-
 namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;

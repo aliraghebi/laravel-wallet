@@ -21,7 +21,7 @@ interface ConsistencyServiceInterface {
      */
     public function checkPositive(float|int|string $amount): void;
 
-    public function checkPotential(Wallet $object, string $amount, bool $allowZero = false): void;
+    public function checkPotential(Wallet $object, string $amount): void;
 
     /**
      * Checks if the given balance can be safely withdrawn by the specified amount.
@@ -35,7 +35,7 @@ interface ConsistencyServiceInterface {
      *
      * @throws InvalidAmountException If the given balance or amount is not positive.
      */
-    public function canWithdraw(float|int|string $balance, float|int|string $amount, bool $allowZero = false): bool;
+    public function canWithdraw(float|int|string $balance, float|int|string $amount): bool;
 
     public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
 

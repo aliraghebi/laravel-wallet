@@ -264,7 +264,7 @@ final class MultiWalletTest extends TestCase {
         self::assertSame(3, $eur->transactions()->count());
 
         self::assertSame(0, $user->walletTransactions()->count());
-        self::assertSame(0, $user->wallet->walletTransactions()->count());
+        self::assertSame(0, $user->wallet->transactions()->count());
         self::assertSame(1, $usd->walletTransactions()->count());
         self::assertSame(2, $eur->walletTransactions()->count());
     }

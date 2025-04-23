@@ -2,6 +2,8 @@
 
 namespace ArsamMe\Wallet\Test\Units\Domain;
 
+use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Models\Wallet;
 use ArsamMe\Wallet\Test\Infra\Factories\BuyerFactory;
 use ArsamMe\Wallet\Test\Infra\Models\Buyer;
@@ -77,9 +79,7 @@ final class BalanceTest extends TestCase {
 
     public function test_decimal_places(): void {
         config([
-            'wallet.wallet.creating' => [
-                'decimal_places' => 3,
-            ],
+            'wallet.wallet.default.decimal_places' => 3,
         ]);
 
         /** @var Buyer $buyer */
@@ -112,37 +112,30 @@ final class BalanceTest extends TestCase {
         $buyer->deposit(1000);
 
         self::assertIsString($buyer->balance);
-        self::assertIsString($buyer->wallet->balanceFloat);
+        self::assertIsString($buyer->wallet->balance);
 
-        self::assertIsInt($buyer->balanceInt);
-
-        self::assertSame('1000', $buyer->balance);
-        self::assertSame('10.00', $buyer->wallet->balanceFloat);
-
-        self::assertSame(1000, $buyer->balanceInt);
+        self::assertSame(1000, (int) $buyer->balance);
+        self::assertSame(1000, (int) $buyer->wallet->balance);
     }
 
     public function test_can_withdraw(): void {
         /** @var Buyer $buyer */
         $buyer = BuyerFactory::new()->create();
         self::assertTrue($buyer->canWithdraw(0));
-
-        $buyer->forceWithdraw(1);
-        self::assertFalse($buyer->canWithdraw(0));
-        self::assertTrue($buyer->canWithdraw(0, true));
+        self::assertFalse($buyer->canWithdraw(1));
     }
 
     public function test_withdraw_wallet_exists(): void {
         /** @var Buyer $buyer */
         $buyer = BuyerFactory::new()->create();
         self::assertFalse($buyer->relationLoaded('wallet'));
-        self::assertSame($buyer->balanceInt, 0);
-        $buyer->forceWithdraw(1);
+        self::assertSame((int) $buyer->balance, 0);
+        $buyer->deposit(1);
 
-        self::assertSame($buyer->balanceInt, -1);
+        self::assertSame((int) $buyer->balance, 1);
         self::assertTrue($buyer->relationLoaded('wallet'));
         self::assertTrue($buyer->wallet->exists);
-        self::assertLessThan(0, $buyer->balanceInt);
+        self::assertGreaterThan(0, $buyer->balance);
     }
 
     public function test_simple(): void {
@@ -153,30 +146,28 @@ final class BalanceTest extends TestCase {
         $wallet = $buyer->wallet;
 
         self::assertFalse($wallet->exists);
-        self::assertSame(0, $wallet->balanceInt);
+        self::assertSame(0, (int) $wallet->balance);
 
         $wallet->deposit(1000); // create wallet
-        self::assertSame(1000, $wallet->balanceInt);
+        self::assertSame(1000, (int) $wallet->balance);
 
         $regulator = app(RegulatorServiceInterface::class);
-        $result = $regulator->increase($wallet, 100);
+        $math = app(MathServiceInterface::class);
+        $result = $regulator->increase($wallet, $math->intValue(100, $wallet->decimal_places));
 
-        self::assertSame(100, (int) $regulator->diff($wallet));
-        self::assertSame(1100, (int) $regulator->amount($wallet));
-        self::assertSame(1100, (int) $result);
+        self::assertSame(100, (int) $math->floatValue($regulator->getBalanceDiff($wallet), $wallet->decimal_places));
+        self::assertSame(1100, (int) $math->floatValue($regulator->getBalance($wallet), $wallet->decimal_places));
+        self::assertSame(1100, (int) $math->floatValue($result, $wallet->decimal_places));
 
-        self::assertSame(1100, $wallet->balanceInt);
-        self::assertTrue($wallet->refreshBalance());
+        self::assertSame(1100, (int) $wallet->balance);
 
-        self::assertSame(0, (int) $regulator->diff($wallet));
-        self::assertSame(1000, (int) $regulator->amount($wallet));
-        self::assertSame(1000, $wallet->balanceInt);
+        $regulator->forget($wallet);
 
         $key = $wallet->getKey();
         self::assertTrue($wallet->forceDelete());
         self::assertFalse($wallet->exists);
         self::assertSame($wallet->getKey(), $key);
-        $result = app(RegulatorServiceInterface::class)->increase($wallet, 100);
+        $result = app(RegulatorServiceInterface::class)->increase($wallet, $math->intValue(100, $wallet->decimal_places));
 
         // databases that do not support fk will not delete data... need to help them
         $wallet->transactions()
@@ -184,15 +175,14 @@ final class BalanceTest extends TestCase {
             ->delete();
 
         self::assertFalse($wallet->exists);
-        self::assertSame(1100, (int) $result);
+        self::assertSame(1100, (int) $math->floatValue($result, $wallet->decimal_places));
 
-        $wallet->refreshBalance(); // automatic create default wallet
-        self::assertTrue($wallet->exists);
+        $regulator->forget($wallet);
 
-        self::assertSame(0, $wallet->balanceInt);
+        self::assertSame(1000, (int) $wallet->balance);
 
         $wallet->deposit(1);
-        self::assertSame(1, $wallet->balanceInt);
+        self::assertSame(1, (int) $wallet->balance);
     }
 
     public function test_get_balance(): void {

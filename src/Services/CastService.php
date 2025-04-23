@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 final readonly class CastService implements CastServiceInterface {
     public function __construct(private DatabaseServiceInterface $databaseService, private DispatcherServiceInterface $dispatcherService) {}
 
-    public function getWallet(Wallet $object, bool $save = true): WalletModel {
+    public function getWallet(object $object, bool $save = true): WalletModel {
         $wallet = $this->getModel($object);
         if (!($wallet instanceof WalletModel)) {
             $wallet = $wallet->getAttribute('wallet');

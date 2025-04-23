@@ -82,5 +82,5 @@ interface Wallet {
      *
      * @return HasMany<Transaction> A collection of transactions associated with this wallet.
      */
-    public function walletTransactions(): HasMany;
+    public function transactions(): HasMany;
 }

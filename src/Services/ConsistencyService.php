@@ -42,7 +42,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      * @throws BalanceIsEmpty
      * @throws InsufficientFunds
      */
-    public function checkPotential(Wallet $object, string $amount, bool $allowZero = false): void {
+    public function checkPotential(Wallet $object, string $amount): void {
         $wallet = $this->castService->getWallet($object, false);
         $balance = $wallet->getRawBalance();
         $availableBalance = $wallet->getRawAvailableBalance();
@@ -54,7 +54,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             );
         }
 
-        if (!$this->canWithdraw($availableBalance, $amount, $allowZero)) {
+        if (!$this->canWithdraw($availableBalance, $amount)) {
             throw new InsufficientFunds(
                 'Insufficient funds.',
                 ExceptionInterface::INSUFFICIENT_FUNDS
@@ -62,15 +62,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         }
     }
 
-    public function canWithdraw(float|int|string $balance, float|int|string $amount, bool $allowZero = false): bool {
+    public function canWithdraw(float|int|string $balance, float|int|string $amount): bool {
         $mathService = app(MathServiceInterface::class);
-
-        /**
-         * Allow buying for free with a negative balance.
-         */
-        if ($allowZero && !$mathService->compare($amount, 0)) {
-            return true;
-        }
 
         return $mathService->compare($balance, $amount) >= 0;
     }

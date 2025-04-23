@@ -83,29 +83,6 @@ trait WalletFunctions {
     }
 
     /**
-     * Returns all transactions related to the wallet.
-     *
-     * This method retrieves all transactions associated with the wallet.
-     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
-     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
-     * The method then uses the `hasMany` method on the wallet instance to retrieve all transactions related to the wallet.
-     * The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
-     * The relationship is defined using the `wallet_id` foreign key.
-     *
-     * @return HasMany<Transaction> Returns a `HasMany` relationship of transactions related to the wallet.
-     */
-    public function walletTransactions(): HasMany {
-        // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
-        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
-
-        // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
-        // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
-        // The relationship is defined using the `wallet_id` foreign key.
-        return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
-    }
-
-    /**
      * Retrieves all transfers related to the wallet.
      *
      * This method retrieves all transfers associated with the wallet.
@@ -256,6 +233,6 @@ trait WalletFunctions {
         $balance = $this->getRawBalance();
 
         // Check if the withdrawal is possible.
-        return app(ConsistencyServiceInterface::class)->canWithdraw($balance, $amount, $allowZero);
+        return app(ConsistencyServiceInterface::class)->canWithdraw($balance, $amount);
     }
 }
