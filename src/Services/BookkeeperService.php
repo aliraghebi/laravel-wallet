@@ -56,8 +56,6 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
 
                     /** @var Wallet $wallet */
                     foreach ($recordNotFoundException->getMissingKeys() as $uuid) {
-                        dd($wallets[$uuid]->transactions_count);
-
                         $wallet = $fWallets[$uuid] ?? $wallets[$uuid];
                         $results[$uuid] = new WalletStateData(
                             $wallet->getRawOriginal('balance', '0'),
