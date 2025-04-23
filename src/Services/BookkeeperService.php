@@ -59,7 +59,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
                         $results[$uuid] = new WalletStateData(
                             $wallet->getRawOriginal('balance', '0'),
                             $wallet->getRawOriginal('frozen_amount', '0'),
-                            $wallet->transactions_count ?? $wallet->transactions()->count()
+                            $wallet->transactions_count ?? 0
                         );
                     }
 
