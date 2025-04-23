@@ -39,7 +39,7 @@ interface AtomicServiceInterface {
      *
      * @template T
      *
-     * @param  non-empty-array<Wallet>  $wallets  The array of wallet objects to lock the transactions.
+     * @param  non-empty-array<Wallet>  $objects  The array of wallet objects to lock the transactions.
      * @param  callable(): T  $callback  The callback function to execute atomically.
      * @return T The result of the callback function.
      *
@@ -49,5 +49,5 @@ interface AtomicServiceInterface {
      *
      * @see AtomicServiceInterface::block
      */
-    public function blocks(Collection|Wallet|array $wallets, callable $callback): mixed;
+    public function blocks(array $objects, callable $callback): mixed;
 }

@@ -5,8 +5,10 @@ namespace ArsamMe\Wallet\Services;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
@@ -31,6 +33,8 @@ readonly class WalletService implements WalletServiceInterface {
         private TransactionServiceInterface $transactionService,
         private DispatcherServiceInterface $dispatcherService,
         private TransferServiceInterface $transferService,
+        private ClockServiceInterface $clockService,
+        private IdentifierFactoryServiceInterface $identifierFactoryService
     ) {}
 
     public function createWallet(
@@ -46,9 +50,9 @@ readonly class WalletService implements WalletServiceInterface {
             $slug = Str::slug($name);
         }
 
-        $time = now()->toImmutable();
+        $time = $this->clockService->now();
         $data = new WalletData(
-            $uuid ?? Str::uuid7()->toString(),
+            $uuid ?? $this->identifierFactoryService->generate(),
             $holder->getMorphClass(),
             $holder->getKey(),
             $name ?? config('wallet.wallet.default.name', 'Default Wallet'),

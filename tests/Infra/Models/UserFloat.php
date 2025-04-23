@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @method int getKey()
  */
-final class UserFloat extends Model implements Wallet, WalletFloat {
+final class UserFloat extends Model, WalletFloat {
     use HasWalletFloat;
 
     /**

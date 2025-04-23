@@ -6,29 +6,31 @@ use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
 use Illuminate\Database\RecordsNotFoundException;
-use Illuminate\Support\Collection;
 
 /**
  * @internal
  */
 final readonly class AtomicService implements AtomicServiceInterface {
     public function __construct(
+        private CastServiceInterface $castService,
         private DatabaseServiceInterface $databaseService,
         private LockServiceInterface $lockService,
         private BookkeeperServiceInterface $bookkeeperService,
         private StateServiceInterface $stateService
     ) {}
 
-    public function blocks(Collection|Wallet|array $wallets, callable $callback): mixed {
+    public function blocks(array $objects, callable $callback): mixed {
         /** @var array<string, Wallet> $blockObjects */
         $blockObjects = [];
-        foreach ($wallets as $wallet) {
-            if ($wallet instanceof Wallet && !$this->lockService->isBlocked($wallet->uuid)) {
+        foreach ($objects as $object) {
+            $wallet = $this->castService->getWallet($object);
+            if (!$this->lockService->isBlocked($wallet->uuid)) {
                 $blockObjects[$wallet->uuid] = $wallet;
             }
         }

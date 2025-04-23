@@ -6,9 +6,11 @@ use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
@@ -18,6 +20,7 @@ use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
+use ArsamMe\Wallet\Services\ClockService;
 use Str;
 
 readonly class TransferService implements TransferServiceInterface {
@@ -28,7 +31,9 @@ readonly class TransferService implements TransferServiceInterface {
         private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
         private TransferRepositoryInterface $transferRepository,
-        private DispatcherServiceInterface $dispatcherService
+        private DispatcherServiceInterface $dispatcherService,
+        private ClockServiceInterface $clockService,
+        private IdentifierFactoryServiceInterface $identifierFactoryService
     ) {}
 
     public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): TransferLazyData {
@@ -56,7 +61,7 @@ readonly class TransferService implements TransferServiceInterface {
         $deposit = $this->transactionService->makeTransaction($to, Transaction::TYPE_DEPOSIT, $depositAmount);
 
         return new TransferLazyData(
-            Str::uuid7()->toString(),
+            $this->identifierFactoryService->generate(),
             $from,
             $to,
             $amount,
@@ -109,7 +114,7 @@ readonly class TransferService implements TransferServiceInterface {
                 $fromWallet = $this->castService->getWallet($object->fromWallet);
                 $toWallet = $this->castService->getWallet($object->toWallet);
 
-                $now = now()->toImmutable();
+                $now = $this->clockService->now();
                 $checksum = $this->consistencyService->createTransferChecksum($object->uuid, $fromWallet->getKey(), $toWallet->getKey(), $object->amount, $object->fee, $now);
 
                 $transfer = new TransferData(

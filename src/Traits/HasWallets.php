@@ -9,6 +9,7 @@ use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Collection;
 
 use function array_key_exists;
@@ -22,7 +23,7 @@ use function config;
  * @psalm-require-extends Model
  */
 trait HasWallets {
-    use WalletFunctions;
+    use MorphOneWallet, WalletFunctions;
 
     /**
      * Cache for the wallets to avoid requesting them multiple times. WalletProxy stores the money wallets
@@ -111,21 +112,6 @@ trait HasWallets {
             // Specify the name of the polymorphic relation.
             'holder'
         );
-    }
-
-    /**
-     * Get the wallet attribute.
-     *
-     * @return WalletModel The wallet model associated with the related model.
-     */
-    public function getWalletAttribute(): WalletModel {
-        try {
-            $wallet = $this->findOrFailWallet();
-        } catch (ModelNotFoundException $e) {
-            $wallet = $this->createWallet();
-        }
-
-        return $wallet;
     }
 
     /**

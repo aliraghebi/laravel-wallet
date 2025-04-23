@@ -2,9 +2,9 @@
 
 namespace ArsamMe\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
+use ArsamMe\Wallet\Models\Wallet;
 
 interface BookkeeperServiceInterface {
     public function forget(Wallet $wallet): bool;

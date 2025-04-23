@@ -7,13 +7,13 @@ The transfer takes place between wallets.
 
 ## User Model
 
-Prepare the model, add the `HasWallets` trait and `Wallet` interface;
+Prepare the model, add the `HasWallets` trait.
 
 ```php
 use ArsamMe\Wallet\Traits\HasWallets;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
     use HasWallets;
 }

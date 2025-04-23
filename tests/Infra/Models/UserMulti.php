@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @method int getKey()
  */
-final class UserMulti extends Model implements Wallet, WalletFloat {
+final class UserMulti extends Model, WalletFloat {
     use HasWalletFloat;
     use HasWallets;
 

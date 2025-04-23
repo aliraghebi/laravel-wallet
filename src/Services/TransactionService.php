@@ -4,8 +4,10 @@ namespace ArsamMe\Wallet\Services;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
@@ -13,7 +15,6 @@ use ArsamMe\Wallet\Data\TransactionData;
 use ArsamMe\Wallet\Events\TransactionCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Repositories\TransactionRepository;
-use Str;
 
 readonly class TransactionService implements TransactionServiceInterface {
     public function __construct(
@@ -22,7 +23,9 @@ readonly class TransactionService implements TransactionServiceInterface {
         private ConsistencyServiceInterface $consistencyService,
         private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
-        private DispatcherServiceInterface $dispatcherService
+        private DispatcherServiceInterface $dispatcherService,
+        private ClockServiceInterface $clockService,
+        private IdentifierFactoryServiceInterface $identifierFactoryService,
     ) {}
 
     public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null): TransactionData {
@@ -34,8 +37,8 @@ readonly class TransactionService implements TransactionServiceInterface {
             $amount = $this->mathService->negative($amount);
         }
 
-        $uuid = Str::uuid7()->toString();
-        $time = now()->toImmutable();
+        $uuid = $this->identifierFactoryService->generate();
+        $time = $this->clockService->now();
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
         return new TransactionData($uuid, $wallet->id, $type, $amount, $meta, $checksum, $time, $time);

@@ -4,6 +4,7 @@ namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
+use DateTimeImmutable;
 
 /**
  * @api
@@ -38,9 +39,9 @@ interface ConsistencyServiceInterface {
 
     public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeImmutable $createdAt): ?string;
 
-    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, string $createdAt): ?string;
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeImmutable $createdAt): ?string;
 
     public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool;
 

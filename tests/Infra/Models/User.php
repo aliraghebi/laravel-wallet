@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @method int getKey()
  */
-final class User extends Model implements Wallet {
+final class User extends Model {
     use HasWallets;
 
     /**

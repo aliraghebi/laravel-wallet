@@ -3,6 +3,7 @@
 namespace ArsamMe\Wallet\Models;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet as WalletContract;
+use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Traits\WalletFunctions;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;

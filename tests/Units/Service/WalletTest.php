@@ -2,10 +2,9 @@
 
 namespace ArsamMe\Wallet\Test\Units\Service;
 
-use ArsamMe\Wallet\Internal\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Internal\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Internal\Service\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Test\Infra\Factories\BuyerFactory;
 use ArsamMe\Wallet\Test\Infra\Factories\UserMultiFactory;
 use ArsamMe\Wallet\Test\Infra\Models\Buyer;
@@ -52,7 +51,7 @@ final class WalletTest extends TestCase {
         $this->expectException(ModelNotFoundException::class);
         $this->expectExceptionCode(ExceptionInterface::MODEL_NOT_FOUND);
 
-        app(WalletServiceInterface::class)->getById(-1);
+        app(WalletServiceInterface::class)->findOrFailById(-1);
     }
 
     public function test_create_wallet_with_uuid(): void {

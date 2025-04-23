@@ -3,8 +3,6 @@
 namespace ArsamMe\Wallet\Test\Units\Domain;
 
 use ArsamMe\Wallet\Models\Wallet;
-use ArsamMe\Wallet\Services\BookkeeperServiceInterface;
-use ArsamMe\Wallet\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Test\Infra\Factories\BuyerFactory;
 use ArsamMe\Wallet\Test\Infra\Models\Buyer;
 use ArsamMe\Wallet\Test\Infra\TestCase;
@@ -25,13 +23,10 @@ final class BalanceTest extends TestCase {
         self::assertSame(0, (int) $buyer->wallet->balance);
         self::assertFalse($buyer->wallet->exists);
 
-        self::assertSame(0, $buyer->wallet->balanceInt);
+        self::assertSame(0, (int) $buyer->wallet->balance);
         self::assertFalse($buyer->wallet->exists);
 
-        self::assertSame(0., (float) $buyer->wallet->balanceFloat);
-        self::assertFalse($buyer->wallet->exists);
-
-        self::assertSame(0., $buyer->wallet->balanceFloatNum);
+        self::assertSame(0., (float) $buyer->wallet->balance);
         self::assertFalse($buyer->wallet->exists);
     }
 

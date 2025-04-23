@@ -2,13 +2,13 @@
 
 namespace ArsamMe\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
+use ArsamMe\Wallet\Models\Wallet;
 
 readonly class BookkeeperService implements BookkeeperServiceInterface {
     public function __construct(
@@ -49,12 +49,17 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
         } catch (RecordNotFoundException $recordNotFoundException) {
             $this->lockService->blocks(
                 $recordNotFoundException->getMissingKeys(),
-                function () use ($recordNotFoundException) {
+                function () use ($wallets, $recordNotFoundException) {
                     $results = [];
-                    $wallets = $this->walletRepository->multiGet($recordNotFoundException->getMissingKeys(), 'uuid');
+                    //                    $wallets = $this->walletRepository->multiGet($recordNotFoundException->getMissingKeys(), 'uuid');
                     /** @var Wallet $wallet */
-                    foreach ($wallets as $wallet) {
-                        $results[$wallet->uuid] = new WalletStateData($wallet->getRawOriginal('balance'), $wallet->getRawOriginal('frozen_amount'), $wallet->transactions_count);
+                    foreach ($recordNotFoundException->getMissingKeys() as $uuid) {
+                        $wallet = $wallets[$uuid];
+                        $results[$uuid] = new WalletStateData(
+                            $wallet->getRawOriginal('balance', '0'),
+                            $wallet->getRawOriginal('frozen_amount', '0'),
+                            $wallet->walletTransactions()->count()
+                        );
                     }
 
                     $this->multiSync($results);

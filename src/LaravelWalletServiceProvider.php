@@ -8,9 +8,12 @@ use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
@@ -29,9 +32,12 @@ use ArsamMe\Wallet\Repositories\WalletRepository;
 use ArsamMe\Wallet\Services\AtomicService;
 use ArsamMe\Wallet\Services\BookkeeperService;
 use ArsamMe\Wallet\Services\CastService;
+use ArsamMe\Wallet\Services\ClockService;
 use ArsamMe\Wallet\Services\ConsistencyService;
 use ArsamMe\Wallet\Services\DatabaseService;
 use ArsamMe\Wallet\Services\DispatcherService;
+use ArsamMe\Wallet\Services\IdentifierFactoryService;
+use ArsamMe\Wallet\Services\JsonService;
 use ArsamMe\Wallet\Services\LockService;
 use ArsamMe\Wallet\Services\MathService;
 use ArsamMe\Wallet\Services\RegulatorService;
@@ -143,9 +149,12 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(AtomicServiceInterface::class, AtomicService::class);
         $this->app->singleton(BookkeeperServiceInterface::class, BookkeeperService::class);
         $this->app->singleton(CastServiceInterface::class, CastService::class);
+        $this->app->singleton(ClockServiceInterface::class, ClockService::class);
         $this->app->singleton(ConsistencyServiceInterface::class, ConsistencyService::class);
         $this->app->singleton(DatabaseServiceInterface::class, DatabaseService::class);
         $this->app->singleton(DispatcherServiceInterface::class, DispatcherService::class);
+        $this->app->singleton(IdentifierFactoryServiceInterface::class, IdentifierFactoryService::class);
+        $this->app->singleton(JsonServiceInterface::class, JsonService::class);
         $this->app->singleton(LockServiceInterface::class, LockService::class);
         $this->app->singleton(MathServiceInterface::class, MathService::class);
         $this->app->singleton(RegulatorServiceInterface::class, RegulatorService::class);
@@ -174,9 +183,12 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             AtomicServiceInterface::class,
             BookkeeperServiceInterface::class,
             CastServiceInterface::class,
+            ClockServiceInterface::class,
             ConsistencyServiceInterface::class,
             DatabaseServiceInterface::class,
             DispatcherServiceInterface::class,
+            IdentifierFactoryServiceInterface::class,
+            JsonServiceInterface::class,
             LockServiceInterface::class,
             MathServiceInterface::class,
             RegulatorServiceInterface::class,

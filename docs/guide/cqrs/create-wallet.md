@@ -5,13 +5,13 @@ accelerated if the client "generates a wallet himself".
 
 ## User Model
 
-Add the `HasWallets` trait and `Wallet` interface to model.
+Add the `HasWallets` trait to model.
 
 ```php
 use ArsamMe\Wallet\Traits\HasWallets;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 
-class User extends Model implements Wallet
+class User extends Model
 {
     use HasWallets;
 }

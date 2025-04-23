@@ -12,6 +12,7 @@ use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
+use DateTimeImmutable;
 
 /**
  * @internal
@@ -42,7 +43,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      * @throws InsufficientFunds
      */
     public function checkPotential(Wallet $object, string $amount, bool $allowZero = false): void {
-        $wallet = $this->castService->getWallet($object);
+        $wallet = $this->castService->getWallet($object, false);
         $balance = $wallet->getRawBalance();
         $availableBalance = $wallet->getRawAvailableBalance();
 
@@ -92,7 +93,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $createdAt): ?string {
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeImmutable $createdAt): ?string {
         if (!$this->consistencyChecksumsEnabled) {
             return null;
         }
@@ -102,7 +103,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $walletId,
             $type,
             $amount,
-            $createdAt,
+            $createdAt->getTimestamp(),
         ];
 
         $stringToSign = implode('_', $dataToSign);
@@ -110,7 +111,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, string $createdAt): ?string {
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeImmutable $createdAt): ?string {
         if (!$this->consistencyChecksumsEnabled) {
             return null;
         }
@@ -121,7 +122,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $toWalletId,
             $amount,
             $fee,
-            $createdAt,
+            $createdAt->getTimestamp(),
         ];
 
         $stringToSign = implode('_', $dataToSign);
@@ -131,7 +132,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
     public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool {
         try {
-            $wallet = $this->castService->getWallet($wallet);
+            $wallet = $this->castService->getWallet($wallet, false);
             $this->checkMultiWalletConsistency([$wallet->id => $checksum ?? $wallet->checksum]);
         } catch (WalletConsistencyException $e) {
             if ($throw) {
