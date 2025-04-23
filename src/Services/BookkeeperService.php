@@ -51,14 +51,15 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
                 $recordNotFoundException->getMissingKeys(),
                 function () use ($wallets, $recordNotFoundException) {
                     $results = [];
-                    //                    $wallets = $this->walletRepository->multiGet($recordNotFoundException->getMissingKeys(), 'uuid');
+                    $fWallets = $this->walletRepository->multiGet($recordNotFoundException->getMissingKeys(), 'uuid')->mapWithKeys(fn ($item) => [$item->uuid => $item])->all();
+
                     /** @var Wallet $wallet */
                     foreach ($recordNotFoundException->getMissingKeys() as $uuid) {
-                        $wallet = $wallets[$uuid];
+                        $wallet = $fWallets[$uuid] ?? $wallets[$uuid];
                         $results[$uuid] = new WalletStateData(
                             $wallet->getRawOriginal('balance', '0'),
                             $wallet->getRawOriginal('frozen_amount', '0'),
-                            $wallet->transactions()->count()
+                            $wallet->transactions_count ?? $wallet->transactions()->count()
                         );
                     }
 
