@@ -18,6 +18,7 @@ use ArsamMe\Wallet\Data\TransferData;
 use ArsamMe\Wallet\Data\TransferLazyData;
 use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
+use ArsamMe\Wallet\Exceptions\InvalidFeeException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
 
@@ -37,6 +38,10 @@ readonly class TransferService implements TransferServiceInterface {
     public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): TransferLazyData {
         $this->consistencyService->checkPositive($amount);
         $this->consistencyService->checkPositive($fee);
+
+        if ($this->mathService->compare($amount, $fee) == -1) {
+            throw new InvalidFeeException('Fee can not be more than amount.');
+        }
 
         $from = $this->castService->getWallet($from);
         $to = $this->castService->getWallet($to);
