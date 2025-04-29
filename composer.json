@@ -33,7 +33,6 @@
     "laravel/pint": "^1.22",
     "nunomaduro/collision": "^8.0",
     "phpunit/phpunit": "^11.0",
-    "infection/infection": "~0.27",
     "orchestra/testbench": "^10.0"
   },
   "autoload": {
@@ -47,8 +46,7 @@
     }
   },
   "scripts": {
-    "parabench": "@php ./vendor/bin/testbench package:test --coverage-xml=build/coverage-xml --log-junit=build/junit.xml",
-    "infect": "@php vendor/bin/infection --coverage=build --min-msi=50 -j$(nproc) --only-covering-test-cases"
+    "parabench": "@php ./vendor/bin/testbench package:test --coverage-xml=build/coverage-xml --log-junit=build/junit.xml"
   },
   "extra": {
     "laravel": {
@@ -62,9 +60,6 @@
   },
   "config": {
     "process-timeout": 0,
-    "sort-packages": true,
-    "allow-plugins": {
-      "infection/extension-installer": true
-    }
+    "sort-packages": true
   }
 }
