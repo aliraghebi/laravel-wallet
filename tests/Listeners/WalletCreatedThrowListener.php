@@ -4,7 +4,6 @@ namespace ArsamMe\Wallet\Test\Listeners;
 
 use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Test\Exceptions\UnknownEventException;
-use DateTimeInterface;
 
 final class WalletCreatedThrowListener {
     public function handle(WalletCreatedEvent $event): never {

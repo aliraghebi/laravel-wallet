@@ -2,7 +2,6 @@
 
 namespace ArsamMe\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Events\TransactionCreatedEvent;
@@ -17,7 +16,6 @@ use ArsamMe\Wallet\Test\Listeners\WalletUpdatedThrowUuidListener;
 use ArsamMe\Wallet\Test\Services\ClockFakeService;
 use ArsamMe\Wallet\Test\TestCase;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Event;
 
 /**
