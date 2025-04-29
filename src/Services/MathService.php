@@ -14,30 +14,35 @@ readonly class MathService implements MathServiceInterface {
     public function add(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
             ->plus(BigDecimal::of($second))
-            ->toScale($scale ?? $this->scale, RoundingMode::DOWN);
+            ->toScale($scale ?? $this->scale, RoundingMode::DOWN)
+            ->stripTrailingZeros();
     }
 
     public function sub(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
             ->minus(BigDecimal::of($second))
-            ->toScale($scale ?? $this->scale, RoundingMode::DOWN);
+            ->toScale($scale ?? $this->scale, RoundingMode::DOWN)
+            ->stripTrailingZeros();
     }
 
     public function div(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
-            ->dividedBy(BigDecimal::of($second), $scale ?? $this->scale, RoundingMode::DOWN);
+            ->dividedBy(BigDecimal::of($second), $scale ?? $this->scale, RoundingMode::DOWN)
+            ->stripTrailingZeros();
     }
 
     public function mul(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
             ->multipliedBy(BigDecimal::of($second))
-            ->toScale($scale ?? $this->scale, RoundingMode::DOWN);
+            ->toScale($scale ?? $this->scale, RoundingMode::DOWN)
+            ->stripTrailingZeros();
     }
 
     public function pow(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
             ->power((int) $second)
-            ->toScale($scale ?? $this->scale, RoundingMode::DOWN);
+            ->toScale($scale ?? $this->scale, RoundingMode::DOWN)
+            ->stripTrailingZeros();
     }
 
     public function powTen(float|int|string $number): string {
@@ -46,39 +51,41 @@ readonly class MathService implements MathServiceInterface {
 
     public function ceil(float|int|string $number): string {
         return (string) BigDecimal::of($number)
-            ->dividedBy(BigDecimal::one(), 0, RoundingMode::CEILING);
+            ->dividedBy(BigDecimal::one(), 0, RoundingMode::CEILING)
+            ->stripTrailingZeros();
     }
 
     public function floor(float|int|string $number): string {
         return (string) BigDecimal::of($number)
-            ->dividedBy(BigDecimal::one(), 0, RoundingMode::FLOOR);
+            ->dividedBy(BigDecimal::one(), 0, RoundingMode::FLOOR)
+            ->stripTrailingZeros();
     }
 
     public function round(float|int|string $number, int $precision = 0): string {
-        return (string) BigDecimal::of($number)->dividedBy(BigDecimal::one(), $precision, RoundingMode::HALF_UP);
+        return (string) BigDecimal::of($number)->dividedBy(BigDecimal::one(), $precision, RoundingMode::HALF_UP)->stripTrailingZeros();
     }
 
     public function scale(float|int|string $number, ?int $scale = null): string {
-        return (string) BigDecimal::of($number)->toScale($scale ?? $this->scale, RoundingMode::DOWN);
+        return (string) BigDecimal::of($number)->toScale($scale ?? $this->scale, RoundingMode::DOWN)->stripTrailingZeros();
     }
 
     public function abs(float|int|string $number): string {
-        return (string) BigDecimal::of($number)->abs();
+        return (string) BigDecimal::of($number)->abs()->stripTrailingZeros();
     }
 
     public function negative(float|int|string $number): string {
-        return (string) BigDecimal::of($number)->negated();
+        return (string) BigDecimal::of($number)->negated()->stripTrailingZeros();
     }
 
     public function compare(float|int|string $first, float|int|string $second): int {
-        return BigDecimal::of($first)->compareTo(BigDecimal::of($second));
+        return BigDecimal::of($first)->compareTo(BigDecimal::of($second))->stripTrailingZeros();
     }
 
     public function intValue(string|int|float $amount, int $decimalPlaces): string {
-        return (string) BigDecimal::ten()->power($decimalPlaces)->multipliedBy(BigDecimal::of($amount))->toScale(0, RoundingMode::DOWN);
+        return (string) BigDecimal::ten()->power($decimalPlaces)->multipliedBy(BigDecimal::of($amount))->toScale(0, RoundingMode::DOWN)->stripTrailingZeros();
     }
 
     public function floatValue(string|int|float $amount, int $decimalPlaces): string {
-        return (string) BigDecimal::ofUnscaledValue($amount, $decimalPlaces);
+        return (string) BigDecimal::ofUnscaledValue($amount, $decimalPlaces)->stripTrailingZeros();
     }
 }
