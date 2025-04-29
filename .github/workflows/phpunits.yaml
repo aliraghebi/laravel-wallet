@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
+      fast-fail: false
       matrix:
         php-versions: [ 8.2, 8.3, 8.4 ]
         databases: [ testing, pgsql, mysql, mariadb ]
@@ -118,18 +118,6 @@ jobs:
         id: composer-dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Check codeclimate
-        id: codeclimate-check
-        run: echo "execute=${{ matrix.php-versions == '8.3' && matrix.caches == 'array' && matrix.locks == 'redis' && matrix.databases == 'testing' }}" >> $GITHUB_OUTPUT
-
-      - name: Prepare codeclimate
-        id: codeclimate-prepare
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-        if: ${{ steps.codeclimate-check.outputs.execute == 'true' }}
-
       - name: Prepare run test suite
         id: unit-prepare
         run: |
@@ -152,21 +140,3 @@ jobs:
           WALLET_LOCK_DRIVER: ${{ matrix.locks }}
           DB_CONNECTION: ${{ matrix.databases }}
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
-        if: ${{ steps.codeclimate-check.outputs.execute == 'true' }}
-
-      - name: Send coverage
-        id: codeclimate-send
-        uses: nick-fields/retry@v3
-        with:
-          timeout_seconds: 15
-          max_attempts: 3
-          command: >-
-            ./cc-test-reporter after-build --coverage-input-type clover --exit-code 0
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        if: ${{ steps.codeclimate-check.outputs.execute == 'true' }}
-
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-        if: ${{ steps.codeclimate-check.outputs.execute == 'true' }}
