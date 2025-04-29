@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace ArsamMe\Wallet\Test\Unit;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
+use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Decorators\StorageServiceLockDecorator;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
+use ArsamMe\Wallet\Services\StorageService;
 use ArsamMe\Wallet\Test\TestCase;
 
 /**
@@ -17,15 +18,17 @@ final class StorageServiceTest extends TestCase {
     public function test_flush(): void {
         $this->expectException(RecordNotFoundException::class);
         $this->expectExceptionCode(ExceptionInterface::RECORD_NOT_FOUND);
-        $storage = app(StorageServiceInterface::class);
+        $storage = app(StorageService::class);
 
-        self::assertTrue($storage->sync('hello', 34));
-        self::assertTrue($storage->sync('world', 42));
-        self::assertSame(42, $storage->get('world'));
-        self::assertSame(34, $storage->get('hello'));
+        $state = new WalletStateData('123.456', '987.654', 10);
+
+        self::assertTrue($storage->sync('my-key', $state));
+        self::assertSame($state->balance, $storage->get('my-key')->balance);
+        self::assertSame($state->frozenAmount, $storage->get('my-key')->frozenAmount);
+        self::assertSame($state->transactionsCount, $storage->get('my-key')->transactionsCount);
         self::assertTrue($storage->flush());
 
-        $storage->get('hello'); // record not found
+        $storage->get('my-key'); // record not found
     }
 
     public function test_decorator(): void {
@@ -33,12 +36,14 @@ final class StorageServiceTest extends TestCase {
         $this->expectExceptionCode(ExceptionInterface::RECORD_NOT_FOUND);
         $storage = app(StorageServiceLockDecorator::class);
 
-        self::assertTrue($storage->sync('hello', 34));
-        self::assertTrue($storage->sync('world', 42));
-        self::assertSame(42, $storage->get('world'));
-        self::assertSame(34, $storage->get('hello'));
+        $state = new WalletStateData('123.456', '987.654', 10);
+
+        self::assertTrue($storage->sync('my-key', $state));
+        self::assertSame($state->balance, $storage->get('my-key')->balance);
+        self::assertSame($state->frozenAmount, $storage->get('my-key')->frozenAmount);
+        self::assertSame($state->transactionsCount, $storage->get('my-key')->transactionsCount);
         self::assertTrue($storage->flush());
 
-        $storage->get('hello'); // record not found
+        $storage->get('my-key'); // record not found
     }
 }
