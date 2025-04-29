@@ -12,7 +12,7 @@ return new class extends Migration {
         Schema::create($this->table(), static function (Blueprint $table) use ($walletsTable) {
             $table->id();
             $table->uuid()->unique();
-            $table->foreignId('wallet_id')->constrained($walletsTable)->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('wallet_id')->constrained($walletsTable)->cascadeOnUpdate()->cascadeOnDelete();
             $table->enum('type', ['deposit', 'withdraw'])->index();
             $table->decimal('amount', 64, 0);
             $table->jsonb('meta')->nullable();
