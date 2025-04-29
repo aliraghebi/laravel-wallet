@@ -10,7 +10,7 @@ Find user:
 $user = User::first(); 
 ```
 
-Since the user uses `HasWallets`, he will have `balance` and `available_balance` property.
+Since the user uses `HasWallet`, he will have `balance` and `available_balance` property.
 Let’s check the user's balance.
 
 ```php
@@ -39,7 +39,7 @@ Find user:
 $user = User::first(); 
 ```
 
-Since the user uses `HasWallets`, he will have `balance` and `available_balance` property.
+Since the user uses `HasWallet`, he will have `balance` and `available_balance` property.
 Let’s check the user's balance.
 
 ```php

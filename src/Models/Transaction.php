@@ -84,4 +84,12 @@ class Transaction extends Model {
 
         return $math->floatValue($this->getRawAmount(), $this->decimal_places);
     }
+
+    public function getAmountFloatAttribute(): float {
+        return (float) $this->getAmountAttribute();
+    }
+
+    public function getAmountIntAttribute(): int {
+        return (int) $this->getAmountAttribute();
+    }
 }

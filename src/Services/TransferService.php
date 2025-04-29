@@ -15,6 +15,7 @@ use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
 use ArsamMe\Wallet\Data\TransferData;
+use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Data\TransferLazyData;
 use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -35,7 +36,7 @@ readonly class TransferService implements TransferServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService
     ) {}
 
-    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): TransferLazyData {
+    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): TransferLazyData {
         $this->consistencyService->checkPositive($amount);
         $this->consistencyService->checkPositive($fee);
 
@@ -46,25 +47,36 @@ readonly class TransferService implements TransferServiceInterface {
         $from = $this->castService->getWallet($from);
         $to = $this->castService->getWallet($to);
 
-        assert($from->getKey() != $to->getKey());
-
         $decimalPlaces = min($from->decimal_places, $to->decimal_places);
-        $amount = $this->mathService->round($amount, $decimalPlaces);
+        $amount = $this->mathService->scale($amount, $decimalPlaces);
         if ($this->mathService->compare($amount, 0) === 0) {
             throw new InvalidAmountException('This amount can not be transferred because of low decimal places on source or dest wallets.');
         }
 
-        $withdrawalAmount = $this->mathService->intValue($amount, $from->decimal_places);
-        $depositAmount = $this->mathService->intValue($this->mathService->sub($amount, $fee), $to->decimal_places);
+        $withdrawalAmount = $this->mathService->intValue($this->mathService->add($amount, $fee), $from->decimal_places);
+        $depositAmount = $this->mathService->intValue($amount, $to->decimal_places);
 
         $amount = $this->mathService->intValue($amount, $decimalPlaces);
         $fee = $this->mathService->intValue($fee, $decimalPlaces);
 
-        $withdrawal = $this->transactionService->makeTransaction($from, Transaction::TYPE_WITHDRAW, $withdrawalAmount);
-        $deposit = $this->transactionService->makeTransaction($to, Transaction::TYPE_DEPOSIT, $depositAmount);
+        $withdrawal = $this->transactionService->makeTransaction(
+            $from,
+            Transaction::TYPE_WITHDRAW,
+            $withdrawalAmount,
+            $extra?->withdrawal?->meta,
+            $extra?->withdrawal?->uuid
+        );
+
+        $deposit = $this->transactionService->makeTransaction(
+            $to,
+            Transaction::TYPE_DEPOSIT,
+            $depositAmount,
+            $extra?->deposit?->meta,
+            $extra?->deposit?->uuid
+        );
 
         return new TransferLazyData(
-            $this->identifierFactoryService->generate(),
+            $extra?->uuid ?? $this->identifierFactoryService->generate(),
             $from,
             $to,
             $amount,
@@ -72,15 +84,15 @@ readonly class TransferService implements TransferServiceInterface {
             $decimalPlaces,
             $withdrawal,
             $deposit,
-            $meta
+            $extra?->meta
         );
     }
 
     /**
      * @throws ExceptionInterface
      */
-    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): Transfer {
-        $transfer = $this->makeTransfer($from, $to, $amount, $fee, $meta);
+    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): Transfer {
+        $transfer = $this->makeTransfer($from, $to, $amount, $fee, $extra);
 
         $transfers = $this->apply([$transfer]);
 
@@ -99,7 +111,7 @@ readonly class TransferService implements TransferServiceInterface {
                 $toWallet = $this->castService->getWallet($object->toWallet);
                 $wallets[$toWallet->getKey()] = $toWallet;
 
-                $operations[] = $object->withdrawData;
+                $operations[] = $object->withdrawalData;
                 $operations[] = $object->depositData;
             }
 
@@ -108,7 +120,7 @@ readonly class TransferService implements TransferServiceInterface {
             $links = [];
             $transfers = [];
             foreach ($objects as $object) {
-                $withdraw = $transactions[$object->withdrawData->uuid] ?? null;
+                $withdraw = $transactions[$object->withdrawalData->uuid] ?? null;
                 assert($withdraw instanceof Transaction);
 
                 $deposit = $transactions[$object->depositData->uuid] ?? null;
@@ -122,8 +134,8 @@ readonly class TransferService implements TransferServiceInterface {
 
                 $transfer = new TransferData(
                     $object->uuid,
-                    $withdraw->getKey(),
                     $deposit->getKey(),
+                    $withdraw->getKey(),
                     $fromWallet->getKey(),
                     $toWallet->getKey(),
                     $object->amount,

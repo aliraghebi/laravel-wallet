@@ -1,0 +1,12 @@
+<?php
+
+namespace ArsamMe\Wallet\Data;
+
+use ArsamMe\Wallet\Contracts\Data\BaseData;
+
+class TransactionExtraData extends BaseData {
+    public function __construct(
+        public readonly ?string $uuid = null,
+        public readonly ?array $meta = null
+    ) {}
+}

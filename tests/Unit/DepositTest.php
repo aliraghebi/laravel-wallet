@@ -1,0 +1,67 @@
+<?php
+
+namespace ArsamMe\Wallet\Test\Unit;
+
+use ArsamMe\Wallet\Test\Models\Transaction;
+use ArsamMe\Wallet\Test\TestCase;
+
+/**
+ * @internal
+ */
+final class DepositTest extends TestCase {
+    public function test_deposit() {
+        $user = $this->createUser();
+        self::assertSame(0, $user->balance_int);
+
+        $user->deposit(1000);
+        self::assertSame(1000, $user->balance_int);
+
+        $user->deposit(100);
+        self::assertSame(1100, $user->balance_int);
+    }
+
+    public function test_wallet_creation_with_deposit(): void {
+        $user = $this->createUser();
+        self::assertFalse($user->relationLoaded('wallet'));
+        $user->deposit(1);
+
+        self::assertTrue($user->relationLoaded('wallet'));
+        self::assertTrue($user->wallet->exists);
+    }
+
+    public function test_deposit_float_amount() {
+        $user = $this->createUser();
+        $wallet = $user->createWallet('btc', decimalPlaces: 20);
+        self::assertSame($wallet->decimal_places, 20);
+
+        $wallet->deposit('1.1234567890');
+        self::assertSame(1.1234567890, $wallet->balance_float);
+        self::assertSame('1.12345678900000000000', $wallet->balance);
+    }
+
+    public function test_deposit_with_meta() {
+        $user = $this->createUser();
+        $transaction = $user->deposit(1000, [
+            'product_id' => 10009000,
+        ]);
+
+        self::assertTrue($transaction->exists);
+        self::assertSame($transaction->meta['product_id'], 10009000);
+
+        $exists = Transaction::where('uuid', $transaction->uuid)->where('meta->product_id', 10009000)->exists();
+        self::assertTrue($exists);
+    }
+
+    public function test_deposit_modify_meta(): void {
+        $user = $this->createUser();
+        $transaction = $user->deposit(1000);
+        self::assertNotNull($transaction);
+
+        $transaction->meta = array_merge($transaction->meta ?? [], [
+            'description' => 'Your transaction has been approved',
+        ]);
+
+        self::assertTrue($transaction->save());
+        self::assertSame('Your transaction has been approved', $transaction->meta['description']);
+    }
+}

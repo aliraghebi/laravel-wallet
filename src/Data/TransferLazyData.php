@@ -13,7 +13,7 @@ class TransferLazyData extends BaseData {
         public readonly string $amount,
         public readonly string $fee,
         public readonly int $decimalPlaces,
-        public readonly TransactionData $withdrawData,
+        public readonly TransactionData $withdrawalData,
         public readonly TransactionData $depositData,
         public readonly ?array $meta
     ) {}

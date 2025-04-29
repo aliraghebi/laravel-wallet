@@ -4,6 +4,7 @@ namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Models\Wallet;
+use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Data\TransferLazyData;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
@@ -11,9 +12,9 @@ use ArsamMe\Wallet\Models\Transfer;
 use Illuminate\Database\RecordsNotFoundException;
 
 interface TransferServiceInterface {
-    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): TransferLazyData;
+    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): TransferLazyData;
 
-    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?array $meta = null): Transfer;
+    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): Transfer;
 
     /**
      * Applies a set of transfer operations in a single database transaction.

@@ -30,6 +30,8 @@ final readonly class CastService implements CastServiceInterface {
 
                 return $result;
             });
+        } elseif ($save && $wallet->deleted_at != null) {
+            $wallet->restore();
         }
 
         return $wallet;

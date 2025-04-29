@@ -28,7 +28,7 @@ readonly class TransactionService implements TransactionServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService,
     ) {}
 
-    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null): TransactionData {
+    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null, ?string $uuid = null): TransactionData {
         assert(in_array($type, [Transaction::TYPE_WITHDRAW, Transaction::TYPE_DEPOSIT]));
         $this->consistencyService->checkPositive($amount);
 
@@ -37,22 +37,22 @@ readonly class TransactionService implements TransactionServiceInterface {
             $amount = $this->mathService->negative($amount);
         }
 
-        $uuid = $this->identifierFactoryService->generate();
+        $uuid ??= $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
         return new TransactionData($uuid, $wallet->id, $type, $amount, $meta, $checksum, $time, $time);
     }
 
-    public function deposit(Wallet $wallet, string $amount, ?array $meta = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $meta);
+    public function deposit(Wallet $wallet, string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $meta, $uuid);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
         return current($transactions);
     }
 
-    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $meta);
+    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $meta, $uuid);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
         return current($transactions);

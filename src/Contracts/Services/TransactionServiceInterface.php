@@ -7,11 +7,11 @@ use ArsamMe\Wallet\Data\TransactionData;
 use ArsamMe\Wallet\Models\Transaction;
 
 interface TransactionServiceInterface {
-    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null): TransactionData;
+    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null, ?string $uuid = null): TransactionData;
 
-    public function deposit(Wallet $wallet, string $amount, ?array $meta = null): Transaction;
+    public function deposit(Wallet $wallet, string $amount, ?array $meta = null, ?string $uuid = null): Transaction;
 
-    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null): Transaction;
+    public function withdraw(Wallet $wallet, string $amount, ?array $meta, ?string $uuid = null): Transaction;
 
     public function apply(array $wallets, array $objects): array;
 }

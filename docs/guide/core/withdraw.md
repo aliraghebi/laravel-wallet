@@ -13,7 +13,7 @@ Find user:
 $user = User::first(); 
 ```
 
-Since the user uses `HasWallets`, he will have `balance` property.
+Since the user uses `HasWallet`, he will have `balance` property.
 Let’s check the user's balance.
 
 ```php

@@ -3,6 +3,7 @@
 namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet;
+use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
@@ -77,11 +78,11 @@ interface WalletServiceInterface {
 
     public function getBalance(Wallet $wallet): string;
 
-    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction;
+    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null, ?string $uuid = null): Transaction;
 
-    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction;
+    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null, ?string $uuid = null): Transaction;
 
-    public function transfer(Wallet $from, Wallet $to, int|float|string $amount, int|float|string $fee = 0, ?array $meta = null): Transfer;
+    public function transfer(Wallet $from, Wallet $to, int|float|string $amount, int|float|string $fee = 0, ?TransferExtraData $extra = null): Transfer;
 
     public function freeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 

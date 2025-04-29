@@ -68,17 +68,17 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return $mathService->compare($balance, $amount) >= 0;
     }
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string {
+    public function createWalletChecksum(string $uuid, string|float|int $balance, string|float|int $frozenAmount, int $transactionsCount, string|float|int $transactionsSum): ?string {
         if (!$this->consistencyChecksumsEnabled) {
             return null;
         }
 
         $dataToSign = [
             $uuid,
-            $this->mathService->round($balance),
-            $this->mathService->round($frozenAmount),
+            $this->mathService->scale($balance),
+            $this->mathService->scale($frozenAmount),
             $transactionsCount,
-            $this->mathService->round($transactionsSum),
+            $this->mathService->scale($transactionsSum),
         ];
 
         $stringToSign = implode('_', $dataToSign);
@@ -86,7 +86,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeImmutable $createdAt): ?string {
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string|float|int $amount, DateTimeImmutable $createdAt): ?string {
         if (!$this->consistencyChecksumsEnabled) {
             return null;
         }
@@ -95,7 +95,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $uuid,
             $walletId,
             $type,
-            $amount,
+            $this->mathService->scale($amount),
             $createdAt->getTimestamp(),
         ];
 
@@ -148,10 +148,10 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         foreach ($wallets as $wallet) {
             $expectedChecksum = $this->createWalletChecksum(
                 $wallet->uuid,
-                (string) $wallet->getRawOriginal('balance'),
-                (string) $wallet->getRawOriginal('frozen_amount'),
+                $wallet->getRawOriginal('balance', 0),
+                $wallet->getRawOriginal('frozen_amount', 0),
                 $wallet->transactions_count,
-                (string) $wallet->transactions_sum,
+                $wallet->transactions_sum,
             );
 
             $checksum = $checksums[$wallet[$column]];

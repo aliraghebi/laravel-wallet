@@ -46,10 +46,9 @@ interface Wallet {
      * Checks if the wallet can safely withdraw the specified amount.
      *
      * @param  float|int|string  $amount  The amount to withdraw.
-     * @param  bool  $allowZero  Whether to allow withdrawing when the balance is zero.
      * @return bool Returns true if the wallet can withdraw the specified amount, false otherwise.
      */
-    public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool;
+    public function canWithdraw(float|int|string $amount): bool;
 
     /**
      * Returns the balance of the wallet as a string.
@@ -69,18 +68,30 @@ interface Wallet {
      */
     public function getBalanceAttribute(): string;
 
+    public function getBalanceFloatAttribute(): float;
+
+    public function getBalanceIntAttribute(): int;
+
     public function getRawFrozenAmount(): string;
 
     public function getFrozenAmountAttribute(): string;
 
+    public function getFrozenAmountFloatAttribute(): float;
+
+    public function getFrozenAmountIntAttribute(): int;
+
     public function getRawAvailableBalance(): string;
 
     public function getAvailableBalanceAttribute(): string;
+
+    public function getAvailableBalanceFloatAttribute(): float;
+
+    public function getAvailableBalanceIntAttribute(): int;
 
     /**
      * Represents a relationship where a wallet has many transactions.
      *
      * @return HasMany<Transaction> A collection of transactions associated with this wallet.
      */
-    public function transactions(): HasMany;
+    public function walletTransactions(): HasMany;
 }

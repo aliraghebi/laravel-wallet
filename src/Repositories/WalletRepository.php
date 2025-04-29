@@ -86,6 +86,7 @@ readonly class WalletRepository implements WalletRepositoryInterface {
                     $case .= "WHEN {$id} THEN {$value}\n";
                 }
             }
+            $case .= "ELSE $field\n";
             $case .= 'END';
             $cases[$field] = $case;
         }
@@ -100,8 +101,8 @@ readonly class WalletRepository implements WalletRepositoryInterface {
 
     public function multiGet(array $keys, string $column = 'id'): Collection {
         return $this->wallet->newQuery()
-            ->withCount('transactions as transactions_count')
-            ->withSum('transactions as transactions_sum', 'amount')
+            ->withCount('walletTransactions as transactions_count')
+            ->withSum('walletTransactions as transactions_sum', 'amount')
             ->whereIn($column, $keys)
             ->get();
     }

@@ -9,6 +9,7 @@ use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
 use ArsamMe\Wallet\Exceptions\InsufficientFunds;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -70,16 +71,40 @@ trait WalletFunctions {
         return app(MathServiceInterface::class)->floatValue($this->getRawBalance(), $wallet->decimal_places);
     }
 
+    public function getBalanceFloatAttribute(): float {
+        return (float) $this->getBalanceAttribute();
+    }
+
+    public function getBalanceIntAttribute(): int {
+        return (int) $this->getBalanceAttribute();
+    }
+
     public function getFrozenAmountAttribute(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         return app(MathServiceInterface::class)->floatValue($this->getRawFrozenAmount(), $wallet->decimal_places);
     }
 
+    public function getFrozenAmountFloatAttribute(): float {
+        return (float) $this->getFrozenAmountAttribute();
+    }
+
+    public function getFrozenAmountIntAttribute(): int {
+        return (int) $this->getFrozenAmountAttribute();
+    }
+
     public function getAvailableBalanceAttribute(): string {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         return app(MathServiceInterface::class)->floatValue($this->getRawAvailableBalance(), $wallet->decimal_places);
+    }
+
+    public function getAvailableBalanceFloatAttribute(): float {
+        return (float) $this->getAvailableBalanceAttribute();
+    }
+
+    public function getAvailableBalanceIntAttribute(): int {
+        return (int) $this->getAvailableBalanceAttribute();
     }
 
     /**
@@ -158,11 +183,11 @@ trait WalletFunctions {
      *                            information about the type of deposit, the source of the funds, or any other relevant details.
      * @return Transaction The transaction object representing the deposit.
      */
-    public function deposit(float|int|string $amount, ?array $meta = null): Transaction {
+    public function deposit(float|int|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletServiceInterface::class)->deposit($wallet, $amount, $meta);
+        return app(WalletServiceInterface::class)->deposit($wallet, $amount, $meta, $uuid);
     }
 
     /**
@@ -183,7 +208,7 @@ trait WalletFunctions {
      * @see InsufficientFunds
      * @see RecordsNotFoundException
      */
-    public function withdraw(float|int|string $amount, ?array $meta = null): Transaction {
+    public function withdraw(float|int|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
@@ -204,12 +229,12 @@ trait WalletFunctions {
         return app(WalletServiceInterface::class)->unFreeze($wallet, $amount);
     }
 
-    public function transfer(Wallet $destination, float|int|string $amount, float|int|string $fee = 0, ?array $meta = null): Transfer {
+    public function transfer(Wallet $destination, float|int|string $amount, float|int|string $fee = 0, ?TransferExtraData $extra = null): Transfer {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
         $destination = app(CastServiceInterface::class)->getWallet($destination);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletServiceInterface::class)->transfer($wallet, $destination, $amount, $fee, $meta);
+        return app(WalletServiceInterface::class)->transfer($wallet, $destination, $amount, $fee, $extra);
     }
 
     /**
@@ -219,10 +244,9 @@ trait WalletFunctions {
      * It then checks if the withdrawal is possible using the consistency service.
      *
      * @param  float|int|string  $amount  The amount to be withdrawn.
-     * @param  bool  $allowZero  Flag to allow zero balance for withdrawal. Defaults to false.
      * @return bool Returns true if the withdrawal is possible; otherwise, false.
      */
-    public function canWithdraw(float|int|string $amount, bool $allowZero = false): bool {
+    public function canWithdraw(float|int|string $amount): bool {
         // Get the math service instance.
         $mathService = app(MathServiceInterface::class);
 
@@ -234,5 +258,28 @@ trait WalletFunctions {
 
         // Check if the withdrawal is possible.
         return app(ConsistencyServiceInterface::class)->canWithdraw($balance, $amount);
+    }
+
+    /**
+     * Returns all transactions related to the wallet.
+     *
+     * This method retrieves all transactions associated with the wallet.
+     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
+     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
+     * The method then uses the `hasMany` method on the wallet instance to retrieve all transactions related to the wallet.
+     * The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
+     * The relationship is defined using the `wallet_id` foreign key.
+     *
+     * @return HasMany<Transaction> Returns a `HasMany` relationship of transactions related to the wallet.
+     */
+    public function walletTransactions(): HasMany {
+        // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
+        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
+        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
+
+        // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
+        // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
+        // The relationship is defined using the `wallet_id` foreign key.
+        return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
     }
 }

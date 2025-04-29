@@ -111,9 +111,25 @@ class Transfer extends Model {
         return $mathService->floatValue($this->getRawAmount(), $this->decimal_places);
     }
 
+    public function getAmountFloatAttribute(): float {
+        return (float) $this->getAmountAttribute();
+    }
+
+    public function getAmountIntAttribute(): int {
+        return (int) $this->getAmountAttribute();
+    }
+
     public function getFeeAttribute(): string {
         $mathService = app(MathServiceInterface::class);
 
         return $mathService->floatValue($this->getRawFee(), $this->decimal_places);
+    }
+
+    public function getFeeFloatAttribute(): float {
+        return (float) $this->getFeeAttribute();
+    }
+
+    public function getFeeIntAttribute(): int {
+        return (int) $this->getFeeAttribute();
     }
 }

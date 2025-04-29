@@ -95,6 +95,8 @@ interface MathServiceInterface {
      */
     public function round(float|int|string $number, int $precision = 0): string;
 
+    public function scale(float|int|string $number, ?int $scale = null): string;
+
     /**
      * Get the floor value of a number.
      *

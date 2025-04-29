@@ -14,6 +14,7 @@ use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Data\WalletData;
 use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
@@ -110,25 +111,25 @@ readonly class WalletService implements WalletServiceInterface {
         return $wallet->getBalanceAttribute();
     }
 
-    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction {
-        return $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
+    public function deposit(Wallet $wallet, int|float|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+        return $this->atomic($wallet, function () use ($uuid, $meta, $amount, $wallet) {
             $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
 
-            return $this->transactionService->deposit($wallet, $amount, $meta);
+            return $this->transactionService->deposit($wallet, $amount, $meta, $uuid);
         });
     }
 
-    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null): Transaction {
-        return $this->atomic($wallet, function () use ($meta, $amount, $wallet) {
+    public function withdraw(Wallet $wallet, int|float|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+        return $this->atomic($wallet, function () use ($uuid, $meta, $amount, $wallet) {
             $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
 
-            return $this->transactionService->withdraw($wallet, $amount, $meta);
+            return $this->transactionService->withdraw($wallet, $amount, $meta, $uuid);
         });
     }
 
-    public function transfer(Wallet $from, Wallet $to, float|int|string $amount, float|int|string $fee = 0, ?array $meta = null): Transfer {
-        return $this->atomic([$from, $to], function () use ($from, $to, $fee, $meta, $amount) {
-            return $this->transferService->transfer($from, $to, $amount, $fee, $meta);
+    public function transfer(Wallet $from, Wallet $to, float|int|string $amount, float|int|string $fee = 0, ?TransferExtraData $extra = null): Transfer {
+        return $this->atomic([$from, $to], function () use ($from, $to, $fee, $extra, $amount) {
+            return $this->transferService->transfer($from, $to, $amount, $fee, $extra);
         });
     }
 

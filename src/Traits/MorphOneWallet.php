@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ArsamMe\Wallet\Traits;
 
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
