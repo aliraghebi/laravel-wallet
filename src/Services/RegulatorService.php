@@ -14,6 +14,7 @@ use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Events\WalletUpdatedEvent;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
+use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
 use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {
@@ -161,10 +162,12 @@ class RegulatorService implements RegulatorServiceInterface {
                 'balance' => $balanceChanged ? $balance : null,
                 'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
                 'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance),
-            ]);
+            ], fn ($value) => !is_null($value) && $value !== '');
+
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
             $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
+
         }
 
         if ($walletChanges !== []) {
@@ -177,7 +180,6 @@ class RegulatorService implements RegulatorServiceInterface {
 
             // create a key => value array where key is the `id` of wallet and value is created `checksum` for wallet
             $checksums = array_column($walletChanges, 'checksum', 'id');
-            $this->consistencyService->checkMultiWalletConsistency($checksums);
         }
 
         // Set wallet changes variable so we can use later in committed method.

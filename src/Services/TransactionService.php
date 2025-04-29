@@ -118,7 +118,8 @@ readonly class TransactionService implements TransactionServiceInterface {
         foreach ($objects as $object) {
             $amounts[$object->walletId] = $this->mathService->add(
                 $amounts[$object->walletId] ?? 0,
-                $object->amount
+                $object->amount,
+                0
             );
         }
 

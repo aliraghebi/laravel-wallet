@@ -73,17 +73,19 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             return null;
         }
 
+
         $dataToSign = [
             $uuid,
-            $this->mathService->scale($balance),
-            $this->mathService->scale($frozenAmount),
+            $this->mathService->scale($balance, 0),
+            $this->mathService->scale($frozenAmount, 0),
             $transactionsCount,
-            $this->mathService->scale($transactionsSum),
+            $this->mathService->scale($transactionsSum, 0),
         ];
 
         $stringToSign = implode('_', $dataToSign);
 
-        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+        $sig=  hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+        return $sig;
     }
 
     public function createTransactionChecksum(string $uuid, string $walletId, string $type, string|float|int $amount, DateTimeImmutable $createdAt): ?string {
@@ -156,6 +158,13 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
             $checksum = $checksums[$wallet[$column]];
             if ($checksum !== $expectedChecksum) {
+                dd([
+                    $wallet->uuid,
+                    $wallet->getRawOriginal('balance', 0),
+                    $wallet->getRawOriginal('frozen_amount', 0),
+                    $wallet->transactions_count,
+                    $wallet->transactions_sum,
+                ]);
                 throw new WalletConsistencyException(
                     'Wallet consistency could not be verified.',
                     ExceptionInterface::WALLET_INCONSISTENCY
