@@ -78,7 +78,7 @@ readonly class MathService implements MathServiceInterface {
     }
 
     public function compare(float|int|string $first, float|int|string $second): int {
-        return BigDecimal::of($first)->compareTo(BigDecimal::of($second))->stripTrailingZeros();
+        return BigDecimal::of($first)->compareTo(BigDecimal::of($second));
     }
 
     public function intValue(string|int|float $amount, int $decimalPlaces): string {
