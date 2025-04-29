@@ -70,15 +70,15 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function getBalance(Wallet $wallet): string {
-        return $this->mathService->add($this->bookkeeperService->getBalance($wallet), $this->getBalanceDiff($wallet));
+        return $this->mathService->add($this->bookkeeperService->getBalance($wallet), $this->getBalanceDiff($wallet), 0);
     }
 
     public function getFrozenAmount(Wallet $wallet): string {
-        return $this->mathService->add($this->bookkeeperService->getFrozenAmount($wallet), $this->getFrozenAmountDiff($wallet));
+        return $this->mathService->add($this->bookkeeperService->getFrozenAmount($wallet), $this->getFrozenAmountDiff($wallet), 0);
     }
 
     public function getAvailableBalance(Wallet $wallet): string {
-        $availableBalance = $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet));
+        $availableBalance = $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet), 0);
         if ($this->mathService->compare($availableBalance, 0) == -1) {
             $availableBalance = '0';
         }
@@ -92,7 +92,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->balance = $this->mathService->add($data->balance, $value);
+            $data->balance = $this->mathService->add($data->balance, $value, 0);
             $data->transactionsCount += $transactionCount;
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
@@ -113,7 +113,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->frozenAmount = $this->mathService->add($data->frozenAmount, $value);
+            $data->frozenAmount = $this->mathService->add($data->frozenAmount, $value, 0);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = new WalletStateData('0', $value, 0);
