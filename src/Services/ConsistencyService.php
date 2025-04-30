@@ -73,19 +73,17 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             return null;
         }
 
-
         $dataToSign = [
             $uuid,
-            $this->mathService->scale($balance, 0),
-            $this->mathService->scale($frozenAmount, 0),
+            $this->mathService->stripTrailingZeros($balance),
+            $this->mathService->stripTrailingZeros($frozenAmount),
             $transactionsCount,
-            $this->mathService->scale($transactionsSum, 0),
+            $this->mathService->stripTrailingZeros($transactionsSum),
         ];
 
         $stringToSign = implode('_', $dataToSign);
 
-        $sig=  hash_hmac('sha256', $stringToSign, $this->checksumSecret);
-        return $sig;
+        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
     }
 
     public function createTransactionChecksum(string $uuid, string $walletId, string $type, string|float|int $amount, DateTimeImmutable $createdAt): ?string {

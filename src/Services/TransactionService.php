@@ -39,6 +39,8 @@ readonly class TransactionService implements TransactionServiceInterface {
 
         $uuid ??= $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
+        $amount = $this->mathService->stripTrailingZeros($amount);
+
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
         return new TransactionData($uuid, $wallet->id, $type, $amount, $meta, $checksum, $time, $time);

@@ -97,6 +97,8 @@ interface MathServiceInterface {
 
     public function scale(float|int|string $number, ?int $scale = null): string;
 
+    public function stripTrailingZeros(string $number): string;
+
     /**
      * Get the floor value of a number.
      *

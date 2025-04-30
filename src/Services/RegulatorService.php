@@ -14,7 +14,6 @@ use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
 use ArsamMe\Wallet\Data\WalletStateData;
 use ArsamMe\Wallet\Events\WalletUpdatedEvent;
 use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
-use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
 use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {
@@ -93,7 +92,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->balance = $this->mathService->add($data->balance, $value, 0);
+            $data->balance = $this->mathService->add($data->balance, $value);
             $data->transactionsCount += $transactionCount;
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
@@ -114,7 +113,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->frozenAmount = $this->mathService->add($data->frozenAmount, $value, 0);
+            $data->frozenAmount = $this->mathService->add($data->frozenAmount, $value);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = new WalletStateData('0', $value, 0);
@@ -159,11 +158,10 @@ class RegulatorService implements RegulatorServiceInterface {
             // Fill wallet changes with new data.
             $walletChanges[$uuid] = array_filter([
                 'id' => $id,
-                'balance' => $balanceChanged ? $balance : null,
-                'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
+                'balance' => $balanceChanged ? $this->mathService->stripTrailingZeros($balance) : null,
+                'frozen_amount' => $frozenAmountChanged ? $this->mathService->stripTrailingZeros($frozenAmount) : null,
                 'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance),
             ], fn ($value) => !is_null($value) && $value !== '');
-
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
             $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
