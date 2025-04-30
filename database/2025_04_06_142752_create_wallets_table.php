@@ -19,8 +19,8 @@ return new class extends Migration {
             $table->decimal('frozen_amount', 64, 0)->default(0);
             $table->unsignedSmallInteger('decimal_places')->default(2);
             $table->string('checksum')->nullable();
-            $table->softDeletesTz();
-            $table->timestampsTz();
+            $table->softDeletes();
+            $table->timestamps();
 
             $table->unique(['holder_type', 'holder_id', 'slug']);
         });

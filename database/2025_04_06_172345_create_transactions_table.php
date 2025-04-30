@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->decimal('amount', 64, 0);
             $table->jsonb('meta')->nullable();
             $table->string('checksum')->nullable();
-            $table->softDeletesTz();
-            $table->timestampsTz();
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 
