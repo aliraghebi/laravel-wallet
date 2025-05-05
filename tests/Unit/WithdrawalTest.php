@@ -2,8 +2,8 @@
 
 namespace ArsamMe\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
-use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
+use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Test\Models\Transaction;
 use ArsamMe\Wallet\Test\TestCase;
 
@@ -36,7 +36,7 @@ final class WithdrawalTest extends TestCase {
     }
 
     public function test_withdrawal_insufficient_balance(): void {
-        self::expectException(InsufficientFunds::class);
+        self::expectException(InsufficientFundsException::class);
 
         $user = $this->createUser();
 
@@ -47,7 +47,7 @@ final class WithdrawalTest extends TestCase {
     }
 
     public function test_withdrawal_balance_empty() {
-        self::expectException(BalanceIsEmpty::class);
+        self::expectException(BalanceIsEmptyException::class);
 
         $user = $this->createUser();
 

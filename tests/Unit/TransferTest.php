@@ -5,8 +5,8 @@ namespace ArsamMe\Wallet\Test\Unit;
 use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Data\TransactionExtraData;
 use ArsamMe\Wallet\Data\TransferExtraData;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
-use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
+use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Test\TestCase;
@@ -195,7 +195,7 @@ final class TransferTest extends TestCase {
     }
 
     public function test_transfer_balance_empty() {
-        self::expectException(BalanceIsEmpty::class);
+        self::expectException(BalanceIsEmptyException::class);
 
         [$user1, $user2] = $this->createUser(2);
 
@@ -207,7 +207,7 @@ final class TransferTest extends TestCase {
     }
 
     public function test_transfer_insufficient_balance() {
-        self::expectException(InsufficientFunds::class);
+        self::expectException(InsufficientFundsException::class);
 
         [$user1, $user2] = $this->createUser(2);
 

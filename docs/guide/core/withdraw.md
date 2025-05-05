@@ -34,6 +34,6 @@ It is simple!
 There can be two situations:
 
 - The user's balance is zero, then we get an error
-  `ArsamMe\Wallet\Exceptions\BalanceIsEmpty`
+  `ArsamMe\Wallet\Exceptions\BalanceIsEmptyException`
 - If the balance is greater than zero, but it is not enough
-  `ArsamMe\Wallet\Exceptions\InsufficientFunds`
+  `ArsamMe\Wallet\Exceptions\InsufficientFundsException`

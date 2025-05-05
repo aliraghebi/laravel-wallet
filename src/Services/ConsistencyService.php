@@ -8,8 +8,8 @@ use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
-use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
+use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
 use DateTimeImmutable;
@@ -39,8 +39,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     }
 
     /**
-     * @throws BalanceIsEmpty
-     * @throws InsufficientFunds
+     * @throws BalanceIsEmptyException
+     * @throws InsufficientFundsException
      */
     public function checkPotential(Wallet $object, string $amount): void {
         $wallet = $this->castService->getWallet($object, false);
@@ -48,14 +48,14 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         $availableBalance = $wallet->getRawAvailableBalance();
 
         if (($this->mathService->compare($amount, 0) !== 0) && ($this->mathService->compare($balance, 0) === 0)) {
-            throw new BalanceIsEmpty(
+            throw new BalanceIsEmptyException(
                 'Balance is empty.',
                 ExceptionInterface::BALANCE_IS_EMPTY
             );
         }
 
         if (!$this->canWithdraw($availableBalance, $amount)) {
-            throw new InsufficientFunds(
+            throw new InsufficientFundsException(
                 'Insufficient funds.',
                 ExceptionInterface::INSUFFICIENT_FUNDS
             );

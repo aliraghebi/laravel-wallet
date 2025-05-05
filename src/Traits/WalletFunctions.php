@@ -10,8 +10,8 @@ use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Data\TransferExtraData;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmpty;
-use ArsamMe\Wallet\Exceptions\InsufficientFunds;
+use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
+use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Exceptions\TransactionFailedException;
@@ -204,8 +204,8 @@ trait WalletFunctions {
      * @see ConsistencyServiceInterface
      * @see TransactionFailedException
      * @see InvalidAmountException
-     * @see BalanceIsEmpty
-     * @see InsufficientFunds
+     * @see BalanceIsEmptyException
+     * @see InsufficientFundsException
      * @see RecordsNotFoundException
      */
     public function withdraw(float|int|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
