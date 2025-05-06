@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create($this->table(), function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             $table->uuid('uuid')->unique();
             $table->foreignId('from_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('to_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
