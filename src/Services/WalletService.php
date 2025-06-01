@@ -138,6 +138,7 @@ readonly class WalletService implements WalletServiceInterface {
             if ($amount != null) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
+                $this->consistencyService->checkPotential($wallet, $amount);
             }
 
             $this->regulatorService->freeze($wallet, $amount);
