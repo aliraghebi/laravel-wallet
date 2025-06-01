@@ -215,11 +215,11 @@ trait WalletFunctions {
         return app(WalletServiceInterface::class)->withdraw($wallet, $amount, $meta);
     }
 
-    public function freeze(float|int|string|null $amount = null): bool {
+    public function freeze(float|int|string|null $amount = null, bool $allowOverdraft = false): bool {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletServiceInterface::class)->freeze($wallet, $amount);
+        return app(WalletServiceInterface::class)->freeze($wallet, $amount, $allowOverdraft);
     }
 
     public function unFreeze(float|int|string|null $amount = null): bool {

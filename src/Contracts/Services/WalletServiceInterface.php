@@ -84,7 +84,7 @@ interface WalletServiceInterface {
 
     public function transfer(Wallet $from, Wallet $to, int|float|string $amount, int|float|string $fee = 0, ?TransferExtraData $extra = null): Transfer;
 
-    public function freeze(Wallet $wallet, int|float|string|null $amount = null): bool;
+    public function freeze(Wallet $wallet, int|float|string|null $amount = null, bool $allowOverdraft = false): bool;
 
     public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 

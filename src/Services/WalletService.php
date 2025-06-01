@@ -133,12 +133,14 @@ readonly class WalletService implements WalletServiceInterface {
         });
     }
 
-    public function freeze(Wallet $wallet, float|int|string|null $amount = null): bool {
-        return $this->atomic($wallet, function () use ($amount, $wallet) {
+    public function freeze(Wallet $wallet, float|int|string|null $amount = null, bool $allowOverdraft = false): bool {
+        return $this->atomic($wallet, function () use ($amount, $wallet, $allowOverdraft) {
             if ($amount != null) {
                 $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
                 $this->consistencyService->checkPositive($amount);
-                $this->consistencyService->checkPotential($wallet, $amount);
+                if (!$allowOverdraft) {
+                    $this->consistencyService->checkPotential($wallet, $amount);
+                }
             }
 
             $this->regulatorService->freeze($wallet, $amount);
