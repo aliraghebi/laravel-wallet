@@ -21,8 +21,8 @@ return new class extends Migration {
             $table->integer('decimal_places');
             $table->string('checksum')->nullable();
             $table->jsonb('meta')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
+            $table->softDeletesTz();
+            $table->timestampsTz();
         });
     }
 
