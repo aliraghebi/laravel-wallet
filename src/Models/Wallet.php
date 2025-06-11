@@ -12,27 +12,6 @@ use Illuminate\Support\Str;
 
 use function config;
 
-/**
- * Class Wallet.
- *
- * @property non-empty-string $uuid
- * @property class-string $holder_type
- * @property int|non-empty-string $holder_id
- * @property class-string $currency_type
- * @property int|non-empty-string $currency_id
- * @property string $name
- * @property string $slug
- * @property string $description
- * @property null|array $meta
- * @property int $decimal_places
- * @property Model $holder
- * @property string $currency
- * @property DateTimeInterface $created_at
- * @property DateTimeInterface $updated_at
- * @property DateTimeInterface $deleted_at
- *
- * @method int getKey()
- */
 class Wallet extends Model implements WalletContract {
     use SoftDeletes, WalletFunctions;
 
