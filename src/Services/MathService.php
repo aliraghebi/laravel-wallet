@@ -83,6 +83,6 @@ readonly class MathService implements MathServiceInterface {
     }
 
     public function floatValue(string|int|float $amount, int $decimalPlaces): string {
-        return (string) BigDecimal::ofUnscaledValue($amount, $decimalPlaces)->stripTrailingZeros();
+        return (string) BigDecimal::ofUnscaledValue($amount, $decimalPlaces);
     }
 }
