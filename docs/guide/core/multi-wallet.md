@@ -56,7 +56,7 @@ $wallet = $user->wallet;
 $sum = LaravelWallet::sumWallets([1, 2, $wallet]);
 
 // Sum wallets by their UUIDs
-$sum = LaravelWallet::sumWalletsByUuid([
+$sum = LaravelWallet::sumWalletsByUuids([
     'c97d8f76-b22a-42d2-b190-90a1c9f57671',
     '18b0cfb5-7fff-4205-9fd0-b8b682e9435e'
 ]);
