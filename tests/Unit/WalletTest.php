@@ -6,6 +6,7 @@ use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
+use ArsamMe\Wallet\Facades\LaravelWallet;
 use ArsamMe\Wallet\Test\Models\MyWallet;
 use ArsamMe\Wallet\Test\Models\Wallet;
 use ArsamMe\Wallet\Test\TestCase;
@@ -269,5 +270,101 @@ final class WalletTest extends TestCase {
         $wallet = $user->wallet;
 
         self::assertSame('hello world', $wallet->helloWorld());
+    }
+
+    public function test_sum_wallets_by_model() {
+        $user = $this->createUser();
+
+        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
+        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
+
+        $btcWallet->deposit(1000);
+        $ethWallet->deposit(2400);
+
+        self::assertSame($btcWallet->balance_int, 1000);
+        self::assertSame($ethWallet->balance_int, 2400);
+
+        self::assertSame($btcWallet->available_balance_int, 1000);
+
+        $btcWallet->freeze(400);
+        self::assertSame($btcWallet->available_balance_int, 600);
+
+        $sumResult = LaravelWallet::sumWallets([$btcWallet, $ethWallet]);
+
+        self::assertSame((int) $sumResult->balance, 3400);
+        self::assertSame((int) $sumResult->frozenAmount, 400);
+        self::assertSame((int) $sumResult->availableBalance, 3000);
+    }
+
+    public function test_sum_wallets_by_id() {
+        $user = $this->createUser();
+
+        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
+        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
+
+        $btcWallet->deposit(1000);
+        $ethWallet->deposit(2400);
+
+        self::assertSame($btcWallet->balance_int, 1000);
+        self::assertSame($ethWallet->balance_int, 2400);
+
+        self::assertSame($btcWallet->available_balance_int, 1000);
+
+        $btcWallet->freeze(400);
+        self::assertSame($btcWallet->available_balance_int, 600);
+
+        $sumResult = LaravelWallet::sumWallets([$btcWallet->id, $ethWallet->id]);
+
+        self::assertSame((int) $sumResult->balance, 3400);
+        self::assertSame((int) $sumResult->frozenAmount, 400);
+        self::assertSame((int) $sumResult->availableBalance, 3000);
+    }
+
+    public function test_sum_wallets_by_uuid() {
+        $user = $this->createUser();
+
+        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
+        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
+
+        $btcWallet->deposit(1000);
+        $ethWallet->deposit(2400);
+
+        self::assertSame($btcWallet->balance_int, 1000);
+        self::assertSame($ethWallet->balance_int, 2400);
+
+        self::assertSame($btcWallet->available_balance_int, 1000);
+
+        $btcWallet->freeze(400);
+        self::assertSame($btcWallet->available_balance_int, 600);
+
+        $sumResult = LaravelWallet::sumWalletsByUuids([$btcWallet->uuid, $ethWallet->uuid]);
+
+        self::assertSame((int) $sumResult->balance, 3400);
+        self::assertSame((int) $sumResult->frozenAmount, 400);
+        self::assertSame((int) $sumResult->availableBalance, 3000);
+    }
+
+    public function test_sum_wallets_by_slug() {
+        [$user1,$user2] = $this->createUser(2);
+
+        $user1Wallet = $user1->createWallet('BTC', decimalPlaces: 10);
+        $user2Wallet = $user2->createWallet('BTC', decimalPlaces: 8);
+
+        $user1Wallet->deposit(1000);
+        $user2Wallet->deposit(2400);
+
+        self::assertSame($user1Wallet->balance_int, 1000);
+        self::assertSame($user2Wallet->balance_int, 2400);
+
+        self::assertSame($user1Wallet->available_balance_int, 1000);
+
+        $user1Wallet->freeze(400);
+        self::assertSame($user1Wallet->available_balance_int, 600);
+
+        $sumResult = LaravelWallet::sumWalletsBySlug('btc');
+
+        self::assertSame((int) $sumResult->balance, 3400);
+        self::assertSame((int) $sumResult->frozenAmount, 400);
+        self::assertSame((int) $sumResult->availableBalance, 3000);
     }
 }

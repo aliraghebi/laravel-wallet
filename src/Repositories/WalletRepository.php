@@ -128,8 +128,12 @@ readonly class WalletRepository implements WalletRepositoryInterface {
         $balance = '0';
         $frozenAmount = '0';
         foreach ($results as $row) {
-            $balance = $this->mathService->add($balance, $this->mathService->floatValue($row->balance, $row->decimal_places));
-            $frozenAmount = $this->mathService->add($frozenAmount, $this->mathService->floatValue($row->frozen_amount, $row->decimal_places));
+            $rowBalance = $row->getRawOriginal('balance');
+            $rowFrozenAmount = $row->getRawOriginal('frozen_amount');
+            $rowDecimalPlaces = $row->getRawOriginal('decimal_places');
+
+            $balance = $this->mathService->add($balance, $this->mathService->floatValue($rowBalance, $rowDecimalPlaces));
+            $frozenAmount = $this->mathService->add($frozenAmount, $this->mathService->floatValue($rowFrozenAmount, $rowDecimalPlaces));
         }
         $availableBalance = $this->mathService->sub($balance, $frozenAmount);
 
