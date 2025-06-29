@@ -4,15 +4,18 @@ namespace ArsamMe\Wallet\Repositories;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
 use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
+use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Data\WalletData;
+use ArsamMe\Wallet\Data\WalletSumData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException as EloquentModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
-    public function __construct(private Wallet $wallet) {}
+    public function __construct(private Wallet $wallet, private readonly MathServiceInterface $mathService) {}
 
     public function createWallet(WalletData $data): Wallet {
         $instance = $this->wallet->newInstance($data->toArray());
@@ -105,5 +108,31 @@ readonly class WalletRepository implements WalletRepositoryInterface {
             ->withSum('walletTransactions as transactions_sum', 'amount')
             ->whereIn($column, $keys)
             ->get();
+    }
+
+    public function sumWallets(array $ids = [], array $uuids = [], array $slugs = []): WalletSumData {
+        $results = $this->wallet->newQuery()
+            ->select('decimal_places', DB::raw('SUM(balance) as balance'), DB::raw('SUM(frozen_amount) as frozen_amount'))
+            ->when(!empty($ids), function (Builder $query) use ($ids) {
+                $query->whereIn('id', $ids);
+            })
+            ->when(!empty($uuids), function (Builder $query) use ($uuids) {
+                $query->whereIn('uuid', $uuids);
+            })
+            ->when(!empty($slugs), function (Builder $query) use ($slugs) {
+                $query->whereIn('slug', $slugs);
+            })
+            ->groupBy('decimal_places')
+            ->get();
+
+        $balance = '0';
+        $frozenAmount = '0';
+        foreach ($results as $row) {
+            $balance = $this->mathService->add($balance, $this->mathService->floatValue($row->balance, $row->decimal_places));
+            $frozenAmount = $this->mathService->add($frozenAmount, $this->mathService->floatValue($row->frozen_amount, $row->decimal_places));
+        }
+        $availableBalance = $this->mathService->sub($balance, $frozenAmount);
+
+        return new WalletSumData($balance, $frozenAmount, $availableBalance);
     }
 }

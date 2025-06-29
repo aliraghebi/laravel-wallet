@@ -3,6 +3,7 @@
 namespace ArsamMe\Wallet\Contracts\Repositories;
 
 use ArsamMe\Wallet\Data\WalletData;
+use ArsamMe\Wallet\Data\WalletSumData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Wallet;
 use Illuminate\Support\Collection;
@@ -31,4 +32,6 @@ interface WalletRepositoryInterface {
     public function multiUpdate(array $data): bool;
 
     public function multiGet(array $keys, string $column = 'id'): Collection;
+
+    public function sumWallets(array $ids = [], array $uuids = [], array $slugs = []): WalletSumData;
 }

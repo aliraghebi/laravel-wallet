@@ -16,6 +16,7 @@ use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
 use ArsamMe\Wallet\Data\TransferExtraData;
 use ArsamMe\Wallet\Data\WalletData;
+use ArsamMe\Wallet\Data\WalletSumData;
 use ArsamMe\Wallet\Events\WalletCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
@@ -160,6 +161,31 @@ readonly class WalletService implements WalletServiceInterface {
 
             return true;
         });
+    }
+
+    public function sumWallets(array $wallets): WalletSumData {
+        $ids = [];
+        foreach ($wallets as $wallet) {
+            if ($wallet instanceof Model) {
+                $ids[] = $wallet->getKey();
+            } else {
+                $ids[] = $wallet;
+            }
+        }
+
+        return $this->walletRepository->sumWallets(ids: $ids);
+    }
+
+    public function sumWalletsByUuids(array $uuids): WalletSumData {
+        return $this->walletRepository->sumWallets(uuids: $uuids);
+    }
+
+    public function sumWalletsBySlug(array|string $slug): WalletSumData {
+        if (!is_array($slug)) {
+            $slug = [$slug];
+        }
+
+        return $this->walletRepository->sumWallets(slugs: $slug);
     }
 
     public function atomic(Collection|Wallet|array $wallets, $callback): mixed {

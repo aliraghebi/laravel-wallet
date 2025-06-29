@@ -4,6 +4,7 @@ namespace ArsamMe\Wallet\Contracts\Services;
 
 use ArsamMe\Wallet\Contracts\Models\Wallet;
 use ArsamMe\Wallet\Data\TransferExtraData;
+use ArsamMe\Wallet\Data\WalletSumData;
 use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
@@ -87,6 +88,12 @@ interface WalletServiceInterface {
     public function freeze(Wallet $wallet, int|float|string|null $amount = null, bool $allowOverdraft = false): bool;
 
     public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
+
+    public function sumWallets(array $wallets): WalletSumData;
+
+    public function sumWalletsByUuids(array $uuids): WalletSumData;
+
+    public function sumWalletsBySlug(string|array $slug): WalletSumData;
 
     public function atomic(Collection|Wallet|array $wallets, $callback): mixed;
 
