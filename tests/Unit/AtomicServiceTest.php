@@ -108,4 +108,34 @@ final class AtomicServiceTest extends TestCase {
         // Check that the balance of the wallet is 1000 units
         $this->assertSame(1000, $user->balance_int);
     }
+
+    public function test_multi_function() {
+        $user = $this->createUser();
+        $wallet = $user->wallet;
+
+        $atomic = app(AtomicServiceInterface::class);
+
+        $atomic->block($wallet, function () use ($wallet) {
+            $wallet->deposit(10000);
+            self::assertSame($wallet->balance_int, 10000);
+            self::assertSame($wallet->available_balance_int, 10000);
+
+            $wallet->freeze(5000);
+            self::assertSame($wallet->frozen_amount_int, 5000);
+            self::assertSame($wallet->available_balance_int, 5000);
+
+            $wallet->unFreeze(2000);
+            self::assertSame($wallet->frozen_amount_int, 3000);
+            self::assertSame($wallet->available_balance_int, 7000);
+
+            $wallet->withdraw(5000);
+            self::assertSame($wallet->balance_int, 5000);
+            self::assertSame($wallet->available_balance_int, 2000);
+        });
+
+
+        self::assertSame($wallet->balance_int, 5000);
+        self::assertSame($wallet->frozen_amount_int, 3000);
+        self::assertSame($wallet->available_balance_int, 2000);
+    }
 }

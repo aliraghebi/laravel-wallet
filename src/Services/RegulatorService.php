@@ -165,7 +165,6 @@ class RegulatorService implements RegulatorServiceInterface {
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
             $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
-
         }
 
         if ($walletChanges !== []) {
