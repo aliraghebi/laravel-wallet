@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet\Test\Unit;
 
+use ArsamMe\Wallet\Data\TransactionExtra;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
 use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Test\Models\Transaction;
@@ -66,9 +67,14 @@ final class WithdrawalTest extends TestCase {
         $user->deposit(1000);
         self::assertSame(1000, $user->balance_int);
 
-        $transaction = $user->withdraw(1000, [
-            'settlement_id' => 'AAE-284313',
-        ]);
+        $transaction = $user->withdraw(
+            1000,
+            new TransactionExtra(
+                meta: [
+                    'settlement_id' => 'AAE-284313',
+                ]
+            )
+        );
 
         self::assertTrue($transaction->exists);
         self::assertSame($transaction->meta['settlement_id'], 'AAE-284313');

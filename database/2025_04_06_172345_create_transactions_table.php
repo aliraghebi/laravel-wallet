@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->foreignId('wallet_id')->constrained($walletsTable)->cascadeOnUpdate()->cascadeOnDelete();
             $table->enum('type', ['deposit', 'withdraw'])->index();
             $table->decimal('amount', 64, 0);
+            $table->string('purpose', 64)->nullable()->index();
+            $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();
             $table->string('checksum')->nullable();
             $table->softDeletesTz();

@@ -41,6 +41,8 @@ class Transaction extends Model {
         'wallet_id',
         'type',
         'amount',
+        'purpose',
+        'description',
         'meta',
         'checksum',
         'created_at',

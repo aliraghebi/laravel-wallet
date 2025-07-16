@@ -9,7 +9,8 @@ use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Data\TransferExtraData;
+use ArsamMe\Wallet\Data\TransactionExtra;
+use ArsamMe\Wallet\Data\TransferExtra;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
 use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -179,15 +180,13 @@ trait WalletFunctions {
      * This method executes the deposit transaction within an atomic block to ensure data consistency.
      *
      * @param  float|int|string  $amount  The amount to deposit.
-     * @param  array|null  $meta  Additional metadata for the transaction. This can be used to store
-     *                            information about the type of deposit, the source of the funds, or any other relevant details.
      * @return Transaction The transaction object representing the deposit.
      */
-    public function deposit(float|int|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+    public function deposit(float|int|string $amount, ?TransactionExtra $extra = null): Transaction {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletServiceInterface::class)->deposit($wallet, $amount, $meta, $uuid);
+        return app(WalletServiceInterface::class)->deposit($wallet, $amount, $extra);
     }
 
     /**
@@ -197,7 +196,6 @@ trait WalletFunctions {
      * It checks if the withdrawal is possible before attempting it.
      *
      * @param  float|int|string  $amount  The amount to withdraw.
-     * @param  array|null  $meta  Additional information for the transaction.
      * @return Transaction The created transaction.
      *
      * @see AtomicServiceInterface
@@ -208,11 +206,11 @@ trait WalletFunctions {
      * @see InsufficientFundsException
      * @see RecordsNotFoundException
      */
-    public function withdraw(float|int|string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
+    public function withdraw(float|int|string $amount, ?TransactionExtra $extra = null): Transaction {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
 
         // Execute the deposit transaction within an atomic block to ensure data consistency.
-        return app(WalletServiceInterface::class)->withdraw($wallet, $amount, $meta);
+        return app(WalletServiceInterface::class)->withdraw($wallet, $amount, $extra);
     }
 
     public function freeze(float|int|string|null $amount = null, bool $allowOverdraft = false): bool {
@@ -229,7 +227,7 @@ trait WalletFunctions {
         return app(WalletServiceInterface::class)->unFreeze($wallet, $amount);
     }
 
-    public function transfer(Wallet $destination, float|int|string $amount, float|int|string $fee = 0, ?TransferExtraData $extra = null): Transfer {
+    public function transfer(Wallet $destination, float|int|string $amount, float|int|string $fee = 0, ?TransferExtra $extra = null): Transfer {
         $wallet = app(CastServiceInterface::class)->getWallet($this, false);
         $destination = app(CastServiceInterface::class)->getWallet($destination);
 

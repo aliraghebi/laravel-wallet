@@ -3,8 +3,8 @@
 namespace ArsamMe\Wallet\Test\Unit;
 
 use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Data\TransactionExtraData;
-use ArsamMe\Wallet\Data\TransferExtraData;
+use ArsamMe\Wallet\Data\TransactionExtra;
+use ArsamMe\Wallet\Data\TransferExtra;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
 use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -144,14 +144,14 @@ final class TransferTest extends TestCase {
         $depositUuid = $identityService->generate();
 
         // Transfer float amount to user2
-        $extra = new TransferExtraData(
+        $extra = new TransferExtra(
             uuid: $transferUuid,
             meta: ['description' => 'Transfer between users'],
-            deposit: new TransactionExtraData(
+            depositExtra: new TransactionExtra(
                 uuid: $depositUuid,
                 meta: ['from' => $user1->name]
             ),
-            withdrawal: new TransactionExtraData(
+            withdrawalExtra: new TransactionExtra(
                 uuid: $withdrawalUuid,
                 meta: ['reason' => 'debt']
             ),

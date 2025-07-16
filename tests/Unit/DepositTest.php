@@ -2,6 +2,7 @@
 
 namespace ArsamMe\Wallet\Test\Unit;
 
+use ArsamMe\Wallet\Data\TransactionExtra;
 use ArsamMe\Wallet\Test\Models\Transaction;
 use ArsamMe\Wallet\Test\TestCase;
 
@@ -41,9 +42,14 @@ final class DepositTest extends TestCase {
 
     public function test_deposit_with_meta() {
         $user = $this->createUser();
-        $transaction = $user->deposit(1000, [
-            'product_id' => 10009000,
-        ]);
+        $transaction = $user->deposit(
+            1000,
+            new TransactionExtra(
+                meta: [
+                    'product_id' => 10009000,
+                ]
+            )
+        );
 
         self::assertTrue($transaction->exists);
         self::assertSame($transaction->meta['product_id'], 10009000);

@@ -3,6 +3,7 @@
 namespace ArsamMe\Wallet\Contracts\Models;
 
 use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use ArsamMe\Wallet\Data\TransactionExtra;
 use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
 use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -15,8 +16,8 @@ interface Wallet {
     /**
      * Deposit the specified amount of money into the wallet.
      *
-     * @param  float|int|string  $amount  The amount to deposit.
-     * @param  array|null  $meta  Additional information for the transaction.
+     * @param float|int|string $amount The amount to deposit.
+     * @param TransactionExtra|null $extra
      * @return Transaction The created transaction.
      *
      * @throws InvalidAmountException If the amount is invalid.
@@ -24,13 +25,13 @@ interface Wallet {
      * @throws TransactionFailedException If the transaction fails.
      * @throws ExceptionInterface If an exception occurs.
      */
-    public function deposit(float|int|string $amount, ?array $meta = null): Transaction;
+    public function deposit(float|int|string $amount, ?TransactionExtra $extra = null): Transaction;
 
     /**
      * Withdraw the specified amount of money from the wallet.
      *
-     * @param  float|int|string  $amount  The amount to withdraw.
-     * @param  array|null  $meta  Additional information for the transaction.
+     * @param float|int|string $amount The amount to withdraw.
+     * @param TransactionExtra|null $extra
      * @return Transaction The created transaction.
      *
      * @throws InvalidAmountException If the amount is invalid.
@@ -40,7 +41,7 @@ interface Wallet {
      * @throws TransactionFailedException If the transaction fails.
      * @throws ExceptionInterface If an exception occurs.
      */
-    public function withdraw(float|int|string $amount, ?array $meta = null): Transaction;
+    public function withdraw(float|int|string $amount, ?TransactionExtra $extra = null): Transaction;
 
     /**
      * Checks if the wallet can safely withdraw the specified amount.

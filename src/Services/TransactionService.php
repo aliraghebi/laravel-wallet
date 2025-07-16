@@ -12,6 +12,7 @@ use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Data\TransactionData;
+use ArsamMe\Wallet\Data\TransactionExtra;
 use ArsamMe\Wallet\Events\TransactionCreatedEvent;
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Repositories\TransactionRepository;
@@ -28,7 +29,7 @@ readonly class TransactionService implements TransactionServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService,
     ) {}
 
-    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?array $meta = null, ?string $uuid = null): TransactionData {
+    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?TransactionExtra $extra = null): TransactionData {
         assert(in_array($type, [Transaction::TYPE_WITHDRAW, Transaction::TYPE_DEPOSIT]));
         $this->consistencyService->checkPositive($amount);
 
@@ -37,24 +38,24 @@ readonly class TransactionService implements TransactionServiceInterface {
             $amount = $this->mathService->negative($amount);
         }
 
-        $uuid ??= $this->identifierFactoryService->generate();
+        $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
         $amount = $this->mathService->stripTrailingZeros($amount);
 
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
-        return new TransactionData($uuid, $wallet->id, $type, $amount, $meta, $checksum, $time, $time);
+        return new TransactionData($uuid, $wallet->id, $type, $amount, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $time, $time);
     }
 
-    public function deposit(Wallet $wallet, string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $meta, $uuid);
+    public function deposit(Wallet $wallet, string $amount, ?TransactionExtra $extra = null): Transaction {
+        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $extra);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
         return current($transactions);
     }
 
-    public function withdraw(Wallet $wallet, string $amount, ?array $meta = null, ?string $uuid = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $meta, $uuid);
+    public function withdraw(Wallet $wallet, string $amount, ?TransactionExtra $extra = null): Transaction {
+        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $extra);
         $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
 
         return current($transactions);

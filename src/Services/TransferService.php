@@ -15,7 +15,7 @@ use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
 use ArsamMe\Wallet\Data\TransferData;
-use ArsamMe\Wallet\Data\TransferExtraData;
+use ArsamMe\Wallet\Data\TransferExtra;
 use ArsamMe\Wallet\Data\TransferLazyData;
 use ArsamMe\Wallet\Events\TransferCreatedEvent;
 use ArsamMe\Wallet\Exceptions\InvalidAmountException;
@@ -36,7 +36,7 @@ readonly class TransferService implements TransferServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService
     ) {}
 
-    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): TransferLazyData {
+    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtra $extra = null): TransferLazyData {
         $this->consistencyService->checkPositive($amount);
         $this->consistencyService->checkPositive($fee);
 
@@ -63,16 +63,14 @@ readonly class TransferService implements TransferServiceInterface {
             $from,
             Transaction::TYPE_WITHDRAW,
             $withdrawalAmount,
-            $extra?->withdrawal?->meta,
-            $extra?->withdrawal?->uuid
+            $extra?->withdrawalExtra,
         );
 
         $deposit = $this->transactionService->makeTransaction(
             $to,
             Transaction::TYPE_DEPOSIT,
             $depositAmount,
-            $extra?->deposit?->meta,
-            $extra?->deposit?->uuid
+            $extra?->depositExtra,
         );
 
         return new TransferLazyData(
@@ -91,7 +89,7 @@ readonly class TransferService implements TransferServiceInterface {
     /**
      * @throws ExceptionInterface
      */
-    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtraData $extra = null): Transfer {
+    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtra $extra = null): Transfer {
         $transfer = $this->makeTransfer($from, $to, $amount, $fee, $extra);
 
         $transfers = $this->apply([$transfer]);
