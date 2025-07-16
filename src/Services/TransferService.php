@@ -14,6 +14,7 @@ use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
 use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
+use ArsamMe\Wallet\Data\TransactionExtra;
 use ArsamMe\Wallet\Data\TransferData;
 use ArsamMe\Wallet\Data\TransferExtra;
 use ArsamMe\Wallet\Data\TransferLazyData;

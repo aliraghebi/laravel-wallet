@@ -29,6 +29,22 @@ $user->balance; // 90
 
 It is simple!
 
+## Advanced Usage
+In some cases, you may need to store additional information for a transaction, such as its purpose or a description. To handle this, you can pass an object of type `TransactionExtra`.
+```php
+$extra = new TransactionExtra(
+    uuid: '7eaa8494-0ce3-4640-819d-8934be5a9c05',
+    purpose: 'order',
+    description: 'User bought iPhone 16 with invoice number #15024254',
+    meta: [
+        'product_id' => 10124,
+        'product_variant_id' => 2141534,
+    ]
+);
+
+$user->withdraw(999, $extra);
+```
+
 ## And what will happen if the money is not enough?
 
 There can be two situations:
