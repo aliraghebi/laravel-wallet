@@ -34,7 +34,7 @@ In some cases, you may need to store additional information for a transaction, s
 ```php
 $extra = new TransactionExtra(
     uuid: '7eaa8494-0ce3-4640-819d-8934be5a9c05',
-    purpose: 'order',
+    purpose: 'order', // maximum 48 chars
     description: 'User bought iPhone 16 with invoice number #15024254',
     meta: [
         'product_id' => 10124,

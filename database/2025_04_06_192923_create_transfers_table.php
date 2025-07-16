@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->decimal('fee', 64, 0)->default(0);
             $table->integer('decimal_places');
             $table->string('checksum')->nullable();
+            $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();
             $table->softDeletesTz();

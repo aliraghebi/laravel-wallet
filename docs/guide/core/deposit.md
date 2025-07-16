@@ -38,7 +38,7 @@ handle this, you can pass an object of type `TransactionExtra`.
 ```php
 $extra = new TransactionExtra(
     uuid: '3cfe2a6c-9c43-4480-ba66-b3aff62c58b7',
-    purpose: 'gift',
+    purpose: 'gift', // maximum 48 chars
     description: 'Use won gift from campaign',
     meta: [
         'campaign_id' => 2589623

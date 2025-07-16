@@ -46,6 +46,8 @@ class Transfer extends Model {
         'amount',
         'fee',
         'decimal_places',
+        'purpose',
+        'description',
         'meta',
         'checksum',
         'created_at',
