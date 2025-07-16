@@ -35,6 +35,9 @@ Great! The balance is now 10 cents, the funds have been successfully added.
 In some cases, you may need to store additional information for a transaction, such as its purpose or a description. To
 handle this, you can pass an object of type `TransactionExtra`.
 
+- Passing a `uuid` helps prevent creating duplicate transactions, as it must be unique.
+- The `purpose` field is a string (up to 48 characters) that is indexed in the database, allowing you to efficiently query transactions by their purpose.
+
 ```php
 $extra = new TransactionExtra(
     uuid: '3cfe2a6c-9c43-4480-ba66-b3aff62c58b7',

@@ -78,3 +78,30 @@ $user1->transfer($user2, 10, fee: 5);
 ```
 
 It's simple!
+
+## Advanced Usage
+
+In some cases, you may need to store additional information for a transfer, such as its purpose or a description. To
+handle this, you can pass an object of type `TransferExtra`.
+
+- Passing a `uuid` helps prevent creating duplicate transfers, as it must be unique.
+- The `purpose` field is a string (up to 48 characters) that is indexed in the database, allowing you to efficiently
+  query transfers by their purpose.
+
+```php
+$depositExtra = new TransactionExtra(...);
+$withdrawalExtra = new TransactionExtra(...);
+
+$extra = new TransferExtra(
+    uuid: 'eef32865-9835-45b7-909b-ea41c4bf760c',
+    purpose: 'internal_transferred', // maximum 48 chars
+    description: 'Internal transfer between users',
+    meta: [
+        'transfer_feature_status' => 'some_status',
+    ],
+    depositExtra: $depositExtra, 
+    withdrawalExtra: $withdrawalExtra,
+);
+
+$user1->transfer($user2, 10, fee: 5, extra: $extra);
+```

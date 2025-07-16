@@ -30,7 +30,14 @@ $user->balance; // 90
 It is simple!
 
 ## Advanced Usage
-In some cases, you may need to store additional information for a transaction, such as its purpose or a description. To handle this, you can pass an object of type `TransactionExtra`.
+
+In some cases, you may need to store additional information for a transaction, such as its purpose or a description. To
+handle this, you can pass an object of type `TransactionExtra`.
+
+- Passing a `uuid` helps prevent creating duplicate transactions, as it must be unique.
+- The `purpose` field is a string (up to 48 characters) that is indexed in the database, allowing you to efficiently
+  query transactions by their purpose.
+
 ```php
 $extra = new TransactionExtra(
     uuid: '7eaa8494-0ce3-4640-819d-8934be5a9c05',
