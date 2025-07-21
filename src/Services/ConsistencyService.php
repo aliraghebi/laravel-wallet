@@ -156,13 +156,6 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
             $checksum = $checksums[$wallet[$column]];
             if ($checksum !== $expectedChecksum) {
-                dd([
-                    $wallet->uuid,
-                    $wallet->getRawOriginal('balance', 0),
-                    $wallet->getRawOriginal('frozen_amount', 0),
-                    $wallet->transactions_count,
-                    $wallet->transactions_sum,
-                ]);
                 throw new WalletConsistencyException(
                     'Wallet consistency could not be verified.',
                     ExceptionInterface::WALLET_INCONSISTENCY

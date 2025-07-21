@@ -52,6 +52,7 @@ use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionCommitting;
 use Illuminate\Database\Events\TransactionRolledBack;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -83,6 +84,24 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->publishes([
             dirname(__DIR__).'/database/' => database_path('migrations'),
         ], 'laravel-wallet-migrations');
+
+        Blueprint::macro('number', function (string $name, bool $nullable = false, ?int $default = 0) {
+            $type = config('wallet.number.type');
+            $digits = config('wallet.number.digits');
+            $decimalPlaces = config('wallet.number.decimal_places');
+
+            if ($type == 'big_integer') {
+                $this->bigInteger($name)->nullable($nullable)->default($default);
+            } elseif ($type == 'integer') {
+                $this->integer($name)->nullable($nullable)->default($default);
+            } elseif ($type == 'decimal') {
+                $this->decimal($name, $digits, $decimalPlaces)->nullable($nullable)->default($default);
+            } elseif ($type == 'unscaled') {
+                $this->decimal($name, $digits, 0)->nullable($nullable)->default($default);
+            } else {
+                throw new \InvalidArgumentException('number type is invalid');
+            }
+        });
     }
 
     /**
@@ -98,6 +117,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
 
     private function services(): void {
         $this->app->alias(StorageService::class, 'wallet.internal.storage');
+
         $this->app->when(StorageService::class)
             ->needs('$ttl')
             ->giveConfig('wallet.cache.ttl');

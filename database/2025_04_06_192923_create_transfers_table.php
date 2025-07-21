@@ -3,22 +3,27 @@
 use ArsamMe\Wallet\Models\Transaction;
 use ArsamMe\Wallet\Models\Transfer;
 use ArsamMe\Wallet\Models\Wallet;
+use ArsamMe\Wallet\WalletConfig;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create($this->table(), function (Blueprint $table) {
+        $config = app(WalletConfig::class);
+
+        Schema::create($config->transfer_table, function (Blueprint $table) use ($config) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->foreignId('from_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('to_id')->constrained($this->walletsTable())->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('deposit_id')->constrained($this->transactionTable())->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId('withdrawal_id')->constrained($this->transactionTable())->cascadeOnUpdate()->restrictOnDelete();
-            $table->decimal('amount', 64, 0)->default(0);
-            $table->decimal('fee', 64, 0)->default(0);
-            $table->integer('decimal_places');
+            $table->foreignId('from_id')->constrained($config->wallet_table)->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('to_id')->constrained($config->wallet_table)->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('deposit_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
+            $table->foreignId('withdrawal_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
+            $table->number('amount');
+            $table->number('fee');
+            if ($config->number_type == 'unscaled') {
+                $table->unsignedSmallInteger('decimal_places');
+            }
             $table->string('checksum')->nullable();
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();

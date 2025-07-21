@@ -1,20 +1,24 @@
 <?php
 
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Wallet;
+use ArsamMe\Wallet\WalletConfig;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        $walletsTable = $this->walletsTable();
-        Schema::create($this->table(), static function (Blueprint $table) use ($walletsTable) {
+        $config = app(WalletConfig::class);
+
+        Schema::create($config->transaction_table, static function (Blueprint $table) use ($config) {
             $table->id();
             $table->uuid()->unique();
-            $table->foreignId('wallet_id')->constrained($walletsTable)->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('wallet_id')->constrained($config->wallet_table)->cascadeOnUpdate()->cascadeOnDelete();
             $table->enum('type', ['deposit', 'withdraw'])->index();
-            $table->decimal('amount', 64, 0);
+            $table->number('amount');
+            $table->number('balance');
+            if ($config->number_type == 'unscaled') {
+                $table->unsignedSmallInteger('decimal_places');
+            }
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();
@@ -25,14 +29,8 @@ return new class extends Migration {
     }
 
     public function down(): void {
-        Schema::dropIfExists($this->table());
-    }
+        $config = app(WalletConfig::class);
 
-    private function table(): string {
-        return (new Transaction)->getTable();
-    }
-
-    private function walletsTable(): string {
-        return (new Wallet)->getTable();
+        Schema::dropIfExists($config->transaction_table);
     }
 };
