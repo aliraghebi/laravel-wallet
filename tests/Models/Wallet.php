@@ -1,5 +1,5 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Models;
+namespace AliRaghebi\Wallet\Test\Models;
 
-class Wallet extends \ArsamMe\Wallet\Models\Wallet {}
+class Wallet extends \AliRaghebi\Wallet\Models\Wallet {}

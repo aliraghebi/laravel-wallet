@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Data\WalletStateData;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Data\WalletStateData;
 
 /**
  * @api

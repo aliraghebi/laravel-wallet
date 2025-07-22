@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Data;
+namespace AliRaghebi\Wallet\Contracts\Data;
 
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;

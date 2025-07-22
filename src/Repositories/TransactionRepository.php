@@ -1,11 +1,11 @@
 <?php
 
-namespace ArsamMe\Wallet\Repositories;
+namespace AliRaghebi\Wallet\Repositories;
 
-use ArsamMe\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;
-use ArsamMe\Wallet\Data\TransactionData;
-use ArsamMe\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Contracts\Repositories\TransactionRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\JsonServiceInterface;
+use AliRaghebi\Wallet\Data\TransactionData;
+use AliRaghebi\Wallet\Models\Transaction;
 use Illuminate\Support\Collection;
 
 readonly class TransactionRepository implements TransactionRepositoryInterface {

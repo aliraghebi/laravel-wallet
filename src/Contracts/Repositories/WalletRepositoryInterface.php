@@ -1,11 +1,11 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Repositories;
+namespace AliRaghebi\Wallet\Contracts\Repositories;
 
-use ArsamMe\Wallet\Data\WalletData;
-use ArsamMe\Wallet\Data\WalletSumData;
-use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Models\Wallet;
+use AliRaghebi\Wallet\Data\WalletData;
+use AliRaghebi\Wallet\Data\WalletSumData;
+use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
+use AliRaghebi\Wallet\Models\Wallet;
 use Illuminate\Support\Collection;
 
 interface WalletRepositoryInterface {

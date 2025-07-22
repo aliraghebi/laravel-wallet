@@ -1,14 +1,14 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Data\TransferLazyData;
-use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
-use ArsamMe\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Data\TransferLazyData;
+use AliRaghebi\Wallet\Exceptions\RecordNotFoundException;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Models\Transfer;
 use Illuminate\Database\RecordsNotFoundException;
 
 interface TransferServiceInterface {

@@ -9,8 +9,8 @@ You can create an unlimited number of wallets, but the `slug` for each wallet sh
 Add the `HasWallet` trait's to model.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
-use ArsamMe\Wallet\Interfaces\Wallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Interfaces\Wallet;
 
 class User extends Model
 {
@@ -55,9 +55,9 @@ $myWallet->balanceFloatNum; // 1.00
 Is it possible to use the default wallet and multi-wallets at the same time? Yes.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
-use ArsamMe\Wallet\Traits\HasWallet;
-use ArsamMe\Wallet\Interfaces\Wallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Interfaces\Wallet;
 
 class User extends Model
 {

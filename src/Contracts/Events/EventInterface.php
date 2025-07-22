@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Events;
+namespace AliRaghebi\Wallet\Contracts\Events;
 
 /**
  * Interface EventInterface.

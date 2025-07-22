@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Test\Models\Transaction;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Test\Models\Transaction;
+use AliRaghebi\Wallet\Test\TestCase;
 
 /**
  * @internal

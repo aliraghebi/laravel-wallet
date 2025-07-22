@@ -1,8 +1,8 @@
 <?php
 
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Models\Wallet;
 
 return [
     /*

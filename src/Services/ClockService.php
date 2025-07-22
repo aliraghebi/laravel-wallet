@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
 use DateTimeImmutable;
 
 class ClockService implements ClockServiceInterface {

@@ -37,7 +37,7 @@ LaravelWallet::deposit($wallet, 1000);
 Add the `HasWallet` trait to model.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
 
 class User extends Model
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Facades;
+namespace AliRaghebi\Wallet\Facades;
 
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
 use Illuminate\Support\Facades\Facade as FacadesFacade;
 
 class LaravelWallet extends FacadesFacade {

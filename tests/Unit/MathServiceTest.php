@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Test\TestCase;
 use Brick\Math\Exception\NumberFormatException;
 use PHPUnit\Framework\Attributes\DataProvider;
 

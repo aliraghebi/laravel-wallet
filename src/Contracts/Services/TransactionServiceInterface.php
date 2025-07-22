@@ -1,11 +1,11 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Data\TransactionData;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Data\TransactionData;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Models\Transaction;
 
 interface TransactionServiceInterface {
     public function makeTransaction(Wallet $wallet, string $type, string $amount, ?TransactionExtra $extra = null): TransactionData;

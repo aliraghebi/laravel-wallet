@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
-use ArsamMe\Wallet\Test\Models\User;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\AtomicServiceInterface;
+use AliRaghebi\Wallet\Test\Models\User;
+use AliRaghebi\Wallet\Test\TestCase;
 use Exception;
 use Throwable;
 

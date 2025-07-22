@@ -1,13 +1,13 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Test\Models\Transaction;
-use ArsamMe\Wallet\Test\Models\Transfer;
-use ArsamMe\Wallet\Test\Models\Wallet;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Test\Models\Transaction;
+use AliRaghebi\Wallet\Test\Models\Transfer;
+use AliRaghebi\Wallet\Test\Models\Wallet;
+use AliRaghebi\Wallet\Test\TestCase;
 
 /**
  * @internal

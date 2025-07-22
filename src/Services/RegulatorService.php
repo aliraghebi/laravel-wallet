@@ -1,19 +1,19 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
-use ArsamMe\Wallet\Data\WalletStateData;
-use ArsamMe\Wallet\Events\WalletUpdatedEvent;
-use ArsamMe\Wallet\Exceptions\RecordNotFoundException;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\BookkeeperServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
+use AliRaghebi\Wallet\Data\WalletStateData;
+use AliRaghebi\Wallet\Events\WalletUpdatedEvent;
+use AliRaghebi\Wallet\Exceptions\RecordNotFoundException;
 use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {

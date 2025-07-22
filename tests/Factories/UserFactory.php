@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Factories;
+namespace AliRaghebi\Wallet\Test\Factories;
 
-use ArsamMe\Wallet\Test\Models\User;
+use AliRaghebi\Wallet\Test\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

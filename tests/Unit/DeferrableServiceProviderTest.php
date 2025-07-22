@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\LaravelWalletServiceProvider;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\LaravelWalletServiceProvider;
+use AliRaghebi\Wallet\Test\TestCase;
 use Illuminate\Contracts\Support\DeferrableProvider;
 
 /**

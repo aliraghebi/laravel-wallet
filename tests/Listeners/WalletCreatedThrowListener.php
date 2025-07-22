@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Listeners;
+namespace AliRaghebi\Wallet\Test\Listeners;
 
-use ArsamMe\Wallet\Events\WalletCreatedEvent;
-use ArsamMe\Wallet\Test\Exceptions\UnknownEventException;
+use AliRaghebi\Wallet\Events\WalletCreatedEvent;
+use AliRaghebi\Wallet\Test\Exceptions\UnknownEventException;
 
 final class WalletCreatedThrowListener {
     public function handle(WalletCreatedEvent $event): never {

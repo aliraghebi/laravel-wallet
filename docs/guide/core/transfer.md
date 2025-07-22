@@ -10,7 +10,7 @@ The transfer takes place between wallets.
 Prepare the model, add the `HasWallet` trait.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
 
 class User extends Model
 {
@@ -61,8 +61,8 @@ Implementing `Wallet` interface in your model allows you to transfer funds to th
 This way you can pass `$user` as a parameter to the `transfer` method.
 
 ```php
-use ArsamMe\Wallet\Traits\HasWallet;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
 
 class User extends Model implements Wallet
 {

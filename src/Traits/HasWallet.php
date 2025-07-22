@@ -1,12 +1,12 @@
 <?php
 
-namespace ArsamMe\Wallet\Traits;
+namespace AliRaghebi\Wallet\Traits;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
+use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;

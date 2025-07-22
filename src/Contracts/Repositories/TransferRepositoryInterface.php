@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Repositories;
+namespace AliRaghebi\Wallet\Contracts\Repositories;
 
-use ArsamMe\Wallet\Data\TransferData;
-use ArsamMe\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Data\TransferData;
+use AliRaghebi\Wallet\Models\Transfer;
 use Illuminate\Support\Collection;
 
 interface TransferRepositoryInterface {

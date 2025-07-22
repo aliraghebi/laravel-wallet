@@ -1,16 +1,16 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\BookkeeperServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Services\AtomicServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\BookkeeperServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\StateServiceInterface;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
 use Illuminate\Database\RecordsNotFoundException;
 
 /**

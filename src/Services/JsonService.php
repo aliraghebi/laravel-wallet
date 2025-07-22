@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\JsonServiceInterface;
 use Throwable;
 
 /**

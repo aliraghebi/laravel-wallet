@@ -1,11 +1,11 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Test\TestCase;
 use RuntimeException;
 
 /**

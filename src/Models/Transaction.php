@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Models;
+namespace AliRaghebi\Wallet\Models;
 
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

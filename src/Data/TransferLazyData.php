@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Data;
+namespace AliRaghebi\Wallet\Data;
 
-use ArsamMe\Wallet\Contracts\Data\BaseData;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Data\BaseData;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
 
 class TransferLazyData extends BaseData {
     public function __construct(

@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Data\WalletStateData;
+use AliRaghebi\Wallet\Data\WalletStateData;
 
 interface StateServiceInterface {
     /**

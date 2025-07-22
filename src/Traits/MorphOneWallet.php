@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Traits;
+namespace AliRaghebi\Wallet\Traits;
 
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 

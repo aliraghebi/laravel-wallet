@@ -1,15 +1,15 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Utils\Number;
+use AliRaghebi\Wallet\WalletConfig;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 
 readonly class MathService implements MathServiceInterface {
-    public function __construct(
-        private int $scale
-    ) {}
+    public function __construct(private WalletConfig $config) {}
 
     public function add(float|int|string $first, float|int|string $second, ?int $scale = null): string {
         return (string) BigDecimal::of($first)
@@ -84,5 +84,27 @@ readonly class MathService implements MathServiceInterface {
 
     public function floatValue(string|int|float $amount, int $decimalPlaces): string {
         return (string) BigDecimal::ofUnscaledValue($amount, $decimalPlaces);
+    }
+
+    public function normalize(string $number, ?int $decimalPlaces): string {
+        $type = $this->config->number_type;
+
+        if ($type == 'unscaled') {
+            assert($decimalPlaces != null);
+            $number = number($number)->toUnscaledValue($decimalPlaces);
+        }
+
+        return $number;
+    }
+
+    public function denormalize(string $number, ?int $decimalPlaces): string {
+        $type = $this->config->number_type;
+
+        if ($type == 'unscaled') {
+            assert($decimalPlaces != null);
+            $number = Number::ofUnscaledValue($number, $decimalPlaces);
+        }
+
+        return $number;
     }
 }

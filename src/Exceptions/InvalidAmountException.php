@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Exceptions;
+namespace AliRaghebi\Wallet\Exceptions;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use InvalidArgumentException;
 
 final class InvalidAmountException extends InvalidArgumentException implements ExceptionInterface {}

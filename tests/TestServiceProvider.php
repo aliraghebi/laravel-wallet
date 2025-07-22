@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Test;
+namespace AliRaghebi\Wallet\Test;
 
 use Illuminate\Support\ServiceProvider;
 

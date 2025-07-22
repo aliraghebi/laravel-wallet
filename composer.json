@@ -1,5 +1,5 @@
 {
-  "name": "arsamme/laravel-wallet",
+  "name": "aliraghebi/laravel-wallet",
   "description": "Virtual wallet implementation to use in Laravel projects.",
   "keywords": [
     "laravel",
@@ -12,7 +12,7 @@
     "wallet"
   ],
   "minimum-stability": "stable",
-  "homepage": "https://github.com/arsamme/laravel-wallet",
+  "homepage": "https://github.com/aliraghebi/laravel-wallet",
   "license": "MIT",
   "authors": [
     {
@@ -37,12 +37,15 @@
   },
   "autoload": {
     "psr-4": {
-      "ArsamMe\\Wallet\\": "src/"
-    }
+      "AliRaghebi\\Wallet\\": "src/"
+    },
+    "files": [
+      "src/Utils/helpers.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
-      "ArsamMe\\Wallet\\Test\\": "tests/"
+      "AliRaghebi\\Wallet\\Test\\": "tests/"
     }
   },
   "scripts": {
@@ -51,10 +54,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "ArsamMe\\Wallet\\LaravelWalletServiceProvider"
+        "AliRaghebi\\Wallet\\LaravelWalletServiceProvider"
       ],
       "aliases": {
-        "LaravelWallet": "ArsamMe\\Wallet\\Facades\\LaravelWallet"
+        "LaravelWallet": "AliRaghebi\\Wallet\\Facades\\LaravelWallet"
       }
     }
   },

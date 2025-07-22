@@ -57,6 +57,6 @@ $user->withdraw(999, $extra);
 There can be two situations:
 
 - The user's balance is zero, then we get an error
-  `ArsamMe\Wallet\Exceptions\BalanceIsEmptyException`
+  `AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException`
 - If the balance is greater than zero, but it is not enough
-  `ArsamMe\Wallet\Exceptions\InsufficientFundsException`
+  `AliRaghebi\Wallet\Exceptions\InsufficientFundsException`

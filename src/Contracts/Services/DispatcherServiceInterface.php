@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Events\EventInterface;
+use AliRaghebi\Wallet\Contracts\Events\EventInterface;
 
 /**
  * Service for dispatching events to the listeners.

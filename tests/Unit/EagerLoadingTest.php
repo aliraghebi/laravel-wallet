@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Test\Models\User;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Test\Models\User;
+use AliRaghebi\Wallet\Test\TestCase;
 use Illuminate\Database\Eloquent\Collection;
 
 /**

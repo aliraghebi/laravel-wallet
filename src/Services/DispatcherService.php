@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Events\EventInterface;
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
+use AliRaghebi\Wallet\Contracts\Events\EventInterface;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 
 final class DispatcherService implements DispatcherServiceInterface {

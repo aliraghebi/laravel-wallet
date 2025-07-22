@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Data;
+namespace AliRaghebi\Wallet\Data;
 
-use ArsamMe\Wallet\Contracts\Data\BaseData;
+use AliRaghebi\Wallet\Contracts\Data\BaseData;
 
 class WalletStateData extends BaseData {
     public function __construct(

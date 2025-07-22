@@ -1,15 +1,15 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
-use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
+use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
+use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Test\TestCase;
 
 /**
  * @internal

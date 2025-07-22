@@ -1,14 +1,14 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Models;
+namespace AliRaghebi\Wallet\Contracts\Models;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
-use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
-use ArsamMe\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
+use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
+use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Models\Transaction;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\RecordsNotFoundException;
 

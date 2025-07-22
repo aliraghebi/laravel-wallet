@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use Ramsey\Uuid\Exception\InvalidArgumentException;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Exception\UnsupportedOperationException;

@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
-use ArsamMe\Wallet\Test\Services\ClockFakeService;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Test\Services\ClockFakeService;
+use AliRaghebi\Wallet\Test\TestCase;
 use Illuminate\Database\Eloquent\Model;
 
 /**

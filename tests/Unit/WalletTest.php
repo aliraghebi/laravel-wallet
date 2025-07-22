@@ -1,15 +1,15 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Facades\LaravelWallet;
-use ArsamMe\Wallet\Test\Models\MyWallet;
-use ArsamMe\Wallet\Test\Models\Wallet;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
+use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
+use AliRaghebi\Wallet\Facades\LaravelWallet;
+use AliRaghebi\Wallet\Test\Models\MyWallet;
+use AliRaghebi\Wallet\Test\Models\Wallet;
+use AliRaghebi\Wallet\Test\TestCase;
 use Illuminate\Support\Facades\Config;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;

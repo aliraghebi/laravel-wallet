@@ -1,17 +1,17 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
-use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
-use ArsamMe\Wallet\Exceptions\WalletConsistencyException;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
+use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
+use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Exceptions\WalletConsistencyException;
 use DateTimeImmutable;
 
 /**

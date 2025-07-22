@@ -1,9 +1,9 @@
 <?php
 
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet;
-use ArsamMe\Wallet\WalletConfig;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Models\Wallet;
+use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,9 +21,7 @@ return new class extends Migration {
             $table->foreignId('withdrawal_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
             $table->number('amount');
             $table->number('fee');
-            if ($config->number_type == 'unscaled') {
-                $table->unsignedSmallInteger('decimal_places');
-            }
+            $table->unsignedSmallInteger('decimal_places')->nullable();
             $table->string('checksum')->nullable();
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();

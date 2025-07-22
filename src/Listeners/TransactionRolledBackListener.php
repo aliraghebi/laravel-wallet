@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Listeners;
+namespace AliRaghebi\Wallet\Listeners;
 
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 
 final class TransactionRolledBackListener {
     /**

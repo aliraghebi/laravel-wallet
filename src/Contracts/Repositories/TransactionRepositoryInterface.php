@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Repositories;
+namespace AliRaghebi\Wallet\Contracts\Repositories;
 
-use ArsamMe\Wallet\Data\TransactionData;
-use ArsamMe\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Data\TransactionData;
+use AliRaghebi\Wallet\Models\Transaction;
 use Illuminate\Support\Collection;
 
 interface TransactionRepositoryInterface {

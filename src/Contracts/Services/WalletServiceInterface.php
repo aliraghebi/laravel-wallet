@@ -1,15 +1,15 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Data\WalletSumData;
-use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Data\WalletSumData;
+use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;
-use ArsamMe\Wallet\Services\JsonService;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\JsonServiceInterface;
+use AliRaghebi\Wallet\Services\JsonService;
+use AliRaghebi\Wallet\Test\TestCase;
 
 /**
  * @internal

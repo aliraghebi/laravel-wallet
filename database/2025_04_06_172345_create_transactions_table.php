@@ -1,6 +1,6 @@
 <?php
 
-use ArsamMe\Wallet\WalletConfig;
+use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,9 +16,7 @@ return new class extends Migration {
             $table->enum('type', ['deposit', 'withdraw'])->index();
             $table->number('amount');
             $table->number('balance');
-            if ($config->number_type == 'unscaled') {
-                $table->unsignedSmallInteger('decimal_places');
-            }
+            $table->unsignedSmallInteger('decimal_places')->nullable();
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();

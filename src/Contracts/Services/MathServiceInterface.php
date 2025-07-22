@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
 use Brick\Math\Exception\DivisionByZeroException;
 
@@ -168,4 +168,8 @@ interface MathServiceInterface {
      * @return string The float value of the amount.
      */
     public function floatValue(string|int|float $amount, int $decimalPlaces): string;
+
+    public function normalize(string $number, ?int $decimalPlaces): string;
+
+    public function denormalize(string $number, ?int $decimalPlaces): string;
 }

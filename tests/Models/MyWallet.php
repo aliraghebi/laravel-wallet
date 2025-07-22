@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Models;
+namespace AliRaghebi\Wallet\Test\Models;
 
-use ArsamMe\Wallet\Models\Wallet;
+use AliRaghebi\Wallet\Models\Wallet;
 
 final class MyWallet extends Wallet {
     public function helloWorld(): string {

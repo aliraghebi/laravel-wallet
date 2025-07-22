@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Models;
+namespace AliRaghebi\Wallet\Test\Models;
 
-use ArsamMe\Wallet\Traits\HasWallet;
+use AliRaghebi\Wallet\Traits\HasWallet;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @method int getKey()
  */
-final class User extends Model implements \ArsamMe\Wallet\Contracts\Models\Wallet {
+final class User extends Model implements \AliRaghebi\Wallet\Contracts\Models\Wallet {
     use HasWallet;
 
     /**

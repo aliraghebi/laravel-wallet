@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Exceptions;
+namespace AliRaghebi\Wallet\Exceptions;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use UnderflowException;
 
 final class RecordNotFoundException extends UnderflowException implements ExceptionInterface {

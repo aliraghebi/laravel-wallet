@@ -1,11 +1,11 @@
 <?php
 
-namespace ArsamMe\Wallet\Repositories;
+namespace AliRaghebi\Wallet\Repositories;
 
-use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\JsonServiceInterface;
-use ArsamMe\Wallet\Data\TransferData;
-use ArsamMe\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Contracts\Repositories\TransferRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\JsonServiceInterface;
+use AliRaghebi\Wallet\Data\TransferData;
+use AliRaghebi\Wallet\Models\Transfer;
 use Illuminate\Support\Collection;
 
 readonly class TransferRepository implements TransferRepositoryInterface {

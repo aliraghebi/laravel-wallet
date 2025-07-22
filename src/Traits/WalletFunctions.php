@@ -1,24 +1,24 @@
 <?php
 
-namespace ArsamMe\Wallet\Traits;
+namespace AliRaghebi\Wallet\Traits;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Exceptions\BalanceIsEmptyException;
-use ArsamMe\Wallet\Exceptions\InsufficientFundsException;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
-use ArsamMe\Wallet\Exceptions\ModelNotFoundException;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Services\AtomicServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
+use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
+use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\RecordsNotFoundException;
 

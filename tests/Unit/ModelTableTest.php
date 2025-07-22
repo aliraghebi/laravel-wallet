@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Test\TestCase;
 
 /**
  * @internal

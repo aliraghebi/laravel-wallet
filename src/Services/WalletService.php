@@ -1,27 +1,27 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\AtomicServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\RegulatorServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\WalletServiceInterface;
-use ArsamMe\Wallet\Data\TransactionExtra;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Data\WalletData;
-use ArsamMe\Wallet\Data\WalletSumData;
-use ArsamMe\Wallet\Events\WalletCreatedEvent;
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
-use ArsamMe\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\AtomicServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\TransferServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
+use AliRaghebi\Wallet\Data\TransactionExtra;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Data\WalletData;
+use AliRaghebi\Wallet\Data\WalletSumData;
+use AliRaghebi\Wallet\Events\WalletCreatedEvent;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;

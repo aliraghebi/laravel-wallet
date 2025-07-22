@@ -1,8 +1,8 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Exceptions;
+namespace AliRaghebi\Wallet\Test\Exceptions;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use InvalidArgumentException;
 
 final class PriceNotSetException extends InvalidArgumentException implements ExceptionInterface {}

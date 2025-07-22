@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
-use ArsamMe\Wallet\Data\WalletStateData;
+use AliRaghebi\Wallet\Contracts\Services\StateServiceInterface;
+use AliRaghebi\Wallet\Data\WalletStateData;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Psr\SimpleCache\InvalidArgumentException;

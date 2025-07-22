@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
 interface JsonServiceInterface {
     /**

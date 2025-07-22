@@ -1,13 +1,13 @@
 <?php
 
-namespace ArsamMe\Wallet\Test;
+namespace AliRaghebi\Wallet\Test;
 
-use ArsamMe\Wallet\LaravelWalletServiceProvider;
-use ArsamMe\Wallet\Test\Factories\UserFactory;
-use ArsamMe\Wallet\Test\Models\Transaction;
-use ArsamMe\Wallet\Test\Models\Transfer;
-use ArsamMe\Wallet\Test\Models\User;
-use ArsamMe\Wallet\Test\Models\Wallet;
+use AliRaghebi\Wallet\LaravelWalletServiceProvider;
+use AliRaghebi\Wallet\Test\Factories\UserFactory;
+use AliRaghebi\Wallet\Test\Models\Transaction;
+use AliRaghebi\Wallet\Test\Models\Transfer;
+use AliRaghebi\Wallet\Test\Models\User;
+use AliRaghebi\Wallet\Test\Models\Wallet;
 use Illuminate\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;

@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet;
+namespace AliRaghebi\Wallet;
 
 use Illuminate\Support\Arr;
 

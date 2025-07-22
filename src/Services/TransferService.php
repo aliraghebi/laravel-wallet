@@ -1,27 +1,27 @@
 <?php
 
-namespace ArsamMe\Wallet\Services;
+namespace AliRaghebi\Wallet\Services;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Contracts\Repositories\TransferRepositoryInterface;
-use ArsamMe\Wallet\Contracts\Services\CastServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ClockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DatabaseServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\DispatcherServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\MathServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\TransactionServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\TransferServiceInterface;
-use ArsamMe\Wallet\Data\TransferData;
-use ArsamMe\Wallet\Data\TransferExtra;
-use ArsamMe\Wallet\Data\TransferLazyData;
-use ArsamMe\Wallet\Events\TransferCreatedEvent;
-use ArsamMe\Wallet\Exceptions\InvalidAmountException;
-use ArsamMe\Wallet\Exceptions\InvalidFeeException;
-use ArsamMe\Wallet\Models\Transaction;
-use ArsamMe\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Repositories\TransferRepositoryInterface;
+use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\TransferServiceInterface;
+use AliRaghebi\Wallet\Data\TransferData;
+use AliRaghebi\Wallet\Data\TransferExtra;
+use AliRaghebi\Wallet\Data\TransferLazyData;
+use AliRaghebi\Wallet\Events\TransferCreatedEvent;
+use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Exceptions\InvalidFeeException;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
 
 readonly class TransferService implements TransferServiceInterface {
     public function __construct(

@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Events;
+namespace AliRaghebi\Wallet\Events;
 
-use ArsamMe\Wallet\Contracts\Events\EventInterface;
-use ArsamMe\Wallet\Models\Wallet;
+use AliRaghebi\Wallet\Contracts\Events\EventInterface;
+use AliRaghebi\Wallet\Models\Wallet;
 use DateTimeImmutable;
 
 final readonly class WalletUpdatedEvent implements EventInterface {

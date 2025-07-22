@@ -1,9 +1,9 @@
 <?php
 
-namespace ArsamMe\Wallet\Test\Unit;
+namespace AliRaghebi\Wallet\Test\Unit;
 
-use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
-use ArsamMe\Wallet\Test\TestCase;
+use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
+use AliRaghebi\Wallet\Test\TestCase;
 use Illuminate\Support\Facades\DB;
 
 /**

@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Services;
+namespace AliRaghebi\Wallet\Contracts\Services;
 
-use ArsamMe\Wallet\Contracts\Exceptions\ExceptionInterface;
-use ArsamMe\Wallet\Contracts\Models\Wallet;
-use ArsamMe\Wallet\Exceptions\TransactionFailedException;
+use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
+use AliRaghebi\Wallet\Contracts\Models\Wallet;
+use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
 use Illuminate\Database\RecordsNotFoundException;
 
 /**

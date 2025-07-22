@@ -1,10 +1,10 @@
 <?php
 
-namespace ArsamMe\Wallet\Decorators;
+namespace AliRaghebi\Wallet\Decorators;
 
-use ArsamMe\Wallet\Contracts\Services\LockServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\StateServiceInterface;
-use ArsamMe\Wallet\Contracts\Services\StorageServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\StateServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
 
 readonly class StorageServiceLockDecorator implements StorageServiceInterface {
     public function __construct(

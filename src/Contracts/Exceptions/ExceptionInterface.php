@@ -1,6 +1,6 @@
 <?php
 
-namespace ArsamMe\Wallet\Contracts\Exceptions;
+namespace AliRaghebi\Wallet\Contracts\Exceptions;
 
 use Throwable;
 
