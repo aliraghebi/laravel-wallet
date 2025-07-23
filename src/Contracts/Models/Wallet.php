@@ -9,15 +9,13 @@ use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
 use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
 use AliRaghebi\Wallet\Models\Transaction;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\RecordsNotFoundException;
 
 interface Wallet {
     /**
      * Deposit the specified amount of money into the wallet.
      *
-     * @param float|int|string $amount The amount to deposit.
-     * @param TransactionExtra|null $extra
+     * @param  float|int|string  $amount  The amount to deposit.
      * @return Transaction The created transaction.
      *
      * @throws InvalidAmountException If the amount is invalid.
@@ -30,8 +28,7 @@ interface Wallet {
     /**
      * Withdraw the specified amount of money from the wallet.
      *
-     * @param float|int|string $amount The amount to withdraw.
-     * @param TransactionExtra|null $extra
+     * @param  float|int|string  $amount  The amount to withdraw.
      * @return Transaction The created transaction.
      *
      * @throws InvalidAmountException If the amount is invalid.
@@ -88,11 +85,4 @@ interface Wallet {
     public function getAvailableBalanceFloatAttribute(): float;
 
     public function getAvailableBalanceIntAttribute(): int;
-
-    /**
-     * Represents a relationship where a wallet has many transactions.
-     *
-     * @return HasMany<Transaction> A collection of transactions associated with this wallet.
-     */
-    public function walletTransactions(): HasMany;
 }

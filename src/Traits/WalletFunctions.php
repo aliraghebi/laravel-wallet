@@ -109,72 +109,6 @@ trait WalletFunctions {
     }
 
     /**
-     * Retrieves all transfers related to the wallet.
-     *
-     * This method retrieves all transfers associated with the wallet.
-     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
-     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
-     * The method then uses the `hasMany` method on the wallet instance to retrieve all transfers related to the wallet.
-     * The transfer model class is retrieved from the configuration using `config('wallet.transfer.model', Transfer::class)`.
-     * The relationship is defined using the `from_id` foreign key.
-     *
-     * @return HasMany<Transfer> The `HasMany` relationship object representing all transfers related to the wallet.
-     */
-    public function transfers(): HasMany {
-        // Retrieve the wallet instance associated with the current model.
-        // The `getWallet` method of the `CastServiceInterface` is used to retrieve the wallet instance.
-        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
-
-        // Retrieve all transfers associated with the wallet.
-        // The `hasMany` method is used on the wallet instance to retrieve all transfers related to the wallet.
-        // The transfer model class is retrieved from the configuration using `config('wallet.transfer.model', Transfer::class)`.
-        // The relationship is defined using the `from_id` foreign key.
-        return $wallet
-            ->hasMany(
-                // Retrieve the transfer model class from the configuration.
-                // The default value is `Transfer::class`.
-                config('wallet.transfer.model', Transfer::class),
-                // Define the foreign key for the relationship.
-                // The foreign key is `from_id`.
-                'from_id'
-            );
-    }
-
-    /**
-     * Retrieves all the receiving transfers to this wallet.
-     *
-     * This method retrieves all receiving transfers associated with the wallet.
-     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
-     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
-     * The method then uses the `hasMany` method on the wallet instance to retrieve all receiving transfers related to the wallet.
-     * The transfer model class is retrieved from the configuration using `config('wallet.transfer.model', Transfer::class)`.
-     * The relationship is defined using the `to_id` foreign key.
-     *
-     * @return HasMany<Transfer> The `HasMany` relationship object representing all receiving transfers related to the wallet.
-     */
-    public function receivedTransfers(): HasMany {
-        // Retrieve the wallet instance associated with the current model.
-        // The `getWallet` method of the `CastServiceInterface` is used to retrieve the wallet instance.
-        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
-
-        // Retrieve all receiving transfers associated with the wallet.
-        // The `hasMany` method is used on the wallet instance to retrieve all receiving transfers related to the wallet.
-        // The transfer model class is retrieved from the configuration using `config('wallet.transfer.model', Transfer::class)`.
-        // The relationship is defined using the `to_id` foreign key.
-        return $wallet
-            ->hasMany(
-                // Retrieve the transfer model class from the configuration.
-                // The default value is `Transfer::class`.
-                config('wallet.transfer.model', Transfer::class),
-                // Define the foreign key for the relationship.
-                // The foreign key is `to_id`.
-                'to_id'
-            );
-    }
-
-    /**
      * Deposit funds into the wallet.
      *
      * This method executes the deposit transaction within an atomic block to ensure data consistency.
@@ -256,28 +190,5 @@ trait WalletFunctions {
 
         // Check if the withdrawal is possible.
         return app(ConsistencyServiceInterface::class)->canWithdraw($balance, $amount);
-    }
-
-    /**
-     * Returns all transactions related to the wallet.
-     *
-     * This method retrieves all transactions associated with the wallet.
-     * It uses the `getWallet` method of the `CastServiceInterface` to retrieve the wallet instance.
-     * The `false` parameter indicates that the wallet should not be saved if it does not exist.
-     * The method then uses the `hasMany` method on the wallet instance to retrieve all transactions related to the wallet.
-     * The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
-     * The relationship is defined using the `wallet_id` foreign key.
-     *
-     * @return HasMany<Transaction> Returns a `HasMany` relationship of transactions related to the wallet.
-     */
-    public function walletTransactions(): HasMany {
-        // Retrieve the wallet instance using the `getWallet` method of the `CastServiceInterface`.
-        // The `false` parameter indicates that the wallet should not be saved if it does not exist.
-        $wallet = app(CastServiceInterface::class)->getWallet($this, false);
-
-        // Retrieve all transactions related to the wallet using the `hasMany` method on the wallet instance.
-        // The transaction model class is retrieved from the configuration using `config('wallet.transaction.model', Transaction::class)`.
-        // The relationship is defined using the `wallet_id` foreign key.
-        return $wallet->hasMany(config('wallet.transaction.model', Transaction::class), 'wallet_id');
     }
 }

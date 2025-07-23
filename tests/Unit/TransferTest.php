@@ -181,13 +181,13 @@ final class TransferTest extends TestCase {
             ->exists();
         self::assertTrue($receivedTransferExists);
 
-        $withdrawalExists = $user1->wallet->walletTransactions()
+        $withdrawalExists = $user1->wallet->transactions()
             ->where('uuid', $withdrawalUuid)
             ->where('meta->reason', 'debt')
             ->exists();
         self::assertTrue($withdrawalExists);
 
-        $depositExists = $user2->wallet->walletTransactions()
+        $depositExists = $user2->wallet->transactions()
             ->where('uuid', $depositUuid)
             ->where('meta->from', $user1->name)
             ->exists();

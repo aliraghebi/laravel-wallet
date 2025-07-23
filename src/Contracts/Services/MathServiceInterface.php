@@ -95,7 +95,6 @@ interface MathServiceInterface {
      */
     public function round(float|int|string $number, int $precision = 0): string;
 
-    public function scale(float|int|string $number, ?int $scale = null): string;
 
     public function stripTrailingZeros(string $number): string;
 
@@ -172,4 +171,6 @@ interface MathServiceInterface {
     public function normalize(string $number, ?int $decimalPlaces): string;
 
     public function denormalize(string $number, ?int $decimalPlaces): string;
+
+    public function scale(float|int|string $number, ?int $decimalPlaces = null): string;
 }

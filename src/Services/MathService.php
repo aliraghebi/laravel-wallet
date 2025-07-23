@@ -58,10 +58,6 @@ readonly class MathService implements MathServiceInterface {
         return (string) BigDecimal::of($number)->dividedBy(BigDecimal::one(), $precision, RoundingMode::HALF_UP);
     }
 
-    public function scale(float|int|string $number, ?int $scale = null): string {
-        return (string) BigDecimal::of($number)->toScale($scale ?? $this->scale, RoundingMode::DOWN);
-    }
-
     public function stripTrailingZeros(string $number): string {
         return (string) BigDecimal::of($number)->stripTrailingZeros();
     }
