@@ -14,9 +14,8 @@ return new class extends Migration {
             $table->uuid()->unique();
             $table->foreignId('wallet_id')->constrained($config->wallet_table)->cascadeOnUpdate()->cascadeOnDelete();
             $table->enum('type', ['deposit', 'withdraw'])->index();
-            $table->number('amount');
-            $table->number('balance');
-            $table->unsignedSmallInteger('decimal_places')->nullable();
+            $table->decimal('amount', $config->number_digits, $config->number_decimal_places);
+            $table->decimal('balance', $config->number_digits, $config->number_decimal_places);
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();

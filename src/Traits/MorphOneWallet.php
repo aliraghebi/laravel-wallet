@@ -54,8 +54,7 @@ trait MorphOneWallet {
                     'slug' => $slug, // Default wallet slug.
                     'meta' => config('wallet.wallet.default.meta', []), // Default wallet metadata.
                     'balance' => 0, // Default wallet balance.
-                    'frozen_amount' => 0,
-                    'decimal_places' => config('wallet.wallet.default.decimal_places', 2), // Default wallet decimal places.
+                    'frozen_amount' => 0
                 ]);
 
                 if ($model->exists) {

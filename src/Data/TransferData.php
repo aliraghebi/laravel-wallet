@@ -15,7 +15,6 @@ final class TransferData extends BaseData {
         public readonly int $toId,
         public readonly string $amount,
         public readonly string $fee,
-        public readonly int $decimalPlaces,
         public readonly ?string $purpose,
         public readonly ?string $description,
         public readonly ?array $meta,

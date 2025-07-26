@@ -2,7 +2,6 @@
 
 namespace AliRaghebi\Wallet\Models;
 
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,7 +44,6 @@ class Transfer extends Model {
         'to_id',
         'amount',
         'fee',
-        'decimal_places',
         'purpose',
         'description',
         'meta',
@@ -59,6 +57,8 @@ class Transfer extends Model {
      */
     public function casts(): array {
         return [
+            'amount' => 'string',
+            'fee' => 'string',
             'meta' => 'json',
         ];
     }
@@ -97,41 +97,5 @@ class Transfer extends Model {
      */
     public function withdrawal(): BelongsTo {
         return $this->belongsTo(config('wallet.transaction.model', Transaction::class), 'withdrawal_id');
-    }
-
-    public function getRawAmount(): string {
-        return (string) $this->getRawOriginal('amount', 0);
-    }
-
-    public function getRawFee(): string {
-        return (string) $this->getRawOriginal('fee', 0);
-    }
-
-    public function getAmountAttribute(): string {
-        $mathService = app(MathServiceInterface::class);
-
-        return $mathService->floatValue($this->getRawAmount(), $this->decimal_places);
-    }
-
-    public function getAmountFloatAttribute(): float {
-        return (float) $this->getAmountAttribute();
-    }
-
-    public function getAmountIntAttribute(): int {
-        return (int) $this->getAmountAttribute();
-    }
-
-    public function getFeeAttribute(): string {
-        $mathService = app(MathServiceInterface::class);
-
-        return $mathService->floatValue($this->getRawFee(), $this->decimal_places);
-    }
-
-    public function getFeeFloatAttribute(): float {
-        return (float) $this->getFeeAttribute();
-    }
-
-    public function getFeeIntAttribute(): int {
-        return (int) $this->getFeeAttribute();
     }
 }

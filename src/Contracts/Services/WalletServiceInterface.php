@@ -5,7 +5,6 @@ namespace AliRaghebi\Wallet\Contracts\Services;
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Data\TransferExtra;
-use AliRaghebi\Wallet\Data\WalletSumData;
 use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Models\Transfer;
@@ -89,12 +88,6 @@ interface WalletServiceInterface {
     public function freeze(Wallet $wallet, int|float|string|null $amount = null, bool $allowOverdraft = false): bool;
 
     public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
-
-    public function sumWallets(array $wallets): WalletSumData;
-
-    public function sumWalletsByUuids(array $uuids): WalletSumData;
-
-    public function sumWalletsBySlug(string|array $slug): WalletSumData;
 
     public function atomic(Collection|Wallet|array $wallets, $callback): mixed;
 

@@ -8,7 +8,6 @@ use AliRaghebi\Wallet\Contracts\Services\BookkeeperServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
 use AliRaghebi\Wallet\Data\WalletStateData;
@@ -24,7 +23,6 @@ class RegulatorService implements RegulatorServiceInterface {
     public function __construct(
         private readonly BookkeeperServiceInterface $bookkeeperService,
         private readonly StorageServiceInterface $storageService,
-        private readonly MathServiceInterface $mathService,
         private readonly LockServiceInterface $lockService,
         private readonly ConsistencyServiceInterface $consistencyService,
         private readonly WalletRepositoryInterface $walletRepository,
@@ -70,20 +68,29 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function getBalance(Wallet $wallet): string {
-        return $this->mathService->add($this->bookkeeperService->getBalance($wallet), $this->getBalanceDiff($wallet), 0);
+        $balance = $this->bookkeeperService->getBalance($wallet);
+        $diff = $this->getBalanceDiff($wallet);
+
+        return number($balance)->plus($diff)->toString();
     }
 
     public function getFrozenAmount(Wallet $wallet): string {
-        return $this->mathService->add($this->bookkeeperService->getFrozenAmount($wallet), $this->getFrozenAmountDiff($wallet), 0);
+        $frozen = $this->bookkeeperService->getFrozenAmount($wallet);
+        $diff = $this->getFrozenAmountDiff($wallet);
+
+        return number($frozen)->plus($diff)->toString();
     }
 
     public function getAvailableBalance(Wallet $wallet): string {
-        $availableBalance = $this->mathService->sub($this->getBalance($wallet), $this->getFrozenAmount($wallet), 0);
-        if ($this->mathService->compare($availableBalance, 0) == -1) {
-            $availableBalance = '0';
+        $balance = $this->getBalance($wallet);
+        $frozen = $this->getFrozenAmount($wallet);
+
+        $available = number($balance)->minus($frozen);
+        if ($available->isLessThan(0)) {
+            $available = '0';
         }
 
-        return $availableBalance;
+        return $available;
     }
 
     public function increase(Wallet $wallet, string $value, int $transactionCount = 1): string {
@@ -92,7 +99,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->balance = $this->mathService->add($data->balance, $value);
+            $data->balance = number($data->balance)->plus($value);
             $data->transactionsCount += $transactionCount;
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
@@ -104,7 +111,7 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function decrease(Wallet $wallet, string $value, int $transactionCount = 1): string {
-        return $this->increase($wallet, $this->mathService->negative($value), $transactionCount);
+        return $this->increase($wallet, number($value)->negated(), $transactionCount);
     }
 
     public function freeze(Wallet $wallet, ?string $value = null): string {
@@ -113,7 +120,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->frozenAmount = $this->mathService->add($data->frozenAmount, $value);
+            $data->frozenAmount = number($data->frozenAmount)->plus($value);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = new WalletStateData('0', $value, 0);
@@ -127,22 +134,20 @@ class RegulatorService implements RegulatorServiceInterface {
         $frozenAmount = $this->getFrozenAmount($wallet);
         if ($value == null) {
             $value = $frozenAmount;
-        } else {
-            if ($this->mathService->compare($value, $frozenAmount) == 1) {
-                $value = $frozenAmount;
-            }
+        } elseif (number($value)->isGreaterThan($frozenAmount)) {
+            $value = $frozenAmount;
         }
 
-        return $this->freeze($wallet, $this->mathService->negative($value));
+        return $this->freeze($wallet, number($value)->negated());
     }
 
     public function committing(): void {
         $walletChanges = [];
         $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
-            $balanceChanged = $this->mathService->compare($this->getBalanceDiff($wallet), 0) != 0;
-            $frozenAmountChanged = $this->mathService->compare($this->getFrozenAmountDiff($wallet), 0) != 0;
-            $transactionsCountChanged = $this->mathService->compare($this->getTransactionsCountDiff($wallet), 0) != 0;
+            $balanceChanged = !number($this->getBalanceDiff($wallet))->isEqual(0);
+            $frozenAmountChanged = !number($this->getFrozenAmountDiff($wallet))->isEqual(0);
+            $transactionsCountChanged = !number($this->getTransactionsCountDiff($wallet))->isEqual(0);
 
             // Check if no changes occurred to the wallet, then skip it
             if (!$balanceChanged && !$frozenAmountChanged && !$transactionsCountChanged) {
@@ -158,8 +163,8 @@ class RegulatorService implements RegulatorServiceInterface {
             // Fill wallet changes with new data.
             $walletChanges[$uuid] = array_filter([
                 'id' => $id,
-                'balance' => $balanceChanged ? $this->mathService->stripTrailingZeros($balance) : null,
-                'frozen_amount' => $frozenAmountChanged ? $this->mathService->stripTrailingZeros($frozenAmount) : null,
+                'balance' => $balanceChanged ? $balance : null,
+                'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
                 'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance),
             ], fn ($value) => !is_null($value) && $value !== '');
 

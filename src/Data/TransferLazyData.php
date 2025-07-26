@@ -12,7 +12,6 @@ class TransferLazyData extends BaseData {
         public readonly Wallet $toWallet,
         public readonly string $amount,
         public readonly string $fee,
-        public readonly int $decimalPlaces,
         public readonly TransactionData $withdrawalData,
         public readonly TransactionData $depositData,
         public readonly ?string $purpose,

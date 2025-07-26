@@ -7,47 +7,20 @@ use AliRaghebi\Wallet\Models\Wallet;
 return [
     /*
     |--------------------------------------------------------------------------
-    |  Numbers type and decimal count configuration
+    |  Number digits and decimal places used in migrations and calculations
     |--------------------------------------------------------------------------
-    |
-    | Control how numbers are saved in database.
     */
     'number' => [
         /*
-        | Specifies the database column type for storing numbers. Changing this setting after migrations and with existing
-        | data may cause data integrity issues.
-        |
-        | Supported Types are:
-        | - unscaled
-        |   Stores decimal values as unscaled integers. For example: 109.213 is stored as 109213.
-        |   When using this type, `digits` defines the length of the decimal column, and `decimal_places` is ignored
-        |   during migrations.
-        |   Note: `decimal_places` is only used as the default for `$decimalPlaces` when creating wallets.
-        |   Defining `$decimalPlaces` when creating a wallet is required; if not provided, the default value is used.
-        |
-        | - decimal
-        |   Stores decimal values directly in the database without conversion or scaling.
-        |   When using this type, both `digits` and `decimal_places` are applied during migrations.
-        |
-        | - big_integer
-        | - integer
-        |   For these types, `digits` and `decimal_places` are ignored. Numbers are stored as integers in the database
-        |   without modification.
-        */
-        'type' => 'unscaled',
-
-        /*
-        | Specifies the total number of digits for numbers stored as `decimal` or `unscaled` types, including both integer and
-        | fractional parts.
+        | Total number of digits used to store numbers in the database, including both integer and fractional parts.
         */
         'digits' => 64,
 
         /*
-        | Number of decimal places for `decimal` and `unscaled` types. Ignored for `big_integer` and `integer`.
-        | For `decimal`, defines the fractional digits in database tables.
-        | For `unscaled`, sets the default `$decimalPlaces` when creating a wallet if not specified.
+        | Number of decimal digits used for storing and calculating values.
+        | All numeric values will be scaled to the specified `decimal_places` to ensure data integrity and consistency.
         */
-        'decimal_places' => 0,
+        'decimal_places' => env('WALLET_DECIMAL_PLACES', 24),
     ],
 
     /*

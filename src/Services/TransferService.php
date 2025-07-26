@@ -11,15 +11,12 @@ use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransferServiceInterface;
 use AliRaghebi\Wallet\Data\TransferData;
 use AliRaghebi\Wallet\Data\TransferExtra;
 use AliRaghebi\Wallet\Data\TransferLazyData;
 use AliRaghebi\Wallet\Events\TransferCreatedEvent;
-use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
-use AliRaghebi\Wallet\Exceptions\InvalidFeeException;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Models\Transfer;
 
@@ -28,7 +25,6 @@ readonly class TransferService implements TransferServiceInterface {
         private TransactionServiceInterface $transactionService,
         private ConsistencyServiceInterface $consistencyService,
         private DatabaseServiceInterface $databaseService,
-        private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
         private TransferRepositoryInterface $transferRepository,
         private DispatcherServiceInterface $dispatcherService,
@@ -40,24 +36,11 @@ readonly class TransferService implements TransferServiceInterface {
         $this->consistencyService->checkPositive($amount);
         $this->consistencyService->checkPositive($fee);
 
-        if ($this->mathService->compare($amount, $fee) == -1) {
-            throw new InvalidFeeException('Fee can not be more than amount.');
-        }
-
         $from = $this->castService->getWallet($from);
         $to = $this->castService->getWallet($to);
 
-        $decimalPlaces = min($from->decimal_places, $to->decimal_places);
-        $amount = $this->mathService->scale($amount, $decimalPlaces);
-        if ($this->mathService->compare($amount, 0) === 0) {
-            throw new InvalidAmountException('This amount can not be transferred because of low decimal places on source or dest wallets.');
-        }
-
-        $withdrawalAmount = $this->mathService->intValue($this->mathService->add($amount, $fee), $from->decimal_places);
-        $depositAmount = $this->mathService->intValue($amount, $to->decimal_places);
-
-        $amount = $this->mathService->intValue($amount, $decimalPlaces);
-        $fee = $this->mathService->intValue($fee, $decimalPlaces);
+        $withdrawalAmount = number($amount)->plus($fee)->toString();
+        $depositAmount = $amount;
 
         $withdrawal = $this->transactionService->makeTransaction(
             $from,
@@ -79,7 +62,6 @@ readonly class TransferService implements TransferServiceInterface {
             $to,
             $amount,
             $fee,
-            $decimalPlaces,
             $withdrawal,
             $deposit,
             $extra?->purpose,
@@ -140,7 +122,6 @@ readonly class TransferService implements TransferServiceInterface {
                     $toWallet->getKey(),
                     $object->amount,
                     $object->fee,
-                    $object->decimalPlaces,
                     $object->purpose,
                     $object->description,
                     $object->meta,

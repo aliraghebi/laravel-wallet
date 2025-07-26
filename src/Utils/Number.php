@@ -156,22 +156,34 @@ class Number {
         return $this->value->compareTo($number->value);
     }
 
-    public function isLessThan(float|int|string|Number $number): bool {
-        $number = Number::of($number);
-
-        return $this->value->compareTo($number->value) == -1;
-    }
-
     public function isEqual(float|int|string|Number $number): bool {
         $number = Number::of($number);
 
         return $this->value->compareTo($number->value) == 0;
     }
 
+    public function isLessThan(float|int|string|Number $number): bool {
+        $number = Number::of($number);
+
+        return $this->value->compareTo($number->value) == -1;
+    }
+
+    public function isLessOrEqual(float|int|string|Number $number): bool {
+        $number = Number::of($number);
+
+        return $this->value->compareTo($number->value) != 1;
+    }
+
     public function isGreaterThan(float|int|string|Number $number): bool {
         $number = Number::of($number);
 
         return $this->value->compareTo($number) == 1;
+    }
+
+    public function isGreaterOrEqual(float|int|string|Number $number): bool {
+        $number = Number::of($number);
+
+        return $this->value->compareTo($number) != -1;
     }
 
     public function toUnscaledValue(?int $scale = null): string {

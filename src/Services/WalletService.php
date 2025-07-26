@@ -9,7 +9,6 @@ use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransferServiceInterface;
@@ -17,11 +16,11 @@ use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
 use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Data\TransferExtra;
 use AliRaghebi\Wallet\Data\WalletData;
-use AliRaghebi\Wallet\Data\WalletSumData;
 use AliRaghebi\Wallet\Events\WalletCreatedEvent;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Models\Transfer;
 use AliRaghebi\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -29,7 +28,6 @@ use Illuminate\Support\Str;
 readonly class WalletService implements WalletServiceInterface {
     public function __construct(
         private AtomicServiceInterface $atomicService,
-        private MathServiceInterface $mathService,
         private ConsistencyServiceInterface $consistencyService,
         private RegulatorServiceInterface $regulatorService,
         private WalletRepositoryInterface $walletRepository,
@@ -37,7 +35,8 @@ readonly class WalletService implements WalletServiceInterface {
         private DispatcherServiceInterface $dispatcherService,
         private TransferServiceInterface $transferService,
         private ClockServiceInterface $clockService,
-        private IdentifierFactoryServiceInterface $identifierFactoryService
+        private IdentifierFactoryServiceInterface $identifierFactoryService,
+        private WalletConfig $config
     ) {}
 
     public function createWallet(
@@ -115,7 +114,7 @@ readonly class WalletService implements WalletServiceInterface {
 
     public function deposit(Wallet $wallet, int|float|string $amount, ?TransactionExtra $extra = null): Transaction {
         return $this->atomic($wallet, function () use ($extra, $amount, $wallet) {
-            $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+            $amount = number($amount)->scale($this->config->number_decimal_places)->toString();
 
             return $this->transactionService->deposit($wallet, $amount, $extra);
         });
@@ -123,7 +122,7 @@ readonly class WalletService implements WalletServiceInterface {
 
     public function withdraw(Wallet $wallet, int|float|string $amount, ?TransactionExtra $extra = null): Transaction {
         return $this->atomic($wallet, function () use ($extra, $amount, $wallet) {
-            $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+            $amount = number($amount)->scale($this->config->number_decimal_places)->toString();
 
             return $this->transactionService->withdraw($wallet, $amount, $extra);
         });
@@ -138,7 +137,7 @@ readonly class WalletService implements WalletServiceInterface {
     public function freeze(Wallet $wallet, float|int|string|null $amount = null, bool $allowOverdraft = false): bool {
         return $this->atomic($wallet, function () use ($amount, $wallet, $allowOverdraft) {
             if ($amount != null) {
-                $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+                $amount = number($amount)->scale($this->config->number_decimal_places)->toString();
                 $this->consistencyService->checkPositive($amount);
                 if (!$allowOverdraft) {
                     $this->consistencyService->checkPotential($wallet, $amount);
@@ -154,7 +153,7 @@ readonly class WalletService implements WalletServiceInterface {
     public function unFreeze(Wallet $wallet, float|int|string|null $amount = null): bool {
         return $this->atomic($wallet, function () use ($amount, $wallet) {
             if ($amount != null) {
-                $amount = $this->mathService->intValue($amount, $wallet->decimal_places);
+                $amount = number($amount)->scale($this->config->number_decimal_places)->toString();
                 $this->consistencyService->checkPositive($amount);
             }
 
@@ -162,31 +161,6 @@ readonly class WalletService implements WalletServiceInterface {
 
             return true;
         });
-    }
-
-    public function sumWallets(array $wallets): WalletSumData {
-        $ids = [];
-        foreach ($wallets as $wallet) {
-            if ($wallet instanceof Model) {
-                $ids[] = $wallet->getKey();
-            } else {
-                $ids[] = $wallet;
-            }
-        }
-
-        return $this->walletRepository->sumWallets(ids: $ids);
-    }
-
-    public function sumWalletsByUuids(array $uuids): WalletSumData {
-        return $this->walletRepository->sumWallets(uuids: $uuids);
-    }
-
-    public function sumWalletsBySlug(array|string $slug): WalletSumData {
-        if (!is_array($slug)) {
-            $slug = [$slug];
-        }
-
-        return $this->walletRepository->sumWallets(slugs: $slug);
     }
 
     public function atomic(Collection|Wallet|array $wallets, $callback): mixed {

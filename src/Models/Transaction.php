@@ -2,7 +2,6 @@
 
 namespace AliRaghebi\Wallet\Models;
 
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +17,9 @@ use function config;
  * @property int $wallet_id
  * @property string $type
  * @property non-empty-string $amount
+ * @property non-empty-string $balance
+ * @property null|string $purpose
+ * @property null|string $description
  * @property null|array $meta
  * @property string $checksum
  * @property Wallet $wallet
@@ -41,6 +43,7 @@ class Transaction extends Model {
         'wallet_id',
         'type',
         'amount',
+        'balance',
         'purpose',
         'description',
         'meta',
@@ -54,6 +57,8 @@ class Transaction extends Model {
      */
     public function casts(): array {
         return [
+            'amount' => 'string',
+            'balance' => 'string',
             'meta' => 'json',
         ];
     }
@@ -71,27 +76,5 @@ class Transaction extends Model {
      */
     public function wallet(): BelongsTo {
         return $this->belongsTo(config('wallet.wallet.model', WalletModel::class));
-    }
-
-    public function getDecimalPlacesAttribute(): int {
-        return $this->wallet->decimal_places;
-    }
-
-    public function getRawAmount(): string {
-        return (string) $this->getRawOriginal('amount', 0);
-    }
-
-    public function getAmountAttribute(): string {
-        $math = app(MathServiceInterface::class);
-
-        return $math->floatValue($this->getRawAmount(), $this->decimal_places);
-    }
-
-    public function getAmountFloatAttribute(): float {
-        return (float) $this->getAmountAttribute();
-    }
-
-    public function getAmountIntAttribute(): int {
-        return (int) $this->getAmountAttribute();
     }
 }

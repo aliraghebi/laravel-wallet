@@ -32,6 +32,4 @@ interface WalletRepositoryInterface {
     public function multiUpdate(array $data): bool;
 
     public function multiGet(array $keys, string $column = 'id'): Collection;
-
-    public function sumWallets(array $ids = [], array $uuids = [], array $slugs = []): WalletSumData;
 }

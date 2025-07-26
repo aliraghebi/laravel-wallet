@@ -10,7 +10,7 @@ return new class extends Migration {
     public function up(): void {
         $config = app(WalletConfig::class);
 
-        Schema::create($config->wallet_table, static function (Blueprint $table) {
+        Schema::create($config->wallet_table, static function (Blueprint $table) use ($config) {
             $table->id();
             $table->uuid()->unique();
             $table->morphs('holder');
@@ -18,9 +18,8 @@ return new class extends Migration {
             $table->string('slug')->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();
-            $table->number('balance');
-            $table->number('frozen_amount');
-            $table->unsignedSmallInteger('decimal_places')->nullable();
+            $table->decimal('balance', $config->number_digits, $config->number_decimal_places);
+            $table->decimal('frozen_amount', $config->number_digits, $config->number_decimal_places);
             $table->string('checksum')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();

@@ -4,18 +4,15 @@ namespace AliRaghebi\Wallet\Repositories;
 
 use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Data\WalletData;
-use AliRaghebi\Wallet\Data\WalletSumData;
 use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
 use AliRaghebi\Wallet\Models\Wallet;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException as EloquentModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 readonly class WalletRepository implements WalletRepositoryInterface {
-    public function __construct(private Wallet $wallet, private readonly MathServiceInterface $mathService) {}
+    public function __construct(private Wallet $wallet) {}
 
     public function createWallet(WalletData $data): Wallet {
         $instance = $this->wallet->newInstance($data->toArray());
@@ -104,39 +101,9 @@ readonly class WalletRepository implements WalletRepositoryInterface {
 
     public function multiGet(array $keys, string $column = 'id'): Collection {
         return $this->wallet->newQuery()
-            ->withCount('walletTransactions as transactions_count')
-            ->withSum('walletTransactions as transactions_sum', 'amount')
+            ->withCount('transactions as transactions_count')
+            ->withSum('transactions as transactions_sum', 'amount')
             ->whereIn($column, $keys)
             ->get();
-    }
-
-    public function sumWallets(array $ids = [], array $uuids = [], array $slugs = []): WalletSumData {
-        $results = $this->wallet->newQuery()
-            ->select('decimal_places', DB::raw('SUM(balance) as balance'), DB::raw('SUM(frozen_amount) as frozen_amount'))
-            ->when(!empty($ids), function (Builder $query) use ($ids) {
-                $query->whereIn('id', $ids);
-            })
-            ->when(!empty($uuids), function (Builder $query) use ($uuids) {
-                $query->whereIn('uuid', $uuids);
-            })
-            ->when(!empty($slugs), function (Builder $query) use ($slugs) {
-                $query->whereIn('slug', $slugs);
-            })
-            ->groupBy('decimal_places')
-            ->get();
-
-        $balance = '0';
-        $frozenAmount = '0';
-        foreach ($results as $row) {
-            $rowBalance = $row->getRawOriginal('balance');
-            $rowFrozenAmount = $row->getRawOriginal('frozen_amount');
-            $rowDecimalPlaces = $row->getRawOriginal('decimal_places');
-
-            $balance = $this->mathService->add($balance, $this->mathService->floatValue($rowBalance, $rowDecimalPlaces));
-            $frozenAmount = $this->mathService->add($frozenAmount, $this->mathService->floatValue($rowFrozenAmount, $rowDecimalPlaces));
-        }
-        $availableBalance = $this->mathService->sub($balance, $frozenAmount);
-
-        return new WalletSumData($balance, $frozenAmount, $availableBalance);
     }
 }

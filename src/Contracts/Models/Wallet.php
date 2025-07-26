@@ -55,34 +55,9 @@ interface Wallet {
      *
      * @return non-empty-string The balance of the wallet.
      */
-    public function getRawBalance(): string;
-
-    /**
-     * Returns the balance of the wallet as a string.
-     *
-     * The balance is the total amount of funds held by the wallet.
-     *
-     * @return non-empty-string The balance of the wallet.
-     */
     public function getBalanceAttribute(): string;
-
-    public function getBalanceFloatAttribute(): float;
-
-    public function getBalanceIntAttribute(): int;
-
-    public function getRawFrozenAmount(): string;
 
     public function getFrozenAmountAttribute(): string;
 
-    public function getFrozenAmountFloatAttribute(): float;
-
-    public function getFrozenAmountIntAttribute(): int;
-
-    public function getRawAvailableBalance(): string;
-
     public function getAvailableBalanceAttribute(): string;
-
-    public function getAvailableBalanceFloatAttribute(): float;
-
-    public function getAvailableBalanceIntAttribute(): int;
 }

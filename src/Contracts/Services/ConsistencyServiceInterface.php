@@ -6,9 +6,6 @@ use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
 use DateTimeImmutable;
 
-/**
- * @api
- */
 interface ConsistencyServiceInterface {
     /**
      * Checks if the given amount is positive.
@@ -19,7 +16,7 @@ interface ConsistencyServiceInterface {
      *
      * @throws InvalidAmountException If the given amount is not positive.
      */
-    public function checkPositive(float|int|string $amount): void;
+    public function checkPositive(string $amount): void;
 
     public function checkPotential(Wallet $object, string $amount): void;
 
@@ -28,18 +25,17 @@ interface ConsistencyServiceInterface {
      *
      * This method returns true if the balance can be withdrawn, and false otherwise.
      *
-     * @param  float|int|string  $balance  The balance to check.
-     * @param  float|int|string  $amount  The amount to withdraw.
-     * @param  bool  $allowZero  Whether to allow zero amounts. Defaults to false.
+     * @param  string  $balance  The balance to check.
+     * @param  string  $amount  The amount to withdraw.
      * @return bool Returns true if the balance can be withdrawn, false otherwise.
      *
      * @throws InvalidAmountException If the given balance or amount is not positive.
      */
-    public function canWithdraw(float|int|string $balance, float|int|string $amount): bool;
+    public function canWithdraw(string $balance, string $amount): bool;
 
-    public function createWalletChecksum(string $uuid, string|float|int $balance, string|float|int $frozenAmount, int $transactionsCount, string|float|int $transactionsSum): ?string;
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string|float|int $amount, DateTimeImmutable $createdAt): ?string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeImmutable $createdAt): ?string;
 
     public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeImmutable $createdAt): ?string;
 

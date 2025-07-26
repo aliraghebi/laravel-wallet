@@ -19,9 +19,8 @@ return new class extends Migration {
             $table->foreignId('to_id')->constrained($config->wallet_table)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('deposit_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
             $table->foreignId('withdrawal_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
-            $table->number('amount');
-            $table->number('fee');
-            $table->unsignedSmallInteger('decimal_places')->nullable();
+            $table->decimal('amount', $config->number_digits, $config->number_decimal_places);
+            $table->decimal('fee', $config->number_digits, $config->number_decimal_places);
             $table->string('checksum')->nullable();
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();

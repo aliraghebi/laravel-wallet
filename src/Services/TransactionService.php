@@ -8,7 +8,6 @@ use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
 use AliRaghebi\Wallet\Data\TransactionData;
@@ -22,7 +21,6 @@ readonly class TransactionService implements TransactionServiceInterface {
         private TransactionRepository $transactionRepository,
         private RegulatorServiceInterface $regulatorService,
         private ConsistencyServiceInterface $consistencyService,
-        private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
         private DispatcherServiceInterface $dispatcherService,
         private ClockServiceInterface $clockService,
@@ -35,12 +33,11 @@ readonly class TransactionService implements TransactionServiceInterface {
 
         if ($type == Transaction::TYPE_WITHDRAW) {
             $this->consistencyService->checkPotential($wallet, $amount);
-            $amount = $this->mathService->negative($amount);
+            $amount = number($amount)->negated();
         }
 
         $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
-        $amount = $this->mathService->stripTrailingZeros($amount);
 
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
@@ -119,11 +116,7 @@ readonly class TransactionService implements TransactionServiceInterface {
     private function getSums(array $objects): array {
         $amounts = [];
         foreach ($objects as $object) {
-            $amounts[$object->walletId] = $this->mathService->add(
-                $amounts[$object->walletId] ?? 0,
-                $object->amount,
-                0
-            );
+            $amounts[$object->walletId] = number($amounts[$object->walletId] ?? 0)->plus($object->amount)->toString();
         }
 
         return $amounts;

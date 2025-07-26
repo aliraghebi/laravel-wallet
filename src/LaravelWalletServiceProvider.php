@@ -15,7 +15,6 @@ use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\JsonServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\StateServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
@@ -39,7 +38,6 @@ use AliRaghebi\Wallet\Services\DispatcherService;
 use AliRaghebi\Wallet\Services\IdentifierFactoryService;
 use AliRaghebi\Wallet\Services\JsonService;
 use AliRaghebi\Wallet\Services\LockService;
-use AliRaghebi\Wallet\Services\MathService;
 use AliRaghebi\Wallet\Services\RegulatorService;
 use AliRaghebi\Wallet\Services\StateService;
 use AliRaghebi\Wallet\Services\StorageService;
@@ -84,24 +82,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->publishes([
             dirname(__DIR__).'/database/' => database_path('migrations'),
         ], 'laravel-wallet-migrations');
-
-        Blueprint::macro('number', function (string $name, bool $nullable = false, ?int $default = 0) {
-            $type = config('wallet.number.type');
-            $digits = config('wallet.number.digits');
-            $decimalPlaces = config('wallet.number.decimal_places');
-
-            if ($type == 'big_integer') {
-                $this->bigInteger($name)->nullable($nullable)->default($default);
-            } elseif ($type == 'integer') {
-                $this->integer($name)->nullable($nullable)->default($default);
-            } elseif ($type == 'decimal') {
-                $this->decimal($name, $digits, $decimalPlaces)->nullable($nullable)->default($default);
-            } elseif ($type == 'unscaled') {
-                $this->decimal($name, $digits, 0)->nullable($nullable)->default($default);
-            } else {
-                throw new \InvalidArgumentException('number type is invalid');
-            }
-        });
     }
 
     /**
@@ -176,7 +156,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(IdentifierFactoryServiceInterface::class, IdentifierFactoryService::class);
         $this->app->singleton(JsonServiceInterface::class, JsonService::class);
         $this->app->singleton(LockServiceInterface::class, LockService::class);
-        $this->app->singleton(MathServiceInterface::class, MathService::class);
         $this->app->singleton(RegulatorServiceInterface::class, RegulatorService::class);
         $this->app->singleton(StateServiceInterface::class, StateService::class);
         $this->app->singleton(StorageServiceInterface::class, StorageService::class);
@@ -210,7 +189,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             IdentifierFactoryServiceInterface::class,
             JsonServiceInterface::class,
             LockServiceInterface::class,
-            MathServiceInterface::class,
             RegulatorServiceInterface::class,
             StateServiceInterface::class,
             StorageServiceInterface::class,

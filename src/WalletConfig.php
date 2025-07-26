@@ -5,7 +5,6 @@ namespace AliRaghebi\Wallet;
 use Illuminate\Support\Arr;
 
 /**
- * @property string $number_type
  * @property int $number_digits
  * @property int $number_decimal_places
  * @property bool $consistency_enabled

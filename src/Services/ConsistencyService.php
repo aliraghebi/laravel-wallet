@@ -7,7 +7,6 @@ use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
 use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
@@ -19,7 +18,6 @@ use DateTimeImmutable;
  */
 final readonly class ConsistencyService implements ConsistencyServiceInterface {
     public function __construct(
-        private MathServiceInterface $mathService,
         private CastServiceInterface $castService,
         private WalletRepositoryInterface $walletRepository,
         private bool $consistencyChecksumsEnabled,
@@ -29,8 +27,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     /**
      * @throws InvalidAmountException
      */
-    public function checkPositive(float|int|string $amount): void {
-        if ($this->mathService->compare($amount, 0) === -1) {
+    public function checkPositive(string $amount): void {
+        if (number($amount)->isLessThan(0)) {
             throw new InvalidAmountException(
                 'Amount must be positive.',
                 ExceptionInterface::AMOUNT_INVALID
@@ -44,10 +42,10 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      */
     public function checkPotential(Wallet $object, string $amount): void {
         $wallet = $this->castService->getWallet($object, false);
-        $balance = $wallet->getRawBalance();
-        $availableBalance = $wallet->getRawAvailableBalance();
+        $balance = $wallet->getBalanceAttribute();
+        $availableBalance = $wallet->getAvailableBalanceAttribute();
 
-        if (($this->mathService->compare($amount, 0) !== 0) && ($this->mathService->compare($balance, 0) === 0)) {
+        if (number($amount)->isGreaterThan(0) && number($balance)->isLessOrEqual(0)) {
             throw new BalanceIsEmptyException(
                 'Balance is empty.',
                 ExceptionInterface::BALANCE_IS_EMPTY
@@ -62,10 +60,8 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         }
     }
 
-    public function canWithdraw(float|int|string $balance, float|int|string $amount): bool {
-        $mathService = app(MathServiceInterface::class);
-
-        return $mathService->compare($balance, $amount) >= 0;
+    public function canWithdraw(string $balance, string $amount): bool {
+        return number($balance)->isGreaterOrEqual($amount);
     }
 
     public function createWalletChecksum(string $uuid, string|float|int $balance, string|float|int $frozenAmount, int $transactionsCount, string|float|int $transactionsSum): ?string {
@@ -75,10 +71,10 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
 
         $dataToSign = [
             $uuid,
-            $this->mathService->stripTrailingZeros($balance),
-            $this->mathService->stripTrailingZeros($frozenAmount),
+            number($balance)->toString(),
+            number($frozenAmount)->toString(),
             $transactionsCount,
-            $this->mathService->stripTrailingZeros($transactionsSum),
+            number($transactionsSum)->toString(),
         ];
 
         $stringToSign = implode('_', $dataToSign);
@@ -95,7 +91,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $uuid,
             $walletId,
             $type,
-            $this->mathService->scale($amount),
+            number($amount)->toString(),
             $createdAt->getTimestamp(),
         ];
 
