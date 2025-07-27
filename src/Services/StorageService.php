@@ -7,12 +7,11 @@ use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
 use AliRaghebi\Wallet\Exceptions\RecordNotFoundException;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 
-class StorageService implements StorageServiceInterface {
-    private const PREFIX = 'wallet_sg::';
-
+readonly class StorageService implements StorageServiceInterface {
     public function __construct(
-        private readonly CacheRepository $cacheRepository,
-        private readonly ?int $ttl
+        private CacheRepository $cacheRepository,
+        private ?int $ttl,
+        private string $prefix = 'wallet_sg::'
     ) {}
 
     public function flush(): bool {
@@ -20,7 +19,7 @@ class StorageService implements StorageServiceInterface {
     }
 
     public function forget(string $uuid): bool {
-        return $this->cacheRepository->forget(self::PREFIX.$uuid);
+        return $this->cacheRepository->forget($this->prefix.$uuid);
     }
 
     public function get(string $uuid): mixed {
@@ -36,7 +35,7 @@ class StorageService implements StorageServiceInterface {
     public function multiGet(array $uuids): array {
         $keys = [];
         foreach ($uuids as $uuid) {
-            $keys[self::PREFIX.$uuid] = $uuid;
+            $keys[$this->prefix.$uuid] = $uuid;
         }
 
         $missingKeys = [];
@@ -78,7 +77,7 @@ class StorageService implements StorageServiceInterface {
     public function multiSync(array $inputs): bool {
         $values = [];
         foreach ($inputs as $uuid => $value) {
-            $values[self::PREFIX.$uuid] = $value;
+            $values[$this->prefix.$uuid] = $value;
         }
 
         if (count($values) === 1) {

@@ -50,7 +50,6 @@ use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Database\Events\TransactionCommitting;
 use Illuminate\Database\Events\TransactionRolledBack;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -96,8 +95,7 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
     }
 
     private function services(): void {
-        $this->app->alias(StorageService::class, 'wallet.internal.storage');
-
+        $this->app->alias(StorageService::class, 'wallet.services.storage');
         $this->app->when(StorageService::class)
             ->needs('$ttl')
             ->giveConfig('wallet.cache.ttl');
@@ -105,10 +103,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->when(LockService::class)
             ->needs('$seconds')
             ->giveConfig('wallet.lock.seconds', 1);
-
-        $this->app->when(MathService::class)
-            ->needs('$scale')
-            ->giveConfig('wallet.math.scale', 64);
 
         $this->app->when(ConsistencyService::class)
             ->needs('$consistencyChecksumsEnabled')
@@ -123,10 +117,10 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs(StorageServiceInterface::class)
             ->give(function () {
                 return $this->app->make(
-                    'wallet.internal.storage',
+                    'wallet.services.storage',
                     [
-                        'cacheRepository' => $this->app->get(CacheFactory::class)
-                            ->store(config('wallet.cache.driver') ?? 'array'),
+                        'cacheRepository' => $this->app->get(CacheFactory::class)->store(config('wallet.cache.driver') ?? 'array'),
+                        'prefix' => 'bookkeeper_sg::',
                     ],
                 );
             });
@@ -139,9 +133,10 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs(StorageServiceInterface::class)
             ->give(function () {
                 return $this->app->make(
-                    'wallet.internal.storage',
+                    'wallet.services.storage',
                     [
                         'cacheRepository' => clone $this->app->make(CacheFactory::class)->store('array'),
+                        'prefix' => 'regulator_sg::',
                     ],
                 );
             });
@@ -158,7 +153,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
         $this->app->singleton(LockServiceInterface::class, LockService::class);
         $this->app->singleton(RegulatorServiceInterface::class, RegulatorService::class);
         $this->app->singleton(StateServiceInterface::class, StateService::class);
-        $this->app->singleton(StorageServiceInterface::class, StorageService::class);
         $this->app->singleton(TransactionServiceInterface::class, TransactionService::class);
         $this->app->singleton(TransferServiceInterface::class, TransferService::class);
         $this->app->singleton(WalletServiceInterface::class, WalletService::class);
@@ -191,7 +185,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             LockServiceInterface::class,
             RegulatorServiceInterface::class,
             StateServiceInterface::class,
-            StorageServiceInterface::class,
             TransactionServiceInterface::class,
             TransferServiceInterface::class,
             WalletServiceInterface::class,

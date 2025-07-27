@@ -8,8 +8,4 @@ use Illuminate\Support\Collection;
 
 interface TransferRepositoryInterface {
     public function create(TransferData $data): Transfer;
-
-    public function insertMultiple(array $transfers): void;
-
-    public function multiGet(array $keys, string $column = 'id'): Collection;
 }

@@ -12,13 +12,13 @@ use AliRaghebi\Wallet\Test\TestCase;
 final class DepositTest extends TestCase {
     public function test_deposit() {
         $user = $this->createUser();
-        self::assertSame(0, $user->balance_int);
+        self::assertSame(0, (int) $user->balance);
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $user->deposit(100);
-        self::assertSame(1100, $user->balance_int);
+        self::assertSame(1100, (int) $user->balance);
     }
 
     public function test_wallet_creation_with_deposit(): void {
@@ -32,12 +32,11 @@ final class DepositTest extends TestCase {
 
     public function test_deposit_float_amount() {
         $user = $this->createUser();
-        $wallet = $user->createWallet('btc', decimalPlaces: 20);
-        self::assertSame($wallet->decimal_places, 20);
+        $wallet = $user->createWallet('btc');
 
         $wallet->deposit('1.1234567890');
-        self::assertSame(1.1234567890, $wallet->balance_float);
-        self::assertSame('1.12345678900000000000', $wallet->balance);
+        self::assertSame(1.1234567890, (float) $wallet->balance);
+        self::assertSame('1.123456789', $wallet->balance);
     }
 
     public function test_deposit_with_meta() {

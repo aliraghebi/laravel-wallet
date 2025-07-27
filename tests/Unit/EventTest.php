@@ -40,7 +40,7 @@ final class EventTest extends TestCase {
         Event::listen(WalletUpdatedEvent::class, WalletUpdatedThrowIdListener::class);
 
         $user = $this->createUser();
-        self::assertSame(0, $user->wallet->balance_int); // no create wallet
+        self::assertSame(0, (int) $user->wallet->balance); // no create wallet
 
         $this->expectException(UnknownEventException::class);
         $this->expectExceptionMessage($user->wallet->uuid);
@@ -96,7 +96,7 @@ final class EventTest extends TestCase {
         Event::listen(TransactionCreatedEvent::class, TransactionCreatedThrowListener::class);
 
         $user = $this->createUser();
-        self::assertSame(0, $user->wallet->balance_int);
+        self::assertSame(0, (int) $user->wallet->balance);
 
         $createdAt = app(ClockServiceInterface::class)->now()->format(DateTimeInterface::ATOM);
 

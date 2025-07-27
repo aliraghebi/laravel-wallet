@@ -136,7 +136,6 @@ trait HasWallet {
     public function createWallet(
         ?string $name = null,
         ?string $slug = null,
-        ?int $decimalPlaces = null,
         ?string $description = null,
         ?array $meta = null,
         ?string $uuid = null
@@ -145,7 +144,7 @@ trait HasWallet {
         $holder = app(CastServiceInterface::class)->getHolder($this);
 
         // Create the wallet with the given data.
-        $wallet = app(WalletServiceInterface::class)->createWallet($holder, $name, $slug, $decimalPlaces, $description, $meta, $uuid);
+        $wallet = app(WalletServiceInterface::class)->createWallet($holder, $name, $slug, $description, $meta, $uuid);
 
         // Cache the wallet.
         $this->_wallets[$wallet->slug] = $wallet;

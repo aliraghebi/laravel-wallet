@@ -28,7 +28,7 @@ final class SilentlyDiscardingTest extends TestCase {
 
         self::assertTrue($user->relationLoaded('wallet'));
         self::assertTrue($user->wallet->exists);
-        self::assertSame(1, $user->balance_int);
+        self::assertSame(1, (int) $user->balance);
     }
 
     public function test_transfer_silently_discarding(): void {
@@ -36,11 +36,11 @@ final class SilentlyDiscardingTest extends TestCase {
         self::assertNotSame($first->getKey(), $second->getKey());
 
         self::assertNotNull($first->deposit(1000));
-        self::assertSame(1000, $first->balanceInt);
+        self::assertSame(1000, (int) $first->balance);
 
         self::assertNotNull($first->transfer($second, 500));
-        self::assertSame(500, $first->balanceInt);
-        self::assertSame(500, $second->balanceInt);
+        self::assertSame(500, (int) $first->balance);
+        self::assertSame(500, (int) $second->balance);
     }
 
     public function test_multi_wallet_silently_discarding(): void {

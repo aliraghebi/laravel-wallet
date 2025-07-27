@@ -12,7 +12,6 @@ class WalletData extends BaseData {
         public readonly int|string $holderId,
         public readonly string $name,
         public readonly string $slug,
-        public readonly int $decimalPlaces,
         public readonly ?string $description,
         public readonly ?array $meta,
         public readonly ?string $checksum,

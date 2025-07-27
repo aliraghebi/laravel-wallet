@@ -15,9 +15,7 @@ use AliRaghebi\Wallet\Contracts\Services\TransactionServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\TransferServiceInterface;
 use AliRaghebi\Wallet\Data\TransferData;
 use AliRaghebi\Wallet\Data\TransferExtra;
-use AliRaghebi\Wallet\Data\TransferLazyData;
 use AliRaghebi\Wallet\Events\TransferCreatedEvent;
-use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Models\Transfer;
 
 readonly class TransferService implements TransferServiceInterface {
@@ -32,7 +30,10 @@ readonly class TransferService implements TransferServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService
     ) {}
 
-    public function makeTransfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtra $extra = null): TransferLazyData {
+    /**
+     * @throws ExceptionInterface
+     */
+    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtra $extra = null): Transfer {
         $this->consistencyService->checkPositive($amount);
         $this->consistencyService->checkPositive($fee);
 
@@ -42,139 +43,43 @@ readonly class TransferService implements TransferServiceInterface {
         $withdrawalAmount = number($amount)->plus($fee)->toString();
         $depositAmount = $amount;
 
-        $withdrawal = $this->transactionService->makeTransaction(
-            $from,
-            Transaction::TYPE_WITHDRAW,
-            $withdrawalAmount,
-            $extra?->withdrawalExtra,
-        );
+        return $this->databaseService->transaction(function () use ($fee, $amount, $depositAmount, $to, $extra, $from, $withdrawalAmount): Transfer {
+            $withdrawal = $this->transactionService->withdraw($from, $withdrawalAmount, $extra?->withdrawalExtra);
+            $deposit = $this->transactionService->deposit($to, $depositAmount, $extra?->depositExtra);
 
-        $deposit = $this->transactionService->makeTransaction(
-            $to,
-            Transaction::TYPE_DEPOSIT,
-            $depositAmount,
-            $extra?->depositExtra,
-        );
+            $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
 
-        return new TransferLazyData(
-            $extra?->uuid ?? $this->identifierFactoryService->generate(),
-            $from,
-            $to,
-            $amount,
-            $fee,
-            $withdrawal,
-            $deposit,
-            $extra?->purpose,
-            $extra?->description,
-            $extra?->meta
-        );
-    }
+            $now = $this->clockService->now();
+            $checksum = $this->consistencyService->createTransferChecksum($uuid, $from->getKey(), $to->getKey(), $amount, $fee, $now);
 
-    /**
-     * @throws ExceptionInterface
-     */
-    public function transfer(Wallet $from, Wallet $to, string|float|int $amount, string|float|int $fee = 0, ?TransferExtra $extra = null): Transfer {
-        $transfer = $this->makeTransfer($from, $to, $amount, $fee, $extra);
+            $transfer = new TransferData(
+                $uuid,
+                $deposit->getKey(),
+                $withdrawal->getKey(),
+                $from->getKey(),
+                $to->getKey(),
+                $amount,
+                $fee,
+                $extra?->purpose,
+                $extra?->description,
+                $extra?->meta,
+                $checksum,
+                $now,
+                $now
+            );
 
-        $transfers = $this->apply([$transfer]);
+            $model = $this->transferRepository->create($transfer);
 
-        return current($transfers);
-    }
+            $model->setRelations([
+                'deposit' => $deposit,
+                'withdrawal' => $withdrawal,
+                'from' => $from->withoutRelations(),
+                'to' => $to->withoutRelations(),
+            ]);
 
-    public function apply(array $objects): array {
-        return $this->databaseService->transaction(function () use ($objects): array {
-            $wallets = [];
-            $operations = [];
-            foreach ($objects as $object) {
-                /** @var TransferLazyData $object */
-                $fromWallet = $this->castService->getWallet($object->fromWallet);
-                $wallets[$fromWallet->getKey()] = $fromWallet;
+            $this->dispatcherService->dispatch(TransferCreatedEvent::fromTransfer($model));
 
-                $toWallet = $this->castService->getWallet($object->toWallet);
-                $wallets[$toWallet->getKey()] = $toWallet;
-
-                $operations[] = $object->withdrawalData;
-                $operations[] = $object->depositData;
-            }
-
-            $transactions = $this->transactionService->apply($wallets, $operations);
-
-            $links = [];
-            $transfers = [];
-            foreach ($objects as $object) {
-                $withdraw = $transactions[$object->withdrawalData->uuid] ?? null;
-                assert($withdraw instanceof Transaction);
-
-                $deposit = $transactions[$object->depositData->uuid] ?? null;
-                assert($deposit instanceof Transaction);
-
-                $fromWallet = $this->castService->getWallet($object->fromWallet);
-                $toWallet = $this->castService->getWallet($object->toWallet);
-
-                $now = $this->clockService->now();
-                $checksum = $this->consistencyService->createTransferChecksum($object->uuid, $fromWallet->getKey(), $toWallet->getKey(), $object->amount, $object->fee, $now);
-
-                $transfer = new TransferData(
-                    $object->uuid,
-                    $deposit->getKey(),
-                    $withdraw->getKey(),
-                    $fromWallet->getKey(),
-                    $toWallet->getKey(),
-                    $object->amount,
-                    $object->fee,
-                    $object->purpose,
-                    $object->description,
-                    $object->meta,
-                    $checksum,
-                    $now,
-                    $now
-                );
-
-                $transfers[] = $transfer;
-                $links[$transfer->uuid] = [
-                    'deposit' => $deposit,
-                    'withdraw' => $withdraw,
-                    'from' => $fromWallet->withoutRelations(),
-                    'to' => $toWallet->withoutRelations(),
-                ];
-            }
-
-            $models = $this->insertMultiple($transfers);
-            foreach ($models as $model) {
-                $model->setRelations($links[$model->uuid] ?? []);
-                $this->dispatcherService->dispatch(TransferCreatedEvent::fromTransfer($model));
-            }
-
-            return $models;
+            return $model;
         });
-    }
-
-    /**
-     * @param  array<TransferData>  $objects
-     */
-    private function insertMultiple(array $objects) {
-        if (count($objects) === 1) {
-            $items = [$this->transferRepository->create(reset($objects))];
-        } else {
-            $this->transferRepository->insertMultiple($objects);
-            $uuids = $this->getUuids($objects);
-            $items = $this->transferRepository->multiGet($uuids, 'uuid');
-        }
-
-        assert($items !== []);
-
-        $results = [];
-        foreach ($items as $item) {
-            $results[$item->uuid] = $item;
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param  array<TransferData>  $objects
-     */
-    private function getUuids(array $objects): array {
-        return array_map(static fn ($object): string => $object->uuid, $objects);
     }
 }

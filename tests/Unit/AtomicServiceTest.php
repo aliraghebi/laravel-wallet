@@ -29,15 +29,15 @@ final class AtomicServiceTest extends TestCase {
                 ->map(fn ($fx) => $fx()),
         );
 
-        self::assertSame(1, $user2->transfers()->count());
-        self::assertSame(2, $user2->receivedTransfers()->count());
-        self::assertSame(2, $user1->transfers()->count());
-        self::assertSame(1, $user1->receivedTransfers()->count());
-        self::assertSame(3, $user2->transactions()->count());
-        self::assertSame(4, $user1->transactions()->count());
+        self::assertSame(1, $user2->wallet->transfers()->count());
+        self::assertSame(2, $user2->wallet->receivedTransfers()->count());
+        self::assertSame(2, $user1->wallet->transfers()->count());
+        self::assertSame(1, $user1->wallet->receivedTransfers()->count());
+        self::assertSame(3, $user2->wallet->transactions()->count());
+        self::assertSame(4, $user1->wallet->transactions()->count());
 
-        self::assertSame(500, $user1->balance_int);
-        self::assertSame(500, $user2->balance_int);
+        self::assertSame(500, (int) $user1->balance);
+        self::assertSame(500, (int) $user2->balance);
     }
 
     public function test_block_iter3(): void {
@@ -46,7 +46,7 @@ final class AtomicServiceTest extends TestCase {
         $user = $this->createUser();
         $iterations = 3;
 
-        self::assertSame(0, $user->balance_int);
+        self::assertSame(0, (int) $user->balance);
 
         for ($i = 1; $i <= $iterations; $i++) {
             $atomicService->block($user, function () use ($user) {
@@ -57,7 +57,7 @@ final class AtomicServiceTest extends TestCase {
             });
         }
 
-        self::assertSame($iterations * 2000, $user->balance_int);
+        self::assertSame($iterations * 2000, (int) $user->balance);
     }
 
     /**
@@ -76,7 +76,7 @@ final class AtomicServiceTest extends TestCase {
         $user->deposit(1000);
 
         // Check that the balance of the wallet is 1000 units
-        $this->assertSame(1000, $user->balance_int);
+        $this->assertSame(1000, (int) $user->balance);
 
         try {
             // Start an atomic block and attempt to withdraw 3000 units from the wallet
@@ -104,9 +104,9 @@ final class AtomicServiceTest extends TestCase {
         $userFromDb = User::find($user->getKey());
 
         // Check that the balance of the wallet is 1000 units
-        $this->assertSame(1000, $userFromDb->balance_int);
+        $this->assertSame(1000, (int) $userFromDb->balance);
         // Check that the balance of the wallet is 1000 units
-        $this->assertSame(1000, $user->balance_int);
+        $this->assertSame(1000, (int) $user->balance);
     }
 
     public function test_multi_function() {
@@ -117,25 +117,25 @@ final class AtomicServiceTest extends TestCase {
 
         $atomic->block($wallet, function () use ($wallet) {
             $wallet->deposit(10000);
-            self::assertSame($wallet->balance_int, 10000);
-            self::assertSame($wallet->available_balance_int, 10000);
+            self::assertSame((int) $wallet->balance, 10000);
+            self::assertSame((int) $wallet->available_balance, 10000);
 
             $wallet->freeze(5000);
-            self::assertSame($wallet->frozen_amount_int, 5000);
-            self::assertSame($wallet->available_balance_int, 5000);
+            self::assertSame((int) $wallet->frozen_amount, 5000);
+            self::assertSame((int) $wallet->available_balance, 5000);
 
             $wallet->unFreeze(2000);
-            self::assertSame($wallet->frozen_amount_int, 3000);
-            self::assertSame($wallet->available_balance_int, 7000);
+            self::assertSame((int) $wallet->frozen_amount, 3000);
+            self::assertSame((int) $wallet->available_balance, 7000);
 
             $wallet->withdraw(5000);
-            self::assertSame($wallet->balance_int, 5000);
-            self::assertSame($wallet->available_balance_int, 2000);
+            self::assertSame((int) $wallet->balance, 5000);
+            self::assertSame((int) $wallet->available_balance, 2000);
         });
 
 
-        self::assertSame($wallet->balance_int, 5000);
-        self::assertSame($wallet->frozen_amount_int, 3000);
-        self::assertSame($wallet->available_balance_int, 2000);
+        self::assertSame((int) $wallet->balance, 5000);
+        self::assertSame((int) $wallet->frozen_amount, 3000);
+        self::assertSame((int) $wallet->available_balance, 2000);
     }
 }

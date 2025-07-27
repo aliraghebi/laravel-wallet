@@ -39,10 +39,6 @@ interface RegulatorServiceInterface {
      */
     public function getFrozenAmountDiff(Wallet $wallet): string;
 
-    public function getTransactionsCountDiff(Wallet $wallet): int;
-
-    public function getTransactionsCount(Wallet $wallet): int;
-
     public function get(Wallet $wallet): WalletStateData;
 
     /**
@@ -84,7 +80,7 @@ interface RegulatorServiceInterface {
      * @param  non-empty-string  $value  The amount to increase the stored value by.
      * @return non-empty-string The updated stored value, formatted as a string with the same decimal places as the wallet.
      */
-    public function increase(Wallet $wallet, string $value, int $transactionCount = 1): string;
+    public function increase(Wallet $wallet, string $value): string;
 
     /**
      * Decrease the stored value for the given wallet by the given amount.
@@ -95,7 +91,7 @@ interface RegulatorServiceInterface {
      * @param  string  $value  The amount to decrease the stored value by.
      * @return string The updated stored value, formatted as a string with the same decimal places as the wallet.
      */
-    public function decrease(Wallet $wallet, string $value, int $transactionCount = 1): string;
+    public function decrease(Wallet $wallet, string $value): string;
 
     public function freeze(Wallet $wallet, ?string $value = null): string;
 

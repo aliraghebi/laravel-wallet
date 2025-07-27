@@ -51,18 +51,6 @@ class RegulatorService implements RegulatorServiceInterface {
         }
     }
 
-    public function getTransactionsCountDiff(Wallet $wallet): int {
-        try {
-            return $this->get($wallet)->transactionsCount;
-        } catch (RecordNotFoundException) {
-            return 0;
-        }
-    }
-
-    public function getTransactionsCount(Wallet $wallet): int {
-        return $this->bookkeeperService->getTransactionsCount($wallet) + $this->getTransactionsCountDiff($wallet);
-    }
-
     public function get(Wallet $wallet): WalletStateData {
         return $this->storageService->get($wallet->uuid);
     }
@@ -93,25 +81,23 @@ class RegulatorService implements RegulatorServiceInterface {
         return $available;
     }
 
-    public function increase(Wallet $wallet, string $value, int $transactionCount = 1): string {
-        assert($transactionCount > 0);
+    public function increase(Wallet $wallet, string $value): string {
         $this->persist($wallet);
 
         try {
             $data = $this->get($wallet);
             $data->balance = number($data->balance)->plus($value);
-            $data->transactionsCount += $transactionCount;
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
-            $data = new WalletStateData($value, '0', $transactionCount);
+            $data = new WalletStateData($value, '0');
             $this->storageService->sync($wallet->uuid, $data);
         }
 
         return $this->getBalance($wallet);
     }
 
-    public function decrease(Wallet $wallet, string $value, int $transactionCount = 1): string {
-        return $this->increase($wallet, number($value)->negated(), $transactionCount);
+    public function decrease(Wallet $wallet, string $value): string {
+        return $this->increase($wallet, number($value)->negated());
     }
 
     public function freeze(Wallet $wallet, ?string $value = null): string {
@@ -123,7 +109,7 @@ class RegulatorService implements RegulatorServiceInterface {
             $data->frozenAmount = number($data->frozenAmount)->plus($value);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
-            $data = new WalletStateData('0', $value, 0);
+            $data = new WalletStateData('0', $value);
             $this->storageService->sync($wallet->uuid, $data);
         }
 
@@ -147,10 +133,9 @@ class RegulatorService implements RegulatorServiceInterface {
         foreach ($this->wallets as $wallet) {
             $balanceChanged = !number($this->getBalanceDiff($wallet))->isEqual(0);
             $frozenAmountChanged = !number($this->getFrozenAmountDiff($wallet))->isEqual(0);
-            $transactionsCountChanged = !number($this->getTransactionsCountDiff($wallet))->isEqual(0);
 
             // Check if no changes occurred to the wallet, then skip it
-            if (!$balanceChanged && !$frozenAmountChanged && !$transactionsCountChanged) {
+            if (!$balanceChanged && !$frozenAmountChanged) {
                 continue;
             }
 
@@ -158,18 +143,17 @@ class RegulatorService implements RegulatorServiceInterface {
             $uuid = $wallet->uuid;
             $balance = $this->getBalance($wallet);
             $frozenAmount = $this->getFrozenAmount($wallet);
-            $transactionsCount = $this->getTransactionsCount($wallet);
 
             // Fill wallet changes with new data.
             $walletChanges[$uuid] = array_filter([
                 'id' => $id,
                 'balance' => $balanceChanged ? $balance : null,
                 'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
-                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $transactionsCount, $balance),
+                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, 0, $balance),
             ], fn ($value) => !is_null($value) && $value !== '');
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
-            $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount, $transactionsCount);
+            $bookkeeperChanges[$wallet->uuid] = new WalletStateData($balance, $frozenAmount);
         }
 
         if ($walletChanges !== []) {

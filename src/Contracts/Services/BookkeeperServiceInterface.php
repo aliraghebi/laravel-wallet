@@ -13,8 +13,6 @@ interface BookkeeperServiceInterface {
 
     public function getFrozenAmount(Wallet $wallet): string;
 
-    public function getTransactionsCount(Wallet $wallet): int;
-
     public function sync(Wallet $wallet, WalletStateData $data): bool;
 
     public function get(Wallet $wallet): WalletStateData;

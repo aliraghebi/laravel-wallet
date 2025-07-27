@@ -19,59 +19,59 @@ final class TransferTest extends TestCase {
         [$user1, $user2] = $this->createUser(2);
 
         // Create default wallets with 10 decimal places
-        $user1->createWallet(decimalPlaces: 10);
-        $user2->createWallet(decimalPlaces: 10);
+        $user1->createWallet();
+        $user2->createWallet();
 
         // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         // Deposit 1000 to user1
         $user1->deposit(1000);
-        self::assertSame(1000, $user1->balance_int);
+        self::assertSame(1000, (int) $user1->balance);
         // User2's wallet should still be empty
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user2->balance);
 
         // Transfer float amount to user2
         $transfer = $user1->transfer($user2, 100.0000000001);
         self::assertInstanceOf(Transfer::class, $transfer);
-        self::assertSame(899.9999999999, $user1->balance_float);
-        self::assertSame(100.0000000001, $user2->balance_float);
+        self::assertSame(899.9999999999, (float) $user1->balance);
+        self::assertSame(100.0000000001, (float) $user2->balance);
     }
 
     public function test_transfer_to_same_user() {
         $user = $this->createUser();
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $transfer = $user->transfer($user, 900, 100);
         self::assertTrue($transfer->exists);
         self::assertTrue($transfer->withdrawal->exists);
         self::assertTrue($transfer->deposit->exists);
 
-        self::assertSame(900, $user->balance_int);
+        self::assertSame(900, (int) $user->balance);
     }
 
     public function test_transfer_wallet_creation() {
         [$user1, $user2] = $this->createUser(2);
 
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         self::assertFalse($user1->wallet->exists);
         self::assertFalse($user2->wallet->exists);
 
         $user1->deposit(1);
-        self::assertSame(1, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(1, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         self::assertTrue($user1->wallet->exists);
         self::assertFalse($user2->wallet->exists);
 
         $user1->transfer($user2, 0.5);
-        self::assertSame(0.5, $user1->balance_float);
-        self::assertSame(0.5, $user2->balance_float);
+        self::assertSame(0.5, (float) $user1->balance);
+        self::assertSame(0.5, (float) $user2->balance);
 
         self::assertTrue($user1->wallet->exists);
         self::assertTrue($user2->wallet->exists);
@@ -81,62 +81,38 @@ final class TransferTest extends TestCase {
         [$user1, $user2] = $this->createUser(2);
 
         // Create default wallets with 10 decimal places
-        $user1->createWallet(decimalPlaces: 10);
-        $user2->createWallet(decimalPlaces: 10);
+        $user1->createWallet();
+        $user2->createWallet();
 
         // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         // Deposit 1000 to user1
         $user1->deposit(1000);
-        self::assertSame(1000, $user1->balance_int);
+        self::assertSame(1000, (int) $user1->balance);
         // User2's wallet should still be empty
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user2->balance);
 
         // Transfer float amount to user2
         $transfer = $user1->transfer($user2, 100.0000000001, fee: 0.0000000002);
         self::assertInstanceOf(Transfer::class, $transfer);
-        self::assertSame(899.9999999997, $user1->balance_float);
-        self::assertSame(100.0000000001, $user2->balance_float);
-    }
-
-    public function test_transfer_invalid_decimal_places() {
-        self::expectException(InvalidAmountException::class);
-        self::expectExceptionMessage('This amount can not be transferred because of low decimal places on source or dest wallets.');
-
-        [$user1, $user2] = $this->createUser(2);
-
-        // Create default wallets with 10 decimal places
-        $user1->createWallet(decimalPlaces: 4);
-        $user2->createWallet(decimalPlaces: 4);
-
-        // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
-
-        // Deposit 1000 to user1
-        $user1->deposit(1);
-        self::assertSame(1, $user1->balance_int);
-        // User2's wallet should still be empty
-        self::assertSame(0, $user2->balance_int);
-
-        // Transfer float amount to user2
-        $user1->transfer($user2, 0.00009);
+        self::assertSame(899.9999999997, (float) $user1->balance);
+        self::assertSame(100.0000000001, (float) $user2->balance);
     }
 
     public function test_transfer_with_meta_and_uuid() {
         [$user1, $user2] = $this->createUser(2);
 
         // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         // Deposit 1000 to user1
         $user1->deposit(1);
-        self::assertSame(1, $user1->balance_int);
+        self::assertSame(1, (int) $user1->balance);
         // User2's wallet should still be empty
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user2->balance);
 
         $identityService = app(IdentifierFactoryServiceInterface::class);
         $transferUuid = $identityService->generate();
@@ -171,12 +147,12 @@ final class TransferTest extends TestCase {
         self::assertSame('debt', $transfer->withdrawal->meta['reason']);
 
         // check exists in db
-        $transferExists = $user1->transfers()
+        $transferExists = $user1->wallet->transfers()
             ->where('uuid', $transferUuid)
             ->exists();
         self::assertTrue($transferExists);
 
-        $receivedTransferExists = $user2->receivedTransfers()
+        $receivedTransferExists = $user2->wallet->receivedTransfers()
             ->where('uuid', $transferUuid)
             ->exists();
         self::assertTrue($receivedTransferExists);
@@ -200,8 +176,8 @@ final class TransferTest extends TestCase {
         [$user1, $user2] = $this->createUser(2);
 
         // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         $user1->transfer($user2, 1);
     }
@@ -212,12 +188,12 @@ final class TransferTest extends TestCase {
         [$user1, $user2] = $this->createUser(2);
 
         // Wallets should be empty
-        self::assertSame(0, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         $user1->deposit(1000);
-        self::assertSame(1000, $user1->balance_int);
-        self::assertSame(0, $user2->balance_int);
+        self::assertSame(1000, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         $user1->transfer($user2, 2000);
     }

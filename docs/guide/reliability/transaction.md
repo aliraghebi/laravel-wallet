@@ -9,7 +9,7 @@ Very important! Almost all wallet transactions are blocking.
 use Illuminate\Support\Facades\DB;
 
 DB::beginTransaction();
-$wallet->balanceInt; // now the wallet is blocked
+(int) $wallet->balance; // now the wallet is blocked
 doingMagic(); // running for a long time.
 DB::commit(); // here will unlock the wallet
 ```

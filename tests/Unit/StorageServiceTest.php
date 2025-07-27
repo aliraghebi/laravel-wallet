@@ -23,7 +23,6 @@ final class StorageServiceTest extends TestCase {
         self::assertTrue($storage->sync('my-key', $state));
         self::assertSame($state->balance, $storage->get('my-key')->balance);
         self::assertSame($state->frozenAmount, $storage->get('my-key')->frozenAmount);
-        self::assertSame($state->transactionsCount, $storage->get('my-key')->transactionsCount);
         self::assertTrue($storage->flush());
 
         $storage->get('my-key'); // record not found
@@ -39,7 +38,6 @@ final class StorageServiceTest extends TestCase {
         self::assertTrue($storage->sync('my-key', $state));
         self::assertSame($state->balance, $storage->get('my-key')->balance);
         self::assertSame($state->frozenAmount, $storage->get('my-key')->frozenAmount);
-        self::assertSame($state->transactionsCount, $storage->get('my-key')->transactionsCount);
         self::assertTrue($storage->flush());
 
         $storage->get('my-key'); // record not found

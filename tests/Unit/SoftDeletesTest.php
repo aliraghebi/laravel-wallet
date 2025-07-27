@@ -28,8 +28,8 @@ final class SoftDeletesTest extends TestCase {
 
         self::assertSame($user->wallet->getKey(), $oldWallet->getKey());
 
-        self::assertSame(3, $oldWallet->balance_int);
-        self::assertSame(3, $user->balance_int);
+        self::assertSame(3, (int) $oldWallet->balance);
+        self::assertSame(3, (int) $user->balance);
     }
 
     public function test_default_wallet_force_delete(): void {
@@ -51,8 +51,8 @@ final class SoftDeletesTest extends TestCase {
 
         self::assertNotSame($user->wallet->getKey(), $oldWallet->getKey());
 
-        self::assertSame(1, $oldWallet->balance_int);
-        self::assertSame(2, $user->balance_int);
+        self::assertSame(1, (int) $oldWallet->balance);
+        self::assertSame(2, (int) $user->balance);
     }
 
     public function test_transaction_delete(): void {
@@ -63,7 +63,7 @@ final class SoftDeletesTest extends TestCase {
         $transaction = $user->deposit(1);
 
         self::assertTrue($user->wallet->exists);
-        self::assertSame(1, $user->balance_int);
+        self::assertSame(1, (int) $user->balance);
 
         self::assertTrue($transaction->delete());
 
@@ -80,17 +80,17 @@ final class SoftDeletesTest extends TestCase {
         self::assertFalse($user2->wallet->exists);
 
         $user1->deposit(100);
-        self::assertSame(100, $user1->balanceInt);
-        self::assertSame(0, $user2->balanceInt);
+        self::assertSame(100, (int) $user1->balance);
+        self::assertSame(0, (int) $user2->balance);
 
         $transfer = $user1->transfer($user2, 100);
 
         self::assertNotNull($transfer);
-        self::assertSame(100, $transfer->deposit->amount_int);
-        self::assertSame(-100, $transfer->withdrawal->amount_int);
+        self::assertSame(100, (int) $transfer->deposit->amount);
+        self::assertSame(-100, (int) $transfer->withdrawal->amount);
 
-        self::assertSame(0, $user1->balanceInt);
-        self::assertSame(100, $user2->balanceInt);
+        self::assertSame(0, (int) $user1->balance);
+        self::assertSame(100, (int) $user2->balance);
 
         self::assertTrue($transfer->delete());
         self::assertNotNull($transfer->deleted_at);

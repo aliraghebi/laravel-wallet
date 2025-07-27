@@ -14,7 +14,6 @@ final readonly class WalletCreatedEvent implements EventInterface {
         public int|string $holderId,
         public ?string $description,
         public ?array $meta,
-        public int $decimalPlaces,
         public DateTimeImmutable $createdAt
     ) {}
 
@@ -26,7 +25,6 @@ final readonly class WalletCreatedEvent implements EventInterface {
             $wallet->holder_id,
             $wallet->description,
             $wallet->meta,
-            $wallet->decimal_places,
             DateTimeImmutable::createFromMutable($wallet->created_at),
         );
     }

@@ -16,7 +16,7 @@ use AliRaghebi\Wallet\Events\TransactionCreatedEvent;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Repositories\TransactionRepository;
 
-readonly class TransactionService implements TransactionServiceInterface {
+class TransactionService implements TransactionServiceInterface {
     public function __construct(
         private TransactionRepository $transactionRepository,
         private RegulatorServiceInterface $regulatorService,
@@ -27,7 +27,9 @@ readonly class TransactionService implements TransactionServiceInterface {
         private IdentifierFactoryServiceInterface $identifierFactoryService,
     ) {}
 
-    public function makeTransaction(Wallet $wallet, string $type, string $amount, ?TransactionExtra $extra = null): TransactionData {
+    public function createTransaction(Wallet $wallet, string $type, string $amount, ?TransactionExtra $extra = null): Transaction {
+        $wallet = $this->castService->getWallet($wallet);
+
         assert(in_array($type, [Transaction::TYPE_WITHDRAW, Transaction::TYPE_DEPOSIT]));
         $this->consistencyService->checkPositive($amount);
 
@@ -39,86 +41,23 @@ readonly class TransactionService implements TransactionServiceInterface {
         $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
 
+        $balance = $this->regulatorService->increase($wallet, $amount);
+
         $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
 
-        return new TransactionData($uuid, $wallet->id, $type, $amount, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $time, $time);
+        $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $time, $time);
+        $transaction = $this->transactionRepository->create($transaction);
+
+        $this->dispatcherService->dispatch(TransactionCreatedEvent::fromTransaction($transaction));
+
+        return $transaction;
     }
 
     public function deposit(Wallet $wallet, string $amount, ?TransactionExtra $extra = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $extra);
-        $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
-
-        return current($transactions);
+        return $this->createTransaction($wallet, Transaction::TYPE_DEPOSIT, $amount, $extra);
     }
 
     public function withdraw(Wallet $wallet, string $amount, ?TransactionExtra $extra = null): Transaction {
-        $transaction = $this->makeTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $extra);
-        $transactions = $this->apply([$wallet->id => $wallet], [$transaction]);
-
-        return current($transactions);
-    }
-
-    public function apply(array $wallets, array $objects): array {
-        $transactions = $this->insertMultiple($objects);
-        $totals = $this->getSums($objects);
-        $counts = collect($objects)->countBy(fn ($item) => $item->walletId);
-        assert(count($transactions) === count($objects));
-
-        foreach ($counts as $walletId => $count) {
-            $wallet = $wallets[$walletId] ?? null;
-            assert($wallet instanceof Wallet);
-
-            $object = $this->castService->getWallet($wallet);
-            assert($object->getKey() === $walletId);
-
-            $this->regulatorService->increase($object, $totals[$walletId], $count);
-        }
-
-        foreach ($transactions as $transaction) {
-            $this->dispatcherService->dispatch(TransactionCreatedEvent::fromTransaction($transaction));
-        }
-
-        return $transactions;
-    }
-
-    /**
-     * @param  array<TransactionData>  $objects
-     */
-    private function insertMultiple(array $objects) {
-        if (count($objects) === 1) {
-            $items = [$this->transactionRepository->create(reset($objects))];
-        } else {
-            $this->transactionRepository->insertMultiple($objects);
-            $uuids = $this->getUuids($objects);
-            $items = $this->transactionRepository->multiGet($uuids, 'uuid');
-        }
-
-        assert($items !== []);
-
-        $results = [];
-        foreach ($items as $item) {
-            $results[$item->uuid] = $item;
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param  array<TransactionData>  $objects
-     */
-    private function getUuids(array $objects): array {
-        return array_map(static fn ($object): string => $object->uuid, $objects);
-    }
-
-    /**
-     * @param  array<TransactionData>  $objects
-     */
-    private function getSums(array $objects): array {
-        $amounts = [];
-        foreach ($objects as $object) {
-            $amounts[$object->walletId] = number($amounts[$object->walletId] ?? 0)->plus($object->amount)->toString();
-        }
-
-        return $amounts;
+        return $this->createTransaction($wallet, Transaction::TYPE_WITHDRAW, $amount, $extra);
     }
 }

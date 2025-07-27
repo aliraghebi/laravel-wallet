@@ -17,7 +17,6 @@ interface WalletServiceInterface {
         Model $holder,
         ?string $name = null,
         ?string $slug = null,
-        ?int $decimalPlaces = null,
         ?string $description = null,
         ?array $meta = null,
         ?string $uuid = null

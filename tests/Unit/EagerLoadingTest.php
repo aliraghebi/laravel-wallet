@@ -21,7 +21,7 @@ final class EagerLoadingTest extends TestCase {
         }
 
         /** @var Collection<int, User> $users */
-        $users = User::with('wallet.walletTransactions')
+        $users = User::with('wallet.transactions')
             ->whereIn('id', collect($users)->pluck('id')->toArray())
             ->paginate(10);
 
@@ -30,10 +30,10 @@ final class EagerLoadingTest extends TestCase {
         foreach ($users as $user) {
             self::assertTrue($user->relationLoaded('wallet'));
             self::assertTrue($user->wallet->relationLoaded('holder'));
-            self::assertTrue($user->wallet->relationLoaded('walletTransactions'));
+            self::assertTrue($user->wallet->relationLoaded('transactions'));
 
             $uuids[] = $user->wallet->uuid;
-            $balances[] = $user->wallet->balance_int;
+            $balances[] = (int) $user->wallet->balance;
         }
 
         self::assertCount(10, array_unique($uuids));
@@ -45,10 +45,11 @@ final class EagerLoadingTest extends TestCase {
         [$user1, $user2] = $this->createUser(2);
 
         $user1->deposit(1000);
-        self::assertSame(1000, $user1->balanceInt);
+        self::assertSame(1000, (int) $user1->balance);
 
         $transfer = $user1->transfer($user2, 500);
-        self::assertTrue($transfer->relationLoaded('withdraw'));
+
+        self::assertTrue($transfer->relationLoaded('withdrawal'));
         self::assertTrue($transfer->relationLoaded('deposit'));
 
         self::assertTrue($transfer->relationLoaded('from'));
@@ -63,12 +64,12 @@ final class EagerLoadingTest extends TestCase {
         $multi->createWallet(name: 'Hello');
         $multi->createWallet(name : 'World');
 
-        $user = User::with('wallets.walletTransactions')->find($multi->getKey());
+        $user = User::with('wallets.transactions')->find($multi->getKey());
         self::assertTrue($user->relationLoaded('wallets'));
         self::assertNotEmpty($user->wallets);
 
         foreach ($user->wallets as $wallet) {
-            self::assertTrue($wallet->relationLoaded('walletTransactions'));
+            self::assertTrue($wallet->relationLoaded('transactions'));
         }
 
         self::assertNotNull($user->getWallet('hello'));

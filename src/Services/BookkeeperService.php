@@ -29,10 +29,6 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
         return $this->get($wallet)->frozenAmount;
     }
 
-    public function getTransactionsCount(Wallet $wallet): int {
-        return $this->get($wallet)->transactionsCount;
-    }
-
     public function sync(Wallet $wallet, WalletStateData $data): bool {
         return $this->multiSync([$wallet->uuid => $data]);
     }
@@ -60,7 +56,6 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
                         $results[$uuid] = new WalletStateData(
                             $wallet->getRawOriginal('balance', '0'),
                             $wallet->getRawOriginal('frozen_amount', '0'),
-                            $wallet->transactions_count ?? 0
                         );
                     }
 

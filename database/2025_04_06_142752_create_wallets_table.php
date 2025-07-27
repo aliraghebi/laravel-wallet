@@ -18,8 +18,8 @@ return new class extends Migration {
             $table->string('slug')->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();
-            $table->decimal('balance', $config->number_digits, $config->number_decimal_places);
-            $table->decimal('frozen_amount', $config->number_digits, $config->number_decimal_places);
+            $table->decimal('balance', $config->number_digits, $config->number_decimal_places)->default(0);
+            $table->decimal('frozen_amount', $config->number_digits, $config->number_decimal_places)->default(0);
             $table->string('checksum')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();

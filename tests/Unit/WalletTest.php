@@ -87,10 +87,10 @@ final class WalletTest extends TestCase {
         self::assertSame(0, (int) $user->wallet->balance);
         self::assertFalse($user->wallet->exists);
 
-        self::assertSame(0, $user->wallet->balance_int);
+        self::assertSame(0, (int) $user->wallet->balance);
         self::assertFalse($user->wallet->exists);
 
-        self::assertSame(0., $user->wallet->balance_float);
+        self::assertSame(0., (float) $user->wallet->balance);
         self::assertFalse($user->wallet->exists);
     }
 
@@ -123,14 +123,14 @@ final class WalletTest extends TestCase {
         self::assertCount(count($slugs), $user->wallets()->get());
 
         foreach ($user->wallets()->get() as $wallet) {
-            self::assertSame(1000, $wallet->balance_int);
+            self::assertSame(1000, (int) $wallet->balance);
             self::assertContains($wallet->slug, $slugs);
         }
     }
 
     public function test_get_wallet_or_fail_error(): void {
         $user = $this->createUser();
-        self::assertSame(0, $user->balance_int); // createWallet
+        self::assertSame(0, (int) $user->balance); // createWallet
 
         $this->expectException(ModelNotFoundException::class);
 
@@ -139,7 +139,7 @@ final class WalletTest extends TestCase {
 
     public function test_get_wallet_or_fail_success(): void {
         $user = $this->createUser();
-        self::assertSame(0, $user->balance_int); // createWallet
+        self::assertSame(0, (int) $user->balance); // createWallet
         $uuid = $user->wallet->uuid;
 
         $user->deposit(1);
@@ -181,31 +181,18 @@ final class WalletTest extends TestCase {
         self::assertSame('test', $user->wallet->slug);
     }
 
-    public function test_decimal_places(): void {
-        config([
-            'wallet.wallet.default.decimal_places' => 3,
-        ]);
-
-        $user = $this->createUser();
-        self::assertFalse($user->relationLoaded('wallet'));
-        $wallet = $user->createWallet();
-
-        self::assertSame(3, $wallet->decimal_places);
-        self::assertSame(3, $user->wallet->decimal_places);
-    }
-
     public function test_check_type(): void {
         $user = $this->createUser();
-        $wallet = $user->createWallet('btc', decimalPlaces: 2);
+        $wallet = $user->createWallet('btc');
         $wallet->deposit(1000);
 
         self::assertIsString($wallet->balance);
-        self::assertIsFloat($wallet->balance_float);
-        self::assertIsInt($wallet->balance_int);
+        self::assertIsFloat((float) $wallet->balance);
+        self::assertIsInt((int) $wallet->balance);
 
-        self::assertSame('1000.00', $wallet->balance);
-        self::assertSame(1000., $wallet->balance_float);
-        self::assertSame(1000, $wallet->balance_int);
+        self::assertSame('1000', $wallet->balance);
+        self::assertSame(1000., (float) $wallet->balance);
+        self::assertSame(1000, (int) $wallet->balance);
     }
 
     public function test_can_withdraw(): void {
@@ -228,7 +215,7 @@ final class WalletTest extends TestCase {
         self::assertFalse($user->relationLoaded('wallet'));
         $wallet = $user->wallet;
 
-        self::assertSame(0, $wallet->balance_int);
+        self::assertSame(0, (int) $wallet->balance);
         self::assertFalse($wallet->exists);
 
         /** @var MockObject&Wallet $mockQuery */
@@ -251,11 +238,11 @@ final class WalletTest extends TestCase {
         $user = $this->createUser();
         $wallet = $user->wallet;
 
-        self::assertSame(0, $wallet->balance_int);
+        self::assertSame(0, (int) $wallet->balance);
 
         $wallet->deposit(1000);
-        self::assertSame(1000, $wallet->balance_int);
-        self::assertSame(1000, $user->wallet->balance_int);
+        self::assertSame(1000, (int) $wallet->balance);
+        self::assertSame(1000, (int) $user->wallet->balance);
         self::assertSame($wallet->getKey(), $user->wallet->getKey());
     }
 
@@ -270,101 +257,5 @@ final class WalletTest extends TestCase {
         $wallet = $user->wallet;
 
         self::assertSame('hello world', $wallet->helloWorld());
-    }
-
-    public function test_sum_wallets_by_model() {
-        $user = $this->createUser();
-
-        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
-        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
-
-        $btcWallet->deposit(1000);
-        $ethWallet->deposit(2400);
-
-        self::assertSame($btcWallet->balance_int, 1000);
-        self::assertSame($ethWallet->balance_int, 2400);
-
-        self::assertSame($btcWallet->available_balance_int, 1000);
-
-        $btcWallet->freeze(400);
-        self::assertSame($btcWallet->available_balance_int, 600);
-
-        $sumResult = LaravelWallet::sumWallets([$btcWallet, $ethWallet]);
-
-        self::assertSame((int) $sumResult->balance, 3400);
-        self::assertSame((int) $sumResult->frozenAmount, 400);
-        self::assertSame((int) $sumResult->availableBalance, 3000);
-    }
-
-    public function test_sum_wallets_by_id() {
-        $user = $this->createUser();
-
-        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
-        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
-
-        $btcWallet->deposit(1000);
-        $ethWallet->deposit(2400);
-
-        self::assertSame($btcWallet->balance_int, 1000);
-        self::assertSame($ethWallet->balance_int, 2400);
-
-        self::assertSame($btcWallet->available_balance_int, 1000);
-
-        $btcWallet->freeze(400);
-        self::assertSame($btcWallet->available_balance_int, 600);
-
-        $sumResult = LaravelWallet::sumWallets([$btcWallet->id, $ethWallet->id]);
-
-        self::assertSame((int) $sumResult->balance, 3400);
-        self::assertSame((int) $sumResult->frozenAmount, 400);
-        self::assertSame((int) $sumResult->availableBalance, 3000);
-    }
-
-    public function test_sum_wallets_by_uuid() {
-        $user = $this->createUser();
-
-        $btcWallet = $user->createWallet('BTC', decimalPlaces: 10);
-        $ethWallet = $user->createWallet('ETH', decimalPlaces: 8);
-
-        $btcWallet->deposit(1000);
-        $ethWallet->deposit(2400);
-
-        self::assertSame($btcWallet->balance_int, 1000);
-        self::assertSame($ethWallet->balance_int, 2400);
-
-        self::assertSame($btcWallet->available_balance_int, 1000);
-
-        $btcWallet->freeze(400);
-        self::assertSame($btcWallet->available_balance_int, 600);
-
-        $sumResult = LaravelWallet::sumWalletsByUuids([$btcWallet->uuid, $ethWallet->uuid]);
-
-        self::assertSame((int) $sumResult->balance, 3400);
-        self::assertSame((int) $sumResult->frozenAmount, 400);
-        self::assertSame((int) $sumResult->availableBalance, 3000);
-    }
-
-    public function test_sum_wallets_by_slug() {
-        [$user1,$user2] = $this->createUser(2);
-
-        $user1Wallet = $user1->createWallet('BTC', decimalPlaces: 10);
-        $user2Wallet = $user2->createWallet('BTC', decimalPlaces: 8);
-
-        $user1Wallet->deposit(1000);
-        $user2Wallet->deposit(2400);
-
-        self::assertSame($user1Wallet->balance_int, 1000);
-        self::assertSame($user2Wallet->balance_int, 2400);
-
-        self::assertSame($user1Wallet->available_balance_int, 1000);
-
-        $user1Wallet->freeze(400);
-        self::assertSame($user1Wallet->available_balance_int, 600);
-
-        $sumResult = LaravelWallet::sumWalletsBySlug('btc');
-
-        self::assertSame((int) $sumResult->balance, 3400);
-        self::assertSame((int) $sumResult->frozenAmount, 400);
-        self::assertSame((int) $sumResult->availableBalance, 3000);
     }
 }

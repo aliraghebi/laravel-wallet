@@ -14,26 +14,25 @@ use AliRaghebi\Wallet\Test\TestCase;
 final class WithdrawalTest extends TestCase {
     public function test_withdrawal_after_deposit() {
         $user = $this->createUser();
-        self::assertSame(0, $user->balance_int);
+        self::assertSame(0, (int) $user->balance);
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $user->withdraw(500);
-        self::assertSame(500, $user->balance_int);
+        self::assertSame(500, (int) $user->balance);
     }
 
     public function test_withdraw_float_amount() {
         $user = $this->createUser();
-        $wallet = $user->createWallet('btc', decimalPlaces: 20);
-        self::assertSame($wallet->decimal_places, 20);
+        $wallet = $user->createWallet('btc');
 
         $wallet->deposit('2');
-        self::assertSame(2, $wallet->balance_int);
+        self::assertSame(2, (int) $wallet->balance);
 
         $wallet->withdraw('0.0000000002');
-        self::assertSame(1.9999999998, $wallet->balance_float);
-        self::assertSame('1.99999999980000000000', $wallet->balance);
+        self::assertSame(1.9999999998, (float) $wallet->balance);
+        self::assertSame('1.9999999998', $wallet->balance);
     }
 
     public function test_withdrawal_insufficient_balance(): void {
@@ -42,7 +41,7 @@ final class WithdrawalTest extends TestCase {
         $user = $this->createUser();
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $user->withdraw(1100);
     }
@@ -53,10 +52,10 @@ final class WithdrawalTest extends TestCase {
         $user = $this->createUser();
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $user->withdraw(1000);
-        self::assertSame(0, $user->balance_int);
+        self::assertSame(0, (int) $user->balance);
 
         $user->withdraw(1100);
     }
@@ -65,7 +64,7 @@ final class WithdrawalTest extends TestCase {
         $user = $this->createUser();
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $transaction = $user->withdraw(
             1000,
@@ -87,7 +86,7 @@ final class WithdrawalTest extends TestCase {
         $user = $this->createUser();
 
         $user->deposit(1000);
-        self::assertSame(1000, $user->balance_int);
+        self::assertSame(1000, (int) $user->balance);
 
         $transaction = $user->withdraw(1000);
         self::assertNotNull($transaction);

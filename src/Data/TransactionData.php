@@ -11,6 +11,7 @@ class TransactionData extends BaseData {
         public readonly int $walletId,
         public readonly string $type,
         public readonly string $amount,
+        public readonly string $balance,
         public readonly ?string $purpose,
         public readonly ?string $description,
         public readonly ?array $meta,

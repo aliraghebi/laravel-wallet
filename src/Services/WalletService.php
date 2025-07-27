@@ -43,7 +43,6 @@ readonly class WalletService implements WalletServiceInterface {
         Model $holder,
         ?string $name = null,
         ?string $slug = null,
-        ?int $decimalPlaces = null,
         ?string $description = null,
         ?array $meta = null,
         ?string $uuid = null
@@ -59,7 +58,6 @@ readonly class WalletService implements WalletServiceInterface {
             $holder->getKey(),
             $name ?? config('wallet.wallet.default.name', 'Default Wallet'),
             $slug ?? config('wallet.wallet.default.slug', 'default'),
-            $decimalPlaces ?? config('wallet.wallet.default.decimal_places', 2),
             $description,
             $meta,
             null,
