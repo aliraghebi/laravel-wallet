@@ -74,12 +74,13 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return $this->createChecksum($data);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeInterface $createdAt): ?string {
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $balance, DateTimeInterface $createdAt): ?string {
         $data = [
             $uuid,
             $walletId,
             $type,
             number($amount)->toString(),
+            number($balance)->toString(),
             $createdAt->getTimestamp(),
         ];
 
@@ -114,6 +115,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $transaction->wallet_id,
             $transaction->type,
             $transaction->getRawOriginal('amount'),
+            $transaction->getRawOriginal('balance'),
             $transaction->created_at
         );
         $checksum ??= $transaction->checksum;

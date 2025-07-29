@@ -41,17 +41,14 @@ readonly class TransactionService implements TransactionServiceInterface {
         }
 
         $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
-        $time = $this->clockService->now();
+        $createdAt = $extra?->createdAt ?? $this->clockService->now();
+        $updatedAt = $extra?->updatedAt ?? $this->clockService->now();
 
         $balance = $this->regulatorService->increase($wallet, $amount);
 
-        if ($this->config->integrity_validation_enabled) {
-            $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->uuid, $type, $amount, $time, $time);
-        } else {
-            $checksum = null;
-        }
+        $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->uuid, $type, $amount, $balance, $createdAt);
 
-        $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $time, $time);
+        $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $createdAt, $updatedAt);
         $transaction = $this->transactionRepository->create($transaction);
 
         $this->dispatcherService->dispatch(TransactionCreatedEvent::fromTransaction($transaction));

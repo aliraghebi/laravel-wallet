@@ -37,7 +37,7 @@ interface ConsistencyServiceInterface {
 
     public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, DateTimeInterface $updatedAt): ?string;
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeInterface $createdAt): ?string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $balance, DateTimeInterface $createdAt): ?string;
 
     public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeInterface $createdAt): ?string;
 
