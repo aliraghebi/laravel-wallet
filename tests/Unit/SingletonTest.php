@@ -3,7 +3,6 @@
 namespace AliRaghebi\Wallet\Test\Unit;
 
 use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
-use AliRaghebi\Wallet\Contracts\Services\MathServiceInterface;
 use AliRaghebi\Wallet\Test\Models\Transaction;
 use AliRaghebi\Wallet\Test\Models\Transfer;
 use AliRaghebi\Wallet\Test\Models\Wallet;

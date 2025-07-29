@@ -2,6 +2,7 @@
 
 namespace AliRaghebi\Wallet\Models;
 
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -69,6 +70,12 @@ class Transaction extends Model {
         }
 
         return parent::getTable();
+    }
+
+    public function getIsIntegrityValidAttribute(): bool {
+        $consistencyService = app(ConsistencyServiceInterface::class);
+
+        return $consistencyService->validateTransactionChecksum($this);
     }
 
     /**

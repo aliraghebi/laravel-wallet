@@ -50,17 +50,19 @@ readonly class WalletService implements WalletServiceInterface {
         if ($name != null && $slug == null) {
             $slug = Str::slug($name);
         }
-
+        $uuid = $uuid ?? $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
+        $checksum = $this->consistencyService->createWalletChecksum($uuid, '0', '0', $time);
+
         $data = new WalletData(
-            $uuid ?? $this->identifierFactoryService->generate(),
+            $uuid,
             $holder->getMorphClass(),
             $holder->getKey(),
             $name ?? config('wallet.wallet.default.name', 'Default Wallet'),
             $slug ?? config('wallet.wallet.default.slug', 'default'),
             $description,
             $meta,
-            null,
+            $checksum,
             $time,
             $time
         );
@@ -170,6 +172,6 @@ readonly class WalletService implements WalletServiceInterface {
     }
 
     public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
-        return $this->consistencyService->checkWalletConsistency($wallet, $throw);
+        return $this->consistencyService->validateWalletChecksum($wallet, $throw);
     }
 }

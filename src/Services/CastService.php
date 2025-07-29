@@ -8,13 +8,14 @@ use AliRaghebi\Wallet\Contracts\Services\DatabaseServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Events\WalletCreatedEvent;
 use AliRaghebi\Wallet\Models\Wallet as WalletModel;
+use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @internal
  */
 final readonly class CastService implements CastServiceInterface {
-    public function __construct(private DatabaseServiceInterface $databaseService, private DispatcherServiceInterface $dispatcherService) {}
+    public function __construct(private DatabaseServiceInterface $databaseService, private DispatcherServiceInterface $dispatcherService, private WalletConfig $config) {}
 
     public function getWallet(object $object, bool $save = true): WalletModel {
         $wallet = $this->getModel($object);

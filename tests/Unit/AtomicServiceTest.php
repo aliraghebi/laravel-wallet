@@ -133,7 +133,6 @@ final class AtomicServiceTest extends TestCase {
             self::assertSame((int) $wallet->available_balance, 2000);
         });
 
-
         self::assertSame((int) $wallet->balance, 5000);
         self::assertSame((int) $wallet->frozen_amount, 3000);
         self::assertSame((int) $wallet->available_balance, 2000);

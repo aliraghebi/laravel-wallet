@@ -100,10 +100,6 @@ readonly class WalletRepository implements WalletRepositoryInterface {
     }
 
     public function multiGet(array $keys, string $column = 'id'): Collection {
-        return $this->wallet->newQuery()
-            ->withCount('transactions as transactions_count')
-            ->withSum('transactions as transactions_sum', 'amount')
-            ->whereIn($column, $keys)
-            ->get();
+        return $this->wallet->newQuery()->whereIn($column, $keys)->get();
     }
 }

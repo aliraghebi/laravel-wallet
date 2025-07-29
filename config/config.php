@@ -25,20 +25,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    |  Wallet consistency check settings
+    |  Wallet integrity check settings
     |--------------------------------------------------------------------------
     |
-    | Consistency is verified using checksum, in case of checksum mismatch, transaction will be failed and rolled back.
+    | Integrity is verified using checksum, in case of checksum mismatch, transaction will be failed and rolled back.
     */
-    'consistency' => [
+    'integrity_validation' => [
         /*
-        | Weather to enable consistency check.
+        | Weather to enable integrity check. If you disable this option, no validation will be done on wallets on update.
         */
-        'enabled' => env('WALLET_CONSISTENCY_CHECK_ENABLED', true),
+        'enabled' => env('WALLET_INTEGRITY_VALIDATION_ENABLED', true),
         /*
         | Secret key for checksum generation.
         */
-        'secret' => env('WALLET_CONSISTENCY_SECRET', 'consistency_secret'),
+        'secret' => env('WALLET_INTEGRITY_VALIDATION_SECRET', 'integrity_validation_secret'),
     ],
 
     /*

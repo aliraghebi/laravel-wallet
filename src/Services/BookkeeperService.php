@@ -14,7 +14,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
     public function __construct(
         private StorageServiceInterface $storageService,
         private LockServiceInterface $lockService,
-        private WalletRepositoryInterface $walletRepository,
+        private WalletRepositoryInterface $walletRepository
     ) {}
 
     public function forget(Wallet $wallet): bool {
@@ -53,6 +53,7 @@ readonly class BookkeeperService implements BookkeeperServiceInterface {
                     /** @var Wallet $wallet */
                     foreach ($recordNotFoundException->getMissingKeys() as $uuid) {
                         $wallet = $fWallets[$uuid] ?? $wallets[$uuid];
+
                         $results[$uuid] = new WalletStateData(
                             $wallet->getRawOriginal('balance', '0'),
                             $wallet->getRawOriginal('frozen_amount', '0'),

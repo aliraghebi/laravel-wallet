@@ -3,7 +3,6 @@
 namespace AliRaghebi\Wallet\Contracts\Services;
 
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
-use AliRaghebi\Wallet\Data\TransactionData;
 use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Models\Transaction;
 

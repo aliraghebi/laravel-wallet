@@ -7,8 +7,8 @@ use Illuminate\Support\Arr;
 /**
  * @property int $number_digits
  * @property int $number_decimal_places
- * @property bool $consistency_enabled
- * @property string $consistency_secret
+ * @property bool $integrity_validation_enabled
+ * @property string $integrity_validation_secret
  * @property string $wallet_table
  * @property string $wallet_model
  * @property string $wallet_default_name
@@ -26,12 +26,14 @@ use Illuminate\Support\Arr;
 class WalletConfig {
     protected array $map = [
         'number_decimal_places' => 'number.decimal_places',
+        'integrity_validation_enabled' => 'integrity_validation.enabled',
+        'integrity_validation_secret' => 'integrity_validation.secret',
     ];
 
     protected array $config;
 
     public function __construct() {
-        // Load full config once (or just the relevant ones like wallet, features, etc.)
+        // Load full config once
         $this->config = config('wallet');
     }
 

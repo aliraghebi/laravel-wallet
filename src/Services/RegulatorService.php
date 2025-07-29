@@ -12,7 +12,9 @@ use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
 use AliRaghebi\Wallet\Data\WalletStateData;
 use AliRaghebi\Wallet\Events\WalletUpdatedEvent;
+use AliRaghebi\Wallet\Exceptions\DataIntegrityException;
 use AliRaghebi\Wallet\Exceptions\RecordNotFoundException;
+use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Support\Arr;
 
 class RegulatorService implements RegulatorServiceInterface {
@@ -27,6 +29,7 @@ class RegulatorService implements RegulatorServiceInterface {
         private readonly ConsistencyServiceInterface $consistencyService,
         private readonly WalletRepositoryInterface $walletRepository,
         private readonly DispatcherServiceInterface $dispatcherService,
+        private readonly WalletConfig $config,
     ) {}
 
     public function forget(Wallet $wallet): bool {
@@ -131,25 +134,30 @@ class RegulatorService implements RegulatorServiceInterface {
         $walletChanges = [];
         $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
+            if ($this->config->integrity_validation_enabled) {
+                $isValid = $this->consistencyService->validateWalletChecksum($wallet);
+                if (!$isValid) {
+                    throw new DataIntegrityException;
+                }
+            }
+
             $balanceChanged = !number($this->getBalanceDiff($wallet))->isEqual(0);
             $frozenAmountChanged = !number($this->getFrozenAmountDiff($wallet))->isEqual(0);
-
-            // Check if no changes occurred to the wallet, then skip it
-            if (!$balanceChanged && !$frozenAmountChanged) {
-                continue;
-            }
 
             $id = $wallet->getKey();
             $uuid = $wallet->uuid;
             $balance = $this->getBalance($wallet);
             $frozenAmount = $this->getFrozenAmount($wallet);
 
+            $now = now();
+
             // Fill wallet changes with new data.
             $walletChanges[$uuid] = array_filter([
                 'id' => $id,
                 'balance' => $balanceChanged ? $balance : null,
                 'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
-                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, 0, $balance),
+                'updated_at' => $now,
+                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $now),
             ], fn ($value) => !is_null($value) && $value !== '');
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.

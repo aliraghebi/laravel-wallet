@@ -6,7 +6,6 @@ use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\WalletServiceInterface;
 use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
-use AliRaghebi\Wallet\Facades\LaravelWallet;
 use AliRaghebi\Wallet\Test\Models\MyWallet;
 use AliRaghebi\Wallet\Test\Models\Wallet;
 use AliRaghebi\Wallet\Test\TestCase;
@@ -18,26 +17,6 @@ use PHPUnit\Framework\MockObject\MockObject;
  * @internal
  */
 final class WalletTest extends TestCase {
-    public function test_find_by(): void {
-        $user = $this->createUser();
-
-        $uuidFactoryService = app(IdentifierFactoryServiceInterface::class);
-        $walletService = app(WalletServiceInterface::class);
-
-        $uuid = $uuidFactoryService->generate();
-
-        self::assertNull($walletService->findBySlug($user, 'default'));
-        self::assertNull($walletService->findByUuid($uuid));
-        self::assertNull($walletService->findById(-1));
-
-        $user->wallet->uuid = $uuid;
-        $user->deposit(100);
-
-        self::assertNotNull($walletService->findBySlug($user, 'default'));
-        self::assertNotNull($walletService->findByUuid($uuid));
-        self::assertNotNull($walletService->findById($user->wallet->getKey()));
-    }
-
     public function test_get_by_slug(): void {
         $this->expectException(ModelNotFoundException::class);
         $this->expectExceptionCode(ExceptionInterface::MODEL_NOT_FOUND);

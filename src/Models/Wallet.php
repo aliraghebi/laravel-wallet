@@ -4,6 +4,7 @@ namespace AliRaghebi\Wallet\Models;
 
 use AliRaghebi\Wallet\Contracts\Models\Wallet as WalletContract;
 use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Traits\WalletFunctions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -72,6 +73,12 @@ class Wallet extends Model implements WalletContract {
             return;
         }
         $this->attributes['slug'] = Str::slug($name);
+    }
+
+    public function getIsIntegrityValidAttribute(): bool {
+        $consistencyService = app(ConsistencyServiceInterface::class);
+
+        return $consistencyService->validateWalletChecksum($this);
     }
 
     /**

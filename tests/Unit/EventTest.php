@@ -26,7 +26,7 @@ final class EventTest extends TestCase {
         Event::listen(WalletUpdatedEvent::class, WalletUpdatedThrowUuidListener::class);
 
         $user = $this->createUser();
-        self::assertSame(0,(int) $user->wallet->balance);
+        self::assertSame(0, (int) $user->wallet->balance);
         self::assertTrue($user->wallet->saveQuietly()); // create without event
 
         $this->expectException(UnknownEventException::class);

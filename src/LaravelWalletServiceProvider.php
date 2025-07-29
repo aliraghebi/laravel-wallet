@@ -104,14 +104,6 @@ final class LaravelWalletServiceProvider extends ServiceProvider implements Defe
             ->needs('$seconds')
             ->giveConfig('wallet.lock.seconds', 1);
 
-        $this->app->when(ConsistencyService::class)
-            ->needs('$consistencyChecksumsEnabled')
-            ->giveConfig('wallet.consistency.enabled');
-
-        $this->app->when(ConsistencyService::class)
-            ->needs('$checksumSecret')
-            ->giveConfig('wallet.consistency.secret');
-
         // bookkeeper service
         $this->app->when(StorageServiceLockDecorator::class)
             ->needs(StorageServiceInterface::class)

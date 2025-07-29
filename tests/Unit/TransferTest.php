@@ -7,7 +7,6 @@ use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Data\TransferExtra;
 use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
 use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
-use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
 use AliRaghebi\Wallet\Models\Transfer;
 use AliRaghebi\Wallet\Test\TestCase;
 

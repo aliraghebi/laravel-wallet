@@ -3,7 +3,6 @@
 namespace AliRaghebi\Wallet\Contracts\Repositories;
 
 use AliRaghebi\Wallet\Data\WalletData;
-use AliRaghebi\Wallet\Data\WalletSumData;
 use AliRaghebi\Wallet\Exceptions\ModelNotFoundException;
 use AliRaghebi\Wallet\Models\Wallet;
 use Illuminate\Support\Collection;

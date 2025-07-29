@@ -3,6 +3,8 @@
 namespace AliRaghebi\Wallet\Traits;
 
 use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\IdentifierFactoryServiceInterface;
 use AliRaghebi\Wallet\Models\Wallet as WalletModel;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +26,7 @@ trait MorphOneWallet {
     public function wallet(): MorphOne {
         // Get the CastService instance from the application container.
         $castService = app(CastServiceInterface::class);
+        $consistencyService = app(ConsistencyServiceInterface::class);
 
         /**
          * Get the related wallet model class name from the configuration.
@@ -40,21 +43,29 @@ trait MorphOneWallet {
             ->withTrashed() // Include soft deleted wallets.
             ->where('slug', config('wallet.wallet.default.slug', 'default')) // Filter by the default wallet slug.
             ->withDefault(static function (WalletModel $wallet, object $holder) use (
+                $consistencyService,
                 $castService
             ) { // Define the default wallet values.
                 // Get the related model.
                 $model = $castService->getModel($holder);
 
                 $slug = config('wallet.wallet.default.slug', 'default');
+                $uuid = app(IdentifierFactoryServiceInterface::class)->generate();
+                $time = app(ClockServiceInterface::class)->now();
+
+                $checksum = $consistencyService->createWalletChecksum($uuid, '0', '0', $time);
 
                 // Fill the default wallet attributes.
                 $wallet->forceFill([
-                    'uuid' => app(IdentifierFactoryServiceInterface::class)->generate(),
+                    'uuid' => $uuid,
                     'name' => config('wallet.wallet.default.name', 'Default Wallet'), // Default wallet name.
                     'slug' => $slug, // Default wallet slug.
                     'meta' => config('wallet.wallet.default.meta', []), // Default wallet metadata.
                     'balance' => 0, // Default wallet balance.
-                    'frozen_amount' => 0
+                    'frozen_amount' => 0,
+                    'checksum' => $checksum,
+                    'created_at' => $time,
+                    'updated_at' => $time,
                 ]);
 
                 if ($model->exists) {

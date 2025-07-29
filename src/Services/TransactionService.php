@@ -15,8 +15,9 @@ use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Events\TransactionCreatedEvent;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Repositories\TransactionRepository;
+use AliRaghebi\Wallet\WalletConfig;
 
-class TransactionService implements TransactionServiceInterface {
+readonly class TransactionService implements TransactionServiceInterface {
     public function __construct(
         private TransactionRepository $transactionRepository,
         private RegulatorServiceInterface $regulatorService,
@@ -25,6 +26,7 @@ class TransactionService implements TransactionServiceInterface {
         private DispatcherServiceInterface $dispatcherService,
         private ClockServiceInterface $clockService,
         private IdentifierFactoryServiceInterface $identifierFactoryService,
+        private WalletConfig $config,
     ) {}
 
     public function createTransaction(Wallet $wallet, string $type, string $amount, ?TransactionExtra $extra = null): Transaction {
@@ -43,7 +45,11 @@ class TransactionService implements TransactionServiceInterface {
 
         $balance = $this->regulatorService->increase($wallet, $amount);
 
-        $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->id, $type, $amount, $time);
+        if ($this->config->integrity_validation_enabled) {
+            $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->uuid, $type, $amount, $time, $time);
+        } else {
+            $checksum = null;
+        }
 
         $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $time, $time);
         $transaction = $this->transactionRepository->create($transaction);

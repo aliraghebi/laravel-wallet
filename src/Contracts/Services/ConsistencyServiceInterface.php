@@ -4,7 +4,9 @@ namespace AliRaghebi\Wallet\Contracts\Services;
 
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
-use DateTimeImmutable;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use DateTimeInterface;
 
 interface ConsistencyServiceInterface {
     /**
@@ -12,7 +14,7 @@ interface ConsistencyServiceInterface {
      *
      * This method throws an AmountInvalid exception if the given amount is not positive.
      *
-     * @param  float|int|string  $amount  The amount to check.
+     * @param  string  $amount  The amount to check.
      *
      * @throws InvalidAmountException If the given amount is not positive.
      */
@@ -33,17 +35,15 @@ interface ConsistencyServiceInterface {
      */
     public function canWithdraw(string $balance, string $amount): bool;
 
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, int $transactionsCount, string $transactionsSum): ?string;
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, DateTimeInterface $updatedAt): ?string;
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeImmutable $createdAt): ?string;
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeInterface $createdAt): ?string;
 
-    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeImmutable $createdAt): ?string;
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeInterface $createdAt): ?string;
 
-    public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool;
+    public function validateWalletChecksum(Wallet $wallet, ?string $checksum = null): bool;
 
-    /**
-     * @param  array<string, string>  $checksums  Array of checksums to check. Key may be `id` or `uuid`.
-     * @param  string  $column  DB column name of `checksums` array keys.
-     */
-    public function checkMultiWalletConsistency(array $checksums, string $column = 'id'): void;
+    public function validateTransactionChecksum(Transaction $transaction, ?string $checksum = null): bool;
+
+    public function validateTransferChecksum(Transfer $transfer, ?string $checksum = null): bool;
 }

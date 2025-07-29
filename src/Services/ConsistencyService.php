@@ -4,14 +4,15 @@ namespace AliRaghebi\Wallet\Services;
 
 use AliRaghebi\Wallet\Contracts\Exceptions\ExceptionInterface;
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
-use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use AliRaghebi\Wallet\Contracts\Services\CastServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
 use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
-use AliRaghebi\Wallet\Exceptions\WalletConsistencyException;
-use DateTimeImmutable;
+use AliRaghebi\Wallet\Models\Transaction;
+use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\WalletConfig;
+use DateTimeInterface;
 
 /**
  * @internal
@@ -19,9 +20,7 @@ use DateTimeImmutable;
 final readonly class ConsistencyService implements ConsistencyServiceInterface {
     public function __construct(
         private CastServiceInterface $castService,
-        private WalletRepositoryInterface $walletRepository,
-        private bool $consistencyChecksumsEnabled,
-        private string $checksumSecret,
+        private WalletConfig $config,
     ) {}
 
     /**
@@ -64,30 +63,19 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         return number($balance)->isGreaterOrEqual($amount);
     }
 
-    public function createWalletChecksum(string $uuid, string|float|int $balance, string|float|int $frozenAmount, int $transactionsCount, string|float|int $transactionsSum): ?string {
-        if (!$this->consistencyChecksumsEnabled) {
-            return null;
-        }
-
-        $dataToSign = [
+    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, DateTimeInterface $updatedAt): ?string {
+        $data = [
             $uuid,
             number($balance)->toString(),
             number($frozenAmount)->toString(),
-            $transactionsCount,
-            number($transactionsSum)->toString(),
+            $updatedAt->getTimestamp(),
         ];
 
-        $stringToSign = implode('_', $dataToSign);
-
-        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+        return $this->createChecksum($data);
     }
 
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string|float|int $amount, DateTimeImmutable $createdAt): ?string {
-        if (!$this->consistencyChecksumsEnabled) {
-            return null;
-        }
-
-        $dataToSign = [
+    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, DateTimeInterface $createdAt): ?string {
+        $data = [
             $uuid,
             $walletId,
             $type,
@@ -95,68 +83,66 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
             $createdAt->getTimestamp(),
         ];
 
-        $stringToSign = implode('_', $dataToSign);
-
-        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+        return $this->createChecksum($data);
     }
 
-    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeImmutable $createdAt): ?string {
-        if (!$this->consistencyChecksumsEnabled) {
-            return null;
-        }
-
-        $dataToSign = [
+    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeInterface $createdAt): ?string {
+        $data = [
             $uuid,
             $fromWalletId,
             $toWalletId,
-            $amount,
-            $fee,
+            number($amount)->toString(),
+            number($fee)->toString(),
             $createdAt->getTimestamp(),
         ];
 
-        $stringToSign = implode('_', $dataToSign);
-
-        return hash_hmac('sha256', $stringToSign, $this->checksumSecret);
+        return $this->createChecksum($data);
     }
 
-    public function checkWalletConsistency(Wallet $wallet, ?string $checksum = null, bool $throw = false): bool {
-        try {
-            $wallet = $this->castService->getWallet($wallet, false);
-            $this->checkMultiWalletConsistency([$wallet->id => $checksum ?? $wallet->checksum]);
-        } catch (WalletConsistencyException $e) {
-            if ($throw) {
-                throw $e;
-            }
+    public function validateWalletChecksum(Wallet $wallet, ?string $checksum = null): bool {
+        $wallet = $this->castService->getWallet($wallet, false);
 
-            return false;
-        }
+        $expectedChecksum = $this->createWalletChecksum($wallet->uuid, $wallet->getRawOriginal('balance', '0'), $wallet->getRawOriginal('frozen_amount', '0'), $wallet->updated_at);
+        $checksum ??= $wallet->checksum;
 
-        return true;
-
+        return $checksum == $expectedChecksum;
     }
 
-    public function checkMultiWalletConsistency(array $checksums, string $column = 'id'): void {
-        if (!$this->consistencyChecksumsEnabled) {
-            return;
+    public function validateTransactionChecksum(Transaction $transaction, ?string $checksum = null): bool {
+        $expectedChecksum = $this->createTransactionChecksum(
+            $transaction->uuid,
+            $transaction->wallet_id,
+            $transaction->type,
+            $transaction->getRawOriginal('amount'),
+            $transaction->created_at
+        );
+        $checksum ??= $transaction->checksum;
+
+        return $checksum == $expectedChecksum;
+    }
+
+    public function validateTransferChecksum(Transfer $transfer, ?string $checksum = null): bool {
+        $expectedChecksum = $this->createTransferChecksum(
+            $transfer->uuid,
+            $transfer->from_id,
+            $transfer->to_id,
+            $transfer->getRawOriginal('amount'),
+            $transfer->getRawOriginal('fee'),
+            $transfer->created_at
+        );
+        $checksum ??= $transfer->checksum;
+
+        return $checksum == $expectedChecksum;
+    }
+
+    private function createChecksum(array $data): ?string {
+        if (!$this->config->integrity_validation_enabled) {
+            return null;
         }
 
-        $wallets = $this->walletRepository->multiGet(array_keys($checksums), $column);
-        foreach ($wallets as $wallet) {
-            $expectedChecksum = $this->createWalletChecksum(
-                $wallet->uuid,
-                $wallet->getRawOriginal('balance', 0),
-                $wallet->getRawOriginal('frozen_amount', 0),
-                $wallet->transactions_count,
-                $wallet->transactions_sum,
-            );
+        $stringToSign = implode('_', $data);
+        $secret = $this->config->integrity_validation_secret;
 
-            $checksum = $checksums[$wallet[$column]];
-            if ($checksum !== $expectedChecksum) {
-                throw new WalletConsistencyException(
-                    'Wallet consistency could not be verified.',
-                    ExceptionInterface::WALLET_INCONSISTENCY
-                );
-            }
-        }
+        return hash_hmac('sha256', $stringToSign, $secret);
     }
 }
