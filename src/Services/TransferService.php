@@ -50,7 +50,6 @@ readonly class TransferService implements TransferServiceInterface {
             $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();
 
             $now = $this->clockService->now();
-            $checksum = $this->consistencyService->createTransferChecksum($uuid, $from->getKey(), $to->getKey(), $amount, $fee, $now);
 
             $transfer = new TransferData(
                 $uuid,
@@ -63,7 +62,6 @@ readonly class TransferService implements TransferServiceInterface {
                 $extra?->purpose,
                 $extra?->description,
                 $extra?->meta,
-                $checksum,
                 $now,
                 $now
             );

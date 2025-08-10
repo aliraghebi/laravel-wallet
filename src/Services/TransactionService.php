@@ -46,9 +46,7 @@ readonly class TransactionService implements TransactionServiceInterface {
 
         $balance = $this->regulatorService->increase($wallet, $amount);
 
-        $checksum = $this->consistencyService->createTransactionChecksum($uuid, $wallet->uuid, $type, $amount, $balance, $createdAt);
-
-        $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $checksum, $createdAt, $updatedAt);
+        $transaction = new TransactionData($uuid, $wallet->id, $type, $amount, $balance, $extra?->purpose, $extra?->description, $extra?->meta, $createdAt, $updatedAt);
         $transaction = $this->transactionRepository->create($transaction);
 
         $this->dispatcherService->dispatch(TransactionCreatedEvent::fromTransaction($transaction));

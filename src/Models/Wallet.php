@@ -75,12 +75,6 @@ class Wallet extends Model implements WalletContract {
         $this->attributes['slug'] = Str::slug($name);
     }
 
-    public function getIsIntegrityValidAttribute(): bool {
-        $consistencyService = app(ConsistencyServiceInterface::class);
-
-        return $consistencyService->validateWalletChecksum($this);
-    }
-
     /**
      * Returns all transactions related to the wallet.
      *

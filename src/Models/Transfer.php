@@ -72,12 +72,6 @@ class Transfer extends Model {
         return parent::getTable();
     }
 
-    public function getIsIntegrityValidAttribute(): bool {
-        $consistencyService = app(ConsistencyServiceInterface::class);
-
-        return $consistencyService->validateTransferChecksum($this);
-    }
-
     /**
      * @return BelongsTo<Wallet, self>
      */

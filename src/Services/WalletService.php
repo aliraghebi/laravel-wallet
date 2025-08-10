@@ -52,7 +52,6 @@ readonly class WalletService implements WalletServiceInterface {
         }
         $uuid = $uuid ?? $this->identifierFactoryService->generate();
         $time = $this->clockService->now();
-        $checksum = $this->consistencyService->createWalletChecksum($uuid, '0', '0', $time);
 
         $data = new WalletData(
             $uuid,
@@ -62,7 +61,6 @@ readonly class WalletService implements WalletServiceInterface {
             $slug ?? config('wallet.wallet.default.slug', 'default'),
             $description,
             $meta,
-            $checksum,
             $time,
             $time
         );
@@ -169,9 +167,5 @@ readonly class WalletService implements WalletServiceInterface {
         }
 
         return $this->atomicService->blocks($wallets, $callback);
-    }
-
-    public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool {
-        return $this->consistencyService->validateWalletChecksum($wallet, $throw);
     }
 }

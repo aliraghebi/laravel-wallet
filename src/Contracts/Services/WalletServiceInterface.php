@@ -89,6 +89,4 @@ interface WalletServiceInterface {
     public function unFreeze(Wallet $wallet, int|float|string|null $amount = null): bool;
 
     public function atomic(Collection|Wallet|array $wallets, $callback): mixed;
-
-    public function checkWalletConsistency(Wallet $wallet, bool $throw = false): bool;
 }

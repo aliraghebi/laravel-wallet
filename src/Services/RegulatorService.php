@@ -5,6 +5,7 @@ namespace AliRaghebi\Wallet\Services;
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Contracts\Repositories\WalletRepositoryInterface;
 use AliRaghebi\Wallet\Contracts\Services\BookkeeperServiceInterface;
+use AliRaghebi\Wallet\Contracts\Services\ClockServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\DispatcherServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\LockServiceInterface;
@@ -30,6 +31,7 @@ class RegulatorService implements RegulatorServiceInterface {
         private readonly WalletRepositoryInterface $walletRepository,
         private readonly DispatcherServiceInterface $dispatcherService,
         private readonly WalletConfig $config,
+        private readonly ClockServiceInterface $clockService
     ) {}
 
     public function forget(Wallet $wallet): bool {
@@ -134,13 +136,6 @@ class RegulatorService implements RegulatorServiceInterface {
         $walletChanges = [];
         $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
-            if ($this->config->integrity_validation_enabled) {
-                $isValid = $this->consistencyService->validateWalletChecksum($wallet);
-                if (!$isValid) {
-                    throw new DataIntegrityException;
-                }
-            }
-
             $balanceChanged = !number($this->getBalanceDiff($wallet))->isEqual(0);
             $frozenAmountChanged = !number($this->getFrozenAmountDiff($wallet))->isEqual(0);
 
@@ -149,15 +144,12 @@ class RegulatorService implements RegulatorServiceInterface {
             $balance = $this->getBalance($wallet);
             $frozenAmount = $this->getFrozenAmount($wallet);
 
-            $now = now();
-
             // Fill wallet changes with new data.
             $walletChanges[$uuid] = array_filter([
                 'id' => $id,
                 'balance' => $balanceChanged ? $balance : null,
                 'frozen_amount' => $frozenAmountChanged ? $frozenAmount : null,
-                'updated_at' => $now,
-                'checksum' => $this->consistencyService->createWalletChecksum($uuid, $balance, $frozenAmount, $now),
+                'updated_at' => now()->toIso8601String(),
             ], fn ($value) => !is_null($value) && $value !== '');
 
             // Fill bookkeeper changes with new data. We need to update the bookkeeper with the new balance and frozen amount.
@@ -171,9 +163,6 @@ class RegulatorService implements RegulatorServiceInterface {
                 array_map(fn ($item) => array_diff_key($item, ['id' => null]), $walletChanges)
             );
             $this->walletRepository->multiUpdate($changes);
-
-            // create a key => value array where key is the `id` of wallet and value is created `checksum` for wallet
-            $checksums = array_column($walletChanges, 'checksum', 'id');
         }
 
         // Set wallet changes variable so we can use later in committed method.

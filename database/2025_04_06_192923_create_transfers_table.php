@@ -21,7 +21,6 @@ return new class extends Migration {
             $table->foreignId('withdrawal_id')->constrained($config->transaction_table)->cascadeOnUpdate()->restrictOnDelete();
             $table->decimal('amount', $config->number_digits, $config->number_decimal_places);
             $table->decimal('fee', $config->number_digits, $config->number_decimal_places)->default(0);
-            $table->string('checksum')->nullable();
             $table->string('purpose', 48)->nullable()->index();
             $table->string('description')->nullable();
             $table->jsonb('meta')->nullable();

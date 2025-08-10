@@ -72,12 +72,6 @@ class Transaction extends Model {
         return parent::getTable();
     }
 
-    public function getIsIntegrityValidAttribute(): bool {
-        $consistencyService = app(ConsistencyServiceInterface::class);
-
-        return $consistencyService->validateTransactionChecksum($this);
-    }
-
     /**
      * @return BelongsTo<WalletModel, self>
      */

@@ -4,9 +4,6 @@ namespace AliRaghebi\Wallet\Contracts\Services;
 
 use AliRaghebi\Wallet\Contracts\Models\Wallet;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
-use AliRaghebi\Wallet\Models\Transaction;
-use AliRaghebi\Wallet\Models\Transfer;
-use DateTimeInterface;
 
 interface ConsistencyServiceInterface {
     /**
@@ -34,16 +31,4 @@ interface ConsistencyServiceInterface {
      * @throws InvalidAmountException If the given balance or amount is not positive.
      */
     public function canWithdraw(string $balance, string $amount): bool;
-
-    public function createWalletChecksum(string $uuid, string $balance, string $frozenAmount, DateTimeInterface $updatedAt): ?string;
-
-    public function createTransactionChecksum(string $uuid, string $walletId, string $type, string $amount, string $balance, DateTimeInterface $createdAt): ?string;
-
-    public function createTransferChecksum(string $uuid, string $fromWalletId, string $toWalletId, string $amount, string $fee, DateTimeInterface $createdAt): ?string;
-
-    public function validateWalletChecksum(Wallet $wallet, ?string $checksum = null): bool;
-
-    public function validateTransactionChecksum(Transaction $transaction, ?string $checksum = null): bool;
-
-    public function validateTransferChecksum(Transfer $transfer, ?string $checksum = null): bool;
 }

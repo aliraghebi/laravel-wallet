@@ -42,18 +42,14 @@ trait MorphOneWallet {
             ->morphOne($related, 'holder') // Define the Eloquent relationship.
             ->withTrashed() // Include soft deleted wallets.
             ->where('slug', config('wallet.wallet.default.slug', 'default')) // Filter by the default wallet slug.
-            ->withDefault(static function (WalletModel $wallet, object $holder) use (
-                $consistencyService,
-                $castService
-            ) { // Define the default wallet values.
+            ->withDefault(static function (WalletModel $wallet, object $holder) use ($castService) {
+                // Define the default wallet values.
                 // Get the related model.
                 $model = $castService->getModel($holder);
 
                 $slug = config('wallet.wallet.default.slug', 'default');
                 $uuid = app(IdentifierFactoryServiceInterface::class)->generate();
                 $time = app(ClockServiceInterface::class)->now();
-
-                $checksum = $consistencyService->createWalletChecksum($uuid, '0', '0', $time);
 
                 // Fill the default wallet attributes.
                 $wallet->forceFill([
@@ -63,7 +59,6 @@ trait MorphOneWallet {
                     'meta' => config('wallet.wallet.default.meta', []), // Default wallet metadata.
                     'balance' => 0, // Default wallet balance.
                     'frozen_amount' => 0,
-                    'checksum' => $checksum,
                     'created_at' => $time,
                     'updated_at' => $time,
                 ]);

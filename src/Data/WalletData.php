@@ -14,7 +14,6 @@ class WalletData extends BaseData {
         public readonly string $slug,
         public readonly ?string $description,
         public readonly ?array $meta,
-        public readonly ?string $checksum,
         public readonly DateTimeImmutable $createdAt,
         public readonly DateTimeImmutable $updatedAt,
     ) {}
