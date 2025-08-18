@@ -9,6 +9,7 @@ use AliRaghebi\Wallet\Contracts\Services\ConsistencyServiceInterface;
 use AliRaghebi\Wallet\Exceptions\BalanceIsEmptyException;
 use AliRaghebi\Wallet\Exceptions\InsufficientFundsException;
 use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
+use AliRaghebi\Wallet\Utils\Number;
 use AliRaghebi\Wallet\WalletConfig;
 
 /**
@@ -24,7 +25,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
      * @throws InvalidAmountException
      */
     public function checkPositive(string $amount): void {
-        if (number($amount)->isLessThan(0)) {
+        if (Number::of($amount)->isLessThan(0)) {
             throw new InvalidAmountException(
                 'Amount must be positive.',
                 ExceptionInterface::AMOUNT_INVALID
@@ -41,7 +42,7 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
         $balance = $wallet->getBalanceAttribute();
         $availableBalance = $wallet->getAvailableBalanceAttribute();
 
-        if (number($amount)->isGreaterThan(0) && number($balance)->isLessOrEqual(0)) {
+        if (Number::of($amount)->isGreaterThan(0) && Number::of($balance)->isLessOrEqual(0)) {
             throw new BalanceIsEmptyException(
                 'Balance is empty.',
                 ExceptionInterface::BALANCE_IS_EMPTY
@@ -57,6 +58,6 @@ final readonly class ConsistencyService implements ConsistencyServiceInterface {
     }
 
     public function canWithdraw(string $balance, string $amount): bool {
-        return number($balance)->isGreaterOrEqual($amount);
+        return Number::of($balance)->isGreaterOrEqual($amount);
     }
 }

@@ -17,6 +17,7 @@ use AliRaghebi\Wallet\Data\TransferData;
 use AliRaghebi\Wallet\Data\TransferExtra;
 use AliRaghebi\Wallet\Events\TransferCreatedEvent;
 use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Utils\Number;
 
 readonly class TransferService implements TransferServiceInterface {
     public function __construct(
@@ -40,7 +41,7 @@ readonly class TransferService implements TransferServiceInterface {
         $from = $this->castService->getWallet($from);
         $to = $this->castService->getWallet($to);
 
-        $withdrawalAmount = number($amount)->plus($fee)->toString();
+        $withdrawalAmount = Number::of($amount)->plus($fee)->toString();
         $depositAmount = $amount;
 
         return $this->databaseService->transaction(function () use ($fee, $amount, $depositAmount, $to, $extra, $from, $withdrawalAmount): Transfer {

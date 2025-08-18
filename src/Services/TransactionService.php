@@ -15,6 +15,7 @@ use AliRaghebi\Wallet\Data\TransactionExtra;
 use AliRaghebi\Wallet\Events\TransactionCreatedEvent;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Repositories\TransactionRepository;
+use AliRaghebi\Wallet\Utils\Number;
 use AliRaghebi\Wallet\WalletConfig;
 
 readonly class TransactionService implements TransactionServiceInterface {
@@ -37,7 +38,7 @@ readonly class TransactionService implements TransactionServiceInterface {
 
         if ($type == Transaction::TYPE_WITHDRAW) {
             $this->consistencyService->checkPotential($wallet, $amount);
-            $amount = number($amount)->negated();
+            $amount = Number::of($amount)->negated();
         }
 
         $uuid = $extra?->uuid ?? $this->identifierFactoryService->generate();

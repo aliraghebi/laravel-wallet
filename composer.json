@@ -38,10 +38,7 @@
   "autoload": {
     "psr-4": {
       "AliRaghebi\\Wallet\\": "src/"
-    },
-    "files": [
-      "src/Utils/helpers.php"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {

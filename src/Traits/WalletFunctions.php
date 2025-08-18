@@ -16,6 +16,7 @@ use AliRaghebi\Wallet\Exceptions\InvalidAmountException;
 use AliRaghebi\Wallet\Exceptions\TransactionFailedException;
 use AliRaghebi\Wallet\Models\Transaction;
 use AliRaghebi\Wallet\Models\Transfer;
+use AliRaghebi\Wallet\Utils\Number;
 use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Database\RecordsNotFoundException;
 
@@ -122,7 +123,7 @@ trait WalletFunctions {
     public function canWithdraw(float|int|string $amount): bool {
         // Get the wallet and calculate the total balance.
         $config = app(WalletConfig::class);
-        $amount = number($amount)->scale($config->number_decimal_places);
+        $amount = Number::of($amount)->scale($config->number_decimal_places);
 
         $balance = $this->getBalanceAttribute();
 

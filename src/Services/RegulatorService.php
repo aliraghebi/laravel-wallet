@@ -13,8 +13,8 @@ use AliRaghebi\Wallet\Contracts\Services\RegulatorServiceInterface;
 use AliRaghebi\Wallet\Contracts\Services\StorageServiceInterface;
 use AliRaghebi\Wallet\Data\WalletStateData;
 use AliRaghebi\Wallet\Events\WalletUpdatedEvent;
-use AliRaghebi\Wallet\Exceptions\DataIntegrityException;
 use AliRaghebi\Wallet\Exceptions\RecordNotFoundException;
+use AliRaghebi\Wallet\Utils\Number;
 use AliRaghebi\Wallet\WalletConfig;
 use Illuminate\Support\Arr;
 
@@ -64,21 +64,21 @@ class RegulatorService implements RegulatorServiceInterface {
         $balance = $this->bookkeeperService->getBalance($wallet);
         $diff = $this->getBalanceDiff($wallet);
 
-        return number($balance)->plus($diff)->toString();
+        return Number::of($balance)->plus($diff)->toString();
     }
 
     public function getFrozenAmount(Wallet $wallet): string {
         $frozen = $this->bookkeeperService->getFrozenAmount($wallet);
         $diff = $this->getFrozenAmountDiff($wallet);
 
-        return number($frozen)->plus($diff)->toString();
+        return Number::of($frozen)->plus($diff)->toString();
     }
 
     public function getAvailableBalance(Wallet $wallet): string {
         $balance = $this->getBalance($wallet);
         $frozen = $this->getFrozenAmount($wallet);
 
-        $available = number($balance)->minus($frozen);
+        $available = Number::of($balance)->minus($frozen);
         if ($available->isLessThan(0)) {
             $available = '0';
         }
@@ -91,7 +91,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->balance = number($data->balance)->plus($value);
+            $data->balance = Number::of($data->balance)->plus($value);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = new WalletStateData($value, '0');
@@ -102,7 +102,7 @@ class RegulatorService implements RegulatorServiceInterface {
     }
 
     public function decrease(Wallet $wallet, string $value): string {
-        return $this->increase($wallet, number($value)->negated());
+        return $this->increase($wallet, Number::of($value)->negated());
     }
 
     public function freeze(Wallet $wallet, ?string $value = null): string {
@@ -111,7 +111,7 @@ class RegulatorService implements RegulatorServiceInterface {
 
         try {
             $data = $this->get($wallet);
-            $data->frozenAmount = number($data->frozenAmount)->plus($value);
+            $data->frozenAmount = Number::of($data->frozenAmount)->plus($value);
             $this->storageService->sync($wallet->uuid, $data);
         } catch (RecordNotFoundException) {
             $data = new WalletStateData('0', $value);
@@ -125,19 +125,19 @@ class RegulatorService implements RegulatorServiceInterface {
         $frozenAmount = $this->getFrozenAmount($wallet);
         if ($value == null) {
             $value = $frozenAmount;
-        } elseif (number($value)->isGreaterThan($frozenAmount)) {
+        } elseif (Number::of($value)->isGreaterThan($frozenAmount)) {
             $value = $frozenAmount;
         }
 
-        return $this->freeze($wallet, number($value)->negated());
+        return $this->freeze($wallet, Number::of($value)->negated());
     }
 
     public function committing(): void {
         $walletChanges = [];
         $bookkeeperChanges = [];
         foreach ($this->wallets as $wallet) {
-            $balanceChanged = !number($this->getBalanceDiff($wallet))->isEqual(0);
-            $frozenAmountChanged = !number($this->getFrozenAmountDiff($wallet))->isEqual(0);
+            $balanceChanged = !Number::of($this->getBalanceDiff($wallet))->isEqual(0);
+            $frozenAmountChanged = !Number::of($this->getFrozenAmountDiff($wallet))->isEqual(0);
 
             $id = $wallet->getKey();
             $uuid = $wallet->uuid;
